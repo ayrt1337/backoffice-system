@@ -4,6 +4,8 @@ import cors from "cors";
 import database from "./config/database.js";
 import cookieParser from "cookie-parser";
 import * as services from "./services/index.js";
+import clientRedis, { connectRedis } from "./config/redis-client.js";
+import { permissionJSON, updatePermissions } from "./utils/update-permissions.js";
 
 const app = express();
 
@@ -15,6 +17,9 @@ const options = {
 app.use(cors(options));
 app.use(express.json());
 app.use(cookieParser());
+
+await connectRedis();
+await updatePermissions();
 
 const authenticate = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -140,6 +145,66 @@ app.post("/roles", authenticate, async (req, res) => {
         res.status(200).json("Success");
     } catch (error) {
         console.log("Erro em criar Cargo: ", error.message);
+        res.status(500).json("Internal Server Error");
+    }
+})
+
+app.get("/roles/:name", async (req, res) => {
+    try {
+        const { name } = req.params;
+
+        const role = await database.role.findUnique({
+            where: { name },
+            select: { name: true }
+        });
+
+        const resources = await database.resource.findMany({
+            select: { name: true, label: true }
+        });
+
+        const permissions = await clientRedis.get("permissions");
+        const permissionsJson = JSON.parse(permissions.toString());
+
+        const rolePermissions = permissionsJson[name] || [];
+        
+        res.status(200).json({ resources, role, rolePermissions });
+    } catch (error) {
+        console.log("Erro ao enviar cargo: ", error.message);
+        res.status(500).json("Internal Server Error");
+    }
+})
+
+app.post("/roles/:name", async (req, res) => {
+    try {
+        const { name } = req.params;
+        const { permissions } = req.body;
+
+        const role = await database.role.findUnique({
+            where: { name }
+        });
+
+        await database.rolePermissions.deleteMany({
+            where: { roleId: role.id }
+        });
+
+        for (const permission of permissions) {
+            const permissionId = await database.permission.findUnique({
+                where: { slug: permission }
+            });
+
+            await database.rolePermissions.create({
+                data: {
+                    roleId: role.id,
+                    permissionId: permissionId.id
+                }
+            });
+        }
+
+        await updatePermissions();
+        
+        res.status(200).json("Success");
+    } catch (error) {
+        console.log("Erro ao enviar cargo: ", error.message);
         res.status(500).json("Internal Server Error");
     }
 })

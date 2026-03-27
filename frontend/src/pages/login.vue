@@ -22,7 +22,7 @@ const handleLogin = async (): Promise<void> => {
             router.push("/users");
         }
     } catch (error) {
-        console.error("Erro ao fazer login:", error);
+        console.error("Erro ao fazer login: ", error);
         // MOSTRAR ERRO
     }
 }

@@ -1,5 +1,6 @@
 import database from "../src/config/database.js";
 import { hashData } from "../src/services/hash.js";
+import { systemResources } from "../src/utils/resources-seed.js";
 
 const seed = async (): Promise<void> => {
     const hashPassword = await hashData("admin");
@@ -13,7 +14,7 @@ const seed = async (): Promise<void> => {
             }
         })
 
-        const user = await tx.user.upsert({
+        await tx.user.upsert({
             where: { name: "admin" },
             update: {},
             create: {
@@ -22,9 +23,31 @@ const seed = async (): Promise<void> => {
                 roleId: role.id,
             }
         })
-
-        console.log(`Registered user ${user.name} and role ${role.name}`);
     })
+
+    for (const resource of systemResources) {
+        await database.$transaction(async (tx) => {
+            const resourceId = await tx.resource.upsert({
+                where: { name: resource.name },
+                update: { label: resource.label },
+                create: {
+                    name: resource.name,
+                    label: resource.label
+                }
+            })
+
+            for (const action of resource.actions) {
+                await tx.permission.upsert({
+                    where: { slug: `${resource.name}:${action}` },
+                    update: {},
+                    create: {
+                        slug: `${resource.name}:${action}`,
+                        resourceId: resourceId.id
+                    }
+                })
+            }
+        })
+    }
 }
 
 seed()

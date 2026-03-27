@@ -11,20 +11,51 @@ datasource db {
   provider = "postgresql"
 }
 
+model Resource {
+  id            String    @id @default(uuid())
+  name          String    @unique
+  label         String
+  permission    Permission[]
+
+  @@map("resources")
+}
+
+model Permission {
+  id                  String              @id @default(uuid())
+  slug                String              @unique
+  resource            Resource            @relation(fields: [resourceId], references: [id])
+  resourceId          String              
+  role_permissions    RolePermissions[]
+
+  @@map("permissions")
+}
+
+model RolePermissions {
+  roleId          String
+  permissionId    String
+  role            Role          @relation(fields: [roleId], references: [id])
+  permission      Permission    @relation(fields: [permissionId], references: [id])
+
+  @@id([roleId, permissionId])
+  @@map("role_permissions")
+}
+
 model User {
-  id    String  @id @default(uuid())
-  name  String  @unique
-  password String
-  role Role @relation(fields: [roleId], references: [id])
-  roleId String
+  id        String    @id @default(uuid())
+  name      String    @unique
+  password  String
+  role      Role      @relation(fields: [roleId], references: [id])
+  roleId    String
 
   @@map("users")
 }
 
 model Role {
-  id    String  @id @default(uuid())
-  name  String  @unique
-  users User[]
+  id                  String              @id @default(uuid())
+  name                String              @unique
+  users               User[]
+  role_permissions    RolePermissions[]
 
   @@map("roles")
 }
+

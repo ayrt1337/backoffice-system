@@ -20,20 +20,20 @@ onMounted(async () => {
             // SHOW ERROR
         }
     } catch (error) {
-        console.error("Erro ao buscar cargos:", error);
+        console.error("Erro ao buscar cargos: ", error);
     }
 })
 </script>
 
 <template>
     <TemplatePage>
-        <div class="mb-3">
+        <div class="flex gap-3 mb-3">
             <p class="cursor-pointer" @click="router.push('/roles/create')">Criar Cargo</p>
         </div>
 
         <div>
             <div v-for="role in roles" class="flex border">
-                <p @click="">Cargo: {{ role.name }}</p>
+                <p class="cursor-pointer" @click="router.push(`/roles/${role.name}`)">Cargo: {{ role.name }}</p>
             </div>
         </div>
     </TemplatePage>

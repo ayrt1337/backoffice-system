@@ -29,6 +29,13 @@ const routes: Array<RouteRecordRaw> = [
     name: 'RolesCreate',
     component: () => import('../pages/roles-create.vue'),
     meta: { requiresAuth: true }
+  },
+  {
+    path: '/roles/:name',
+    name: 'RolesView',
+    props: true,
+    component: () => import('../pages/roles-view.vue'),
+    meta: { requiresAuth: true }
   }
 ];
 
