@@ -1,7 +1,7 @@
 import database from "../config/database.js";
 import clientRedis from "../config/redis-client.js";
 
-export const permissionJSON = async (): Promise<Object> => {
+const permissionJSON = async (): Promise<Object> => {
     const permissionRoles = await database.rolePermissions.findMany({
         include: { role: true, permission: true }
     });
