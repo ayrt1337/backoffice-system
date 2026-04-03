@@ -21,7 +21,7 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
     });
 
     if (!user) {
-      throw new AppError('User not found', 404);
+      throw new AppError('User Not Found', 404);
     }
 
     (req as any).user = user;

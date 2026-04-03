@@ -25,7 +25,7 @@ export const verifyPermissions = async (roleName: string, permissionsNeeded: str
 
     for (const permission of permissionsNeeded) {
         if (!rolePermissions.includes(permission)) {
-            throw new AppError("Unauthorized", 403);
+            return false;
         }
     }
 

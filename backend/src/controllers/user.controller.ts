@@ -6,6 +6,12 @@ import { AppError } from '../errors/app-error.js';
 export class UserController {
   async index(req: Request, res: Response, next: NextFunction) {
     try {
+      const user = (req as any).user;
+
+      if (!await services.verifyPermissions(user.role.name, ["roles:read"])) {
+        throw new AppError('Unauthorized', 403);
+      }
+
       const users = await database.user.findMany({
         select: {
           name: true,
@@ -25,6 +31,12 @@ export class UserController {
 
   async create(req: Request, res: Response, next: NextFunction) {
     try {
+      const user = (req as any).user;
+
+      if (!await services.verifyPermissions(user.role.name, ["roles:read", "roles:create"])) {
+        throw new AppError('Unauthorized', 403);
+      }
+
       const { name, role, password } = req.body;
 
       const hashPassword = await services.hashData(password);
@@ -36,7 +48,7 @@ export class UserController {
         });
 
         if (!roleData) {
-          throw new AppError('Role not found', 404);
+          throw new AppError('Role Not Found', 404);
         }
 
         await tx.user.create({

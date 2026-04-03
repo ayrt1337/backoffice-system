@@ -25,6 +25,12 @@ export class RoleController {
 
   async create(req: Request, res: Response, next: NextFunction) {
     try {
+      const user = (req as any).user;
+
+      if (!await verifyPermissions(user.role.name, ["roles:read", "roles:create"])) {
+        throw new AppError('Unauthorized', 403);
+      }
+
       const { name } = req.body;
 
       await database.role.create({
@@ -41,7 +47,7 @@ export class RoleController {
     try {
       const user = (req as any).user;
 
-      if (!await verifyPermissions(user.role.name, ["roles:read"])) {
+      if (!await verifyPermissions(user.role.name, ["roles:read", "roles:update"])) {
         throw new AppError('Unauthorized', 403);
       }
 
@@ -53,7 +59,7 @@ export class RoleController {
       });
 
       if (!role) {
-        throw new AppError('Role not found', 404);
+        throw new AppError('Role Not Found', 404);
       }
 
       const resources = await database.resource.findMany({
@@ -78,7 +84,7 @@ export class RoleController {
     try {
       const user = (req as any).user;
 
-      if (!await verifyPermissions(user.role.name, ["roles:update", "roles:update"])) {
+      if (!await verifyPermissions(user.role.name, ["roles:read", "roles:update"])) {
         throw new AppError('Unauthorized', 403);
       }
 
@@ -90,7 +96,7 @@ export class RoleController {
       });
 
       if (!role) {
-        throw new AppError('Role not found', 404);
+        throw new AppError('Role Not Found', 404);
       }
 
       await database.$transaction(async (tx) => {
