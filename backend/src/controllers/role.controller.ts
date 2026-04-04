@@ -63,7 +63,16 @@ export class RoleController {
       }
 
       const resources = await database.resource.findMany({
-        select: { name: true, label: true }
+        select: {
+          name: true,
+          label: true,
+          actions: {
+            select: {
+              label: true,
+              slug: true
+            },
+          },
+        },
       });
 
       const permissions = await clientRedis.get('permissions');
@@ -100,20 +109,20 @@ export class RoleController {
       }
 
       await database.$transaction(async (tx) => {
-        await tx.rolePermissions.deleteMany({
+        await tx.rolePermission.deleteMany({
           where: { roleId: role.id }
         });
 
         for (const permission of permissions) {
-          const permissionData = await tx.permission.findUnique({
+          const permissionData = await tx.action.findUnique({
             where: { slug: permission }
           });
 
           if (permissionData) {
-            await tx.rolePermissions.create({
+            await tx.rolePermission.create({
               data: {
                 roleId: role.id,
-                permissionId: permissionData.id
+                actionId: permissionData.id
               }
             });
           }

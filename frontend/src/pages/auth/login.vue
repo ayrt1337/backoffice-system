@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { api } from '../services/api';
+import { api } from '../../services/api';
 import { ref } from 'vue';
-import Container from '../components/container.vue';
-import router from '../router';
+import Container from '../../components/container.vue';
+import router from '../../router';
 
 const user = ref<string>("");
 const password = ref<string>("");

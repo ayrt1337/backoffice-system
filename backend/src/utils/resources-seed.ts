@@ -4,11 +4,22 @@ export const systemResources: Resources[] = [
     {
         name: "users",
         label: "Usuários",
-        actions: ["create", "read", "update", "delete"]
+        actions: [
+            { label: "Visualizar", name: "read" },
+            { label: "Criar", name: "create" },
+            { label: "Editar", name: "update" }, 
+            { label: "Excluir", name: "delete" },
+            { label: "Exportar", name: "export" }
+        ]
     },
     {
         name: "roles",
         label: "Cargos",
-        actions: ["create", "read", "update", "delete"]
+        actions: [
+            { label: "Visualizar", name: "read" },
+            { label: "Criar", name: "create" },
+            { label: "Editar", name: "update" }, 
+            { label: "Excluir", name: "delete" }
+        ]
     }
 ];

@@ -4,37 +4,37 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/login',
     name: 'Login',
-    component: () => import('../pages/login.vue')
+    component: () => import('../pages/auth/login.vue')
   },
   {
     path: '/users',
     name: 'Users',
-    component: () => import('../pages/users.vue'),
+    component: () => import('../pages/users/users.vue'),
     meta: { requiresAuth: true }
   },
   {
     path: '/roles',
     name: 'Roles',
-    component: () => import('../pages/roles.vue'),
+    component: () => import('../pages/roles/roles.vue'),
     meta: { requiresAuth: true }
   },
   {
     path: '/users/create',
     name: 'UsersCreate',
-    component: () => import('../pages/user-create.vue'),
+    component: () => import('../pages/users/user-create.vue'),
     meta: { requiresAuth: true }
   },
   {
     path: '/roles/create',
     name: 'RolesCreate',
-    component: () => import('../pages/roles-create.vue'),
+    component: () => import('../pages/roles/roles-create.vue'),
     meta: { requiresAuth: true }
   },
   {
     path: '/roles/:name',
     name: 'RolesView',
     props: true,
-    component: () => import('../pages/roles-view.vue'),
+    component: () => import('../pages/roles/roles-view.vue'),
     meta: { requiresAuth: true }
   }
 ];

@@ -15,28 +15,29 @@ model Resource {
   id            String    @id @default(uuid())
   name          String    @unique
   label         String
-  permission    Permission[]
+  actions       Action[]
 
   @@map("resources")
 }
 
-model Permission {
+model Action {
   id                  String              @id @default(uuid())
   slug                String              @unique
   resource            Resource            @relation(fields: [resourceId], references: [id])
+  label               String
   resourceId          String              
-  role_permissions    RolePermissions[]
+  role_permissions    RolePermission[]
 
-  @@map("permissions")
+  @@map("actions")
 }
 
-model RolePermissions {
+model RolePermission {
   roleId          String
-  permissionId    String
-  role            Role          @relation(fields: [roleId], references: [id])
-  permission      Permission    @relation(fields: [permissionId], references: [id])
+  actionId        String
+  role            Role         @relation(fields: [roleId], references: [id])
+  action          Action       @relation(fields: [actionId], references: [id])
 
-  @@id([roleId, permissionId])
+  @@id([roleId, actionId])
   @@map("role_permissions")
 }
 
@@ -54,7 +55,7 @@ model Role {
   id                  String              @id @default(uuid())
   name                String              @unique
   users               User[]
-  role_permissions    RolePermissions[]
+  role_permissions    RolePermission[]
 
   @@map("roles")
 }

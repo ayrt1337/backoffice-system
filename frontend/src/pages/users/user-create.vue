@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
-import TemplatePage from '../components/template-page.vue';
-import { api } from '../services/api';
+import TemplatePage from '../../components/template-page.vue';
+import { api } from '../../services/api';
 
 const name = ref<string>();
 const password = ref<string>();

@@ -37,11 +37,12 @@ const seed = async (): Promise<void> => {
             })
 
             for (const action of resource.actions) {
-                await tx.permission.upsert({
-                    where: { slug: `${resource.name}:${action}` },
+                await tx.action.upsert({
+                    where: { slug: `${resource.name}:${action.name}` },
                     update: {},
                     create: {
-                        slug: `${resource.name}:${action}`,
+                        label: action.label,
+                        slug: `${resource.name}:${action.name}`,
                         resourceId: resourceId.id
                     }
                 })
