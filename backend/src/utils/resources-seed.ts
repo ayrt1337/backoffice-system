@@ -2,6 +2,13 @@ import { Resources } from "../types/resources.js";
 
 export const systemResources: Resources[] = [
     {
+        name: "dashboard",
+        label: "Dashboard",
+        actions: [
+            { label: "Visualizar", name: "read" },
+        ]
+    },
+    {
         name: "users",
         label: "Usuários",
         actions: [

@@ -14,8 +14,14 @@ export class RoleController {
         throw new AppError('Unauthorized', 403);
       }
 
-      const roles = await database.role.findMany({
+      const rolesRaw = await database.role.findMany({
         select: { name: true }
+      });
+
+      const roles = rolesRaw.map(role => {
+        return {
+          id: role.name
+        }
       });
       return res.status(200).json({ roles });
     } catch (error) {

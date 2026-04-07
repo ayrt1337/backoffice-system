@@ -11,7 +11,7 @@ import Header from '../components/header.vue';
             <Sidebar />
 
             <main class="flex-1 pt-22 animate-in fade-in duration-500">
-                <div class="p-8 max-w-[1400px]">
+                <div class="p-8">
                     <slot />
                 </div>
             </main>

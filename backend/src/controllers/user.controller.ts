@@ -12,7 +12,7 @@ export class UserController {
         throw new AppError('Unauthorized', 403);
       }
 
-      const users = await database.user.findMany({
+      const usersRaw = await database.user.findMany({
         select: {
           name: true,
           role: {
@@ -22,6 +22,11 @@ export class UserController {
           }
         }
       });
+
+      const users = usersRaw.map(user => ({
+        id: user.name,
+        role: user.role.name
+      }));
 
       return res.status(200).json({ users });
     } catch (error) {
