@@ -10,15 +10,15 @@ const props = defineProps<Props>();
 </script>
 
 <template>
-    <nav class="flex items-center font-medium text-slate-500 mb-6 space-x-2">
+    <nav class="flex items-center font-medium text-slate-600 mb-6 space-x-2">
         <template v-for="(crumb, index) in breadcrumbs" :key="index">
             <span 
-                :class="crumb.path ? 'hover:text-slate-900 cursor-pointer transition-colors' : 'text-slate-900 font-bold'"
+                :class="crumb.path ? 'cursor-pointer' : ''"
                 @click="crumb.path ? router.push(crumb.path) : null"
             >
                 {{ crumb.label }}
             </span>
-            <span v-if="index < breadcrumbs.length - 1" class="text-slate-300">/</span>
+            <span v-if="index < breadcrumbs.length - 1">/</span>
         </template>
     </nav>
 </template>

@@ -1,28 +1,37 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, computed } from 'vue';
 import TemplatePage from '../../components/template-page.vue';
 import { api } from '../../services/api';
-import Input from '../../components/input.vue';
+import { resources } from '../../config/resources';
 import Breadcrumbs from '../../components/breadcrumbs.vue';
-import CheckboxPanel from '../../components/checkbox-panel.vue';
-import { resources as resourcesMetadata } from '../../config/resources';
+import Input from '../../components/input.vue';
+import Dropdown from '../../components/dropdown.vue';
 
-const metadata = resourcesMetadata.roles;
+const metadata = resources.users;
 
 const name = ref<string>('');
-const selectedOptions = ref<string[]>([]);
-const resources = ref<any>([]);
+const password = ref<string>('');
+const roles = ref<any>([]);
+const roleName = ref<string>('');
 const loadingBtn = ref<boolean>(false);
+
+const roleOptions = computed(() => {
+    if (!Array.isArray(roles.value)) return [];
+    return roles.value.map((role: any) => ({
+        label: role.id,
+        value: role.id
+    }));
+});
 
 onMounted(async () => {
     try {
         const response = await api({
-            url: "/roles/create",
+            url: "/roles",
             method: "get",
         });
         
         if (response.status === 200) {
-            resources.value = response.data.resources;
+            roles.value = response.data.roles;
         }
         else {
             // SHOW ERROR
@@ -35,22 +44,23 @@ onMounted(async () => {
 const handleCreate = async () => {
     try {
         const response = await api({
-            url: "/roles/create",
+            url: "/users/create",
             method: "post",
             data: {
                 name: name.value,
-                rolePermissions: selectedOptions.value
+                password: password.value,
+                role: roleName.value
             }
         });
 
         if (response.status === 200) {
-            // CARGO CRIADO COM SUCESSO
+            // USUÁRIO CRIADO COM SUCESSO
         }
         else {
             // SHOW ERROR
         }
     } catch (error) {
-        console.log("Erro ao criar cargo: ", error);
+        console.log("Erro ao criar usuário: ", error);
         // MOSTRAR ERRO
     }
 }
@@ -60,24 +70,28 @@ const handleCreate = async () => {
     <TemplatePage>
         <Breadcrumbs
             class="mt-2"
-            :breadcrumbs="[...metadata.breadcrumbs, { label: 'Criar' },]"
+            :breadcrumbs="[...metadata.breadcrumbs, { label: 'Criar' }]"
         />
 
         <Input 
-            label="Nome do Cargo"
+            label="Usuário"
             v-model="name"
-            class="max-w-[300px] mt-15"
+            class="max-w-[400px] mt-15"
+        />
+        
+        <Dropdown 
+            label="Cargo"
+            v-model="roleName"
+            :options="roleOptions"
+            class="max-w-[400px] mt-8"
         />
 
-        <div class="mt-10">
-            <h1 class="text-[15px] font-medium text-slate-600">Permissões</h1>
-        
-            <CheckboxPanel 
-                role=""
-                :selected-permissions="selectedOptions"
-                :resources="resources"
-            />
-        </div>
+        <Input 
+            label="Senha"
+            v-model="password"
+            password
+            class="max-w-[400px] mt-8"
+        />
 
         <button 
             @click="handleCreate()"

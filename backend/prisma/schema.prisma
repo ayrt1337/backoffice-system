@@ -23,7 +23,7 @@ model Resource {
 model Action {
   id                  String              @id @default(uuid())
   slug                String              @unique
-  resource            Resource            @relation(fields: [resourceId], references: [id])
+  resource            Resource            @relation(fields: [resourceId], references: [id], onDelete: Cascade)
   label               String
   resourceId          String              
   role_permissions    RolePermission[]
@@ -34,8 +34,8 @@ model Action {
 model RolePermission {
   roleId          String
   actionId        String
-  role            Role         @relation(fields: [roleId], references: [id])
-  action          Action       @relation(fields: [actionId], references: [id])
+  role            Role         @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  action          Action       @relation(fields: [actionId], references: [id], onDelete: Cascade)
 
   @@id([roleId, actionId])
   @@map("role_permissions")
@@ -45,7 +45,7 @@ model User {
   id        String    @id @default(uuid())
   name      String    @unique
   password  String
-  role      Role      @relation(fields: [roleId], references: [id])
+  role      Role      @relation(fields: [roleId], references: [id], onDelete: Cascade)
   roleId    String
 
   @@map("users")

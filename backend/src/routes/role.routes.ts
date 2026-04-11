@@ -8,8 +8,10 @@ const roleController = new RoleController();
 roleRoutes.use(authenticate);
 
 roleRoutes.get('/', roleController.index);
-roleRoutes.post('/', roleController.create);
+roleRoutes.get('/create', roleController.resources);
+roleRoutes.post('/create', roleController.create);
 roleRoutes.get('/:name', roleController.show);
-roleRoutes.post('/:name', roleController.update);
+roleRoutes.patch('/edit/:name', roleController.update);
+roleRoutes.delete('/delete', roleController.delete);
 
 export { roleRoutes };

@@ -22,17 +22,17 @@ const handleCreate = () => {
 <template>
     <div class="w-full flex items-end justify-between mb-8 mt-4">
         <div class="flex items-center gap-3">
-            <h2 class="text-3xl font-bold text-slate-900 tracking-tight">{{ pluralLabel }}</h2>
+            <h2 class="text-2xl font-bold text-slate-900 tracking-tight">{{ pluralLabel }}</h2>
         </div>
 
         <div class="flex items-center gap-3">
             <button 
                 @click="handleCreate"
-                class="flex items-center px-3.5 cursor-pointer py-2 bg-blue-600 text-white text-[14px] font-bold rounded-xl hover:bg-blue-700 transition-all"
+                class="flex items-center px-3.5 cursor-pointer py-2 bg-blue-600 text-white text-[14px] font-bold rounded-lg hover:bg-blue-700 transition-all"
             >
-                <span class=" text-[16px]">+&nbsp;</span>Criar Novo
+                <span class="text-[16px]">+&nbsp;</span>Criar Novo
             </button>
-            <button class="p-2.5 py-[12px] text-slate-400 hover:text-slate-900 transition-colors rounded-xl border border-slate-200 bg-white hover:border-slate-300">
+            <button class="p-2.5 py-[12px] text-slate-400 hover:text-slate-900 transition-colors rounded-lg border border-slate-200 bg-white hover:border-slate-300">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4.5h18M5.5 12h13M8 19.5h8"></path>
                 </svg>

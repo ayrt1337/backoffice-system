@@ -29,6 +29,32 @@ export class RoleController {
     }
   }
 
+  async resources(req: Request, res: Response, next: NextFunction) {
+    try {
+      const user = (req as any).user;
+
+      if (!await verifyPermissions(user.role.name, ["roles:read", "roles:create"])) {
+        throw new AppError('Unauthorized', 403);
+      }
+
+      const resources = await database.resource.findMany({
+        select: {
+          label: true,
+          actions: {
+            select: {
+              label: true,
+              slug: true
+            }
+          }
+        }
+      });
+
+      res.status(200).json({ resources });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async create(req: Request, res: Response, next: NextFunction) {
     try {
       const user = (req as any).user;
@@ -37,11 +63,30 @@ export class RoleController {
         throw new AppError('Unauthorized', 403);
       }
 
-      const { name } = req.body;
+      const { name, rolePermissions } = req.body;
 
-      await database.role.create({
-        data: { name }
-      });
+      await database.$transaction(async (tx) => {
+        const role = await tx.role.create({
+          data: { name }
+        });
+
+        for (const rolePermission of rolePermissions) {
+          const action = await tx.action.findUnique({
+            where: {
+              slug: rolePermission
+            }
+          });
+
+          await tx.rolePermission.create({
+            data: {
+              roleId: role.id,
+              actionId: action.id
+            }
+          });
+        }
+      })
+
+      await updatePermissions();
 
       return res.status(200).json('Success');
     } catch (error) {
@@ -70,7 +115,6 @@ export class RoleController {
 
       const resources = await database.resource.findMany({
         select: {
-          name: true,
           label: true,
           actions: {
             select: {
@@ -104,7 +148,7 @@ export class RoleController {
       }
 
       const { name } = req.params as { name: string };
-      const { permissions } = req.body;
+      const { roleName, permissions } = req.body;
 
       const role = await database.role.findUnique({
         where: { name }
@@ -115,6 +159,11 @@ export class RoleController {
       }
 
       await database.$transaction(async (tx) => {
+        await tx.role.update({
+          where: { name },
+          data: { name: roleName }
+        });
+
         await tx.rolePermission.deleteMany({
           where: { roleId: role.id }
         });
@@ -142,4 +191,32 @@ export class RoleController {
       next(error);
     }
   }
+
+  async delete(req: Request, res: Response, next: NextFunction) {
+    try {
+      const user = (req as any).user;
+
+      if (!await verifyPermissions(user.role.name, ['role:read', 'role:delete'])) {
+        throw new AppError('Unauthorized', 403);
+      }
+
+      const { name } = req.body;
+
+      const role = await database.role.findUnique({
+        where: { name }
+      });
+
+      if (!role) {
+        throw new AppError('Role Not Found', 400);
+      }
+
+      await database.role.delete({
+        where: { name }
+      });
+
+      return res.status(200).json('Success');
+    } catch (error) {
+      next(error);
+    }
+  } 
 }

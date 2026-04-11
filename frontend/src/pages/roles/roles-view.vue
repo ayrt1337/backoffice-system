@@ -1,106 +1,104 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import TemplatePage from '../../components/template-page.vue';
 import { api } from '../../services/api';
+import Breadcrumbs from '../../components/breadcrumbs.vue';
+import { resources as resourcesMetadata } from '../../config/resources';
+import CheckboxPanel from '../../components/checkbox-panel.vue';
+import ConfirmModal from '../../components/confirm-modal.vue';
+import router from '../../router';
+
+const metadata = resourcesMetadata.roles;
 
 interface Props {
     name: string
 };
 
 const props = defineProps<Props>();
-
 const role = ref<any>({});
+const selectedOptions = ref<string[]>([]);
 const resources = ref<any[]>([]);
-const selectedPermissions = ref<string[]>([]);
+const showDeleteModal = ref(false);
 
 onMounted(async () => {
-    try {
-        const response = await api({
-            url: `/roles/${props.name}`,
-            method: "get",
-        });
-        
-        if (response.status === 200) {
-            role.value = response.data.role;
-            resources.value = response.data.resources;
-            selectedPermissions.value = response.data.rolePermissions;
-        }
-        else {
-            // SHOW ERROR
-        }
-    } catch (error) {
-        console.error("Erro ao buscar cargos: ", error);
+    const response = await api({
+        url: `/roles/${props.name}`,
+        method: 'get'
+    });
+
+    if (response.status === 200) {
+        role.value = response.data.role;
+        selectedOptions.value = response.data.rolePermissions;
+        resources.value = response.data.resources;
+    }
+    else {
+        // SHOW ERROR
     }
 })
 
-const hasPermission = (slug: string): boolean => {
-  return selectedPermissions.value.includes(slug);
-};
+const handleDelete = async () => {
+    const response = await api({
+        url: '/roles/delete',
+        method: 'delete',
+        data: { name: role.value.name }
+    });
 
-const togglePermission = (slug: string): void => {  
-  const index = selectedPermissions.value.indexOf(slug);
-  
-  if (index > -1) {
-    selectedPermissions.value.splice(index, 1);
-  } else {
-    selectedPermissions.value.push(slug);
-  }
-};
-
-const handleEdit = async () => {
-    try {
-        const response = await api({
-            url: `/roles/${props.name}`,
-            method: "post",
-            data: {
-                permissions: selectedPermissions.value
-            }
-        });
-        
-        if (response.status === 200) {
-            
-        }
-        else {
-            // SHOW ERROR
-        }
-    } catch (error) {
-        console.error("Erro ao buscar cargos: ", error);
+    if (response.status === 200) {
+        showDeleteModal.value = false;
+        router.push('/roles');
     }
-};
+    else {
+        // SHOW ERROR
+    }
+}
 </script>
 
 <template>
     <TemplatePage>
-        <div class="flex flex-col">
-            <label for="name">Nome Cargo</label>
-            <input v-model="role.name" class="border" type="text" name="name" id="name">
+        <Breadcrumbs
+            class="mt-2"
+            :breadcrumbs="[...metadata.breadcrumbs, { label: `${role.name}` }]"
+        />
+
+        <div class="mt-15">
+            <p class="text-[15px] font-medium text-slate-600">Nome do Cargo</p>
+            <p class="mt-2 text-[17px]">{{ role.name }}</p>
         </div>
 
-        <div class="p-6 bg-white rounded-lg shadow-sm border border-gray-200">
-            <table class="w-full text-left border-collapse">
-            <tbody>
-                <tr v-for="resource in resources" :key="resource.label" class="border-b border-gray-50 hover:bg-gray-50 transition-colors">
-                <td class="py-4 px-4 text-gray-600 font-medium">
-                    {{ resource.label }}
-                </td>
-                
-                <td v-for="action in resource.actions" :key="action" class="py-4 px-2 text-center">
-                    <p>{{ action.label }}</p>
-
-                    <input 
-                    type="checkbox" 
-                    :checked="hasPermission(action.slug) || props.name === 'admin'"
-                    @change="togglePermission(action.slug)"
-                    class="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 transition cursor-pointer"
-                    />
-                </td>
-                </tr>
-            </tbody>
-            </table>
+        <div class="mt-10">
+            <h1 class="text-[15px] font-medium text-slate-600">Permissões</h1>
+        
+            <CheckboxPanel 
+                :role="role"
+                :selected-permissions="selectedOptions"
+                :resources="resources"
+                :disabled="true"
+            />
         </div>
 
-        <div class="flex flex-col mt-4">
-            <input @click="handleEdit()" class="border cursor-pointer" type="submit" value="Salvar">
+        <div class="flex">
+            <button v-if="role.name !== 'admin'"
+                @click="() => router.push(`/roles/edit/${role.name}`)"
+                class="mt-5 p-2 px-8 rounded-lg bg-blue-600 text-white text-base font-semibold cursor-pointer transition-all flex justify-center items-center hover:bg-blue-700 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed"
+            >
+                <span>Editar</span>
+            </button>
+
+            <button v-if="role.name !== 'admin'"
+                @click="showDeleteModal = true"
+                class="mt-5 ml-3 p-2 px-8 rounded-lg bg-red-600 text-white text-base font-semibold cursor-pointer transition-all flex justify-center items-center hover:bg-red-700 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed"
+            >
+                <span>Excluir</span>
+            </button>
         </div>
+
+        <ConfirmModal
+            :show="showDeleteModal"
+            title="Excluir Cargo"
+            :message="`Tem certeza que deseja excluir o cargo '${role.name}'? Esta ação não pode ser desfeita.`"
+            :danger="true"
+            @confirm="handleDelete"
+            @cancel="showDeleteModal = false"
+        />
     </TemplatePage>
 </template>
