@@ -1,11 +1,19 @@
 <script setup lang="ts">
 import Sidebar from '../components/sidebar.vue';
 import Header from '../components/header.vue';
+import Toast from '../components/toast.vue';
+
+interface Props {
+    name: string
+};
+
+const props = defineProps<Props>();
 </script>
 
 <template>
     <div class="min-h-screen bg-slate-50 flex flex-col">
-        <Header />
+        <Toast />
+        <Header :name="name" />
 
         <div class="flex-1 flex flex-col ml-70 min-w-0">
             <Sidebar />

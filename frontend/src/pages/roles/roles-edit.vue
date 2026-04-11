@@ -23,7 +23,7 @@ const loadingBtn = ref<boolean>(false);
 onMounted(async () => {
     try {
         const response = await api({
-            url: `/roles/${props.name}`,
+            url: `/roles/edit/${props.name}`,
             method: "get",
         });
         
@@ -64,7 +64,7 @@ const handleEdit = async () => {
 </script>
 
 <template>
-    <TemplatePage>
+    <TemplatePage name="">
         <Breadcrumbs
             class="mt-2"
             :breadcrumbs="[...metadata.breadcrumbs, { label: `${name}`, path: `/roles/${name}` }, { label: 'Editar' },]"
@@ -73,7 +73,7 @@ const handleEdit = async () => {
         <Input 
             label="Nome do Cargo"
             v-model="role.name"
-            class="max-w-[300px] mt-15"
+            class="max-w-[400px] mt-15"
             :disabled="name === 'admin' ? true : false"
         />
 

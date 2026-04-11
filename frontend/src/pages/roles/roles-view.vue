@@ -54,7 +54,7 @@ const handleDelete = async () => {
 </script>
 
 <template>
-    <TemplatePage>
+    <TemplatePage name="">
         <Breadcrumbs
             class="mt-2"
             :breadcrumbs="[...metadata.breadcrumbs, { label: `${role.name}` }]"

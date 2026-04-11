@@ -7,11 +7,16 @@ const roleController = new RoleController();
 
 roleRoutes.use(authenticate);
 
-roleRoutes.get('/', roleController.index);
-roleRoutes.get('/create', roleController.resources);
-roleRoutes.post('/create', roleController.create);
-roleRoutes.get('/:name', roleController.show);
-roleRoutes.patch('/edit/:name', roleController.update);
+roleRoutes.get('/', roleController.list);
+
+roleRoutes.get('/create', roleController.createForGet);
+roleRoutes.post('/create', roleController.createForPost);
+
+roleRoutes.get('/:name', roleController.read);
+
+roleRoutes.get('/edit/:name', roleController.updateForGet);
+roleRoutes.patch('/edit/:name', roleController.updateForPatch);
+
 roleRoutes.delete('/delete', roleController.delete);
 
 export { roleRoutes };

@@ -1,23 +1,39 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
+import { useToast } from '../../composables/useToast';
 import TemplatePage from '../../components/template-page.vue';
 import { api } from '../../services/api';
 import Breadcrumbs from '../../components/breadcrumbs.vue';
 import Input from '../../components/input.vue';
 import { resources } from '../../config/resources';
 import Dropdown from '../../components/dropdown.vue';
-
-const metadata = resources.users;
+import type { User, UserMetadata } from '../../types/user';
 
 interface Props {
     name: string
 };
-
 const props = defineProps<Props>();
 
-const userName = ref<string>('');
-const roleName = ref<string>('');
-const roles = ref<string[]>([]);
+const metadata = resources.users;
+
+const userData = ref<UserMetadata>({
+    name: '',
+    password: '',
+    role: ''
+});
+
+const user = ref<User>({
+    name: ''
+});
+
+const { showToast } = useToast();
+
+interface Roles {
+    label: string,
+    value: string
+};
+
+const roles = ref<Roles[]>([]);
 const loadingBtn = ref<boolean>(false);
 
 const roleOptions = computed(() => {
@@ -36,43 +52,53 @@ onMounted(async () => {
         });
 
         if (response.status === 200) {
-            userName.value = response.data.user.name;
-            roleName.value = response.data.user.role.name;
+            userData.value = {
+                name: response.data.userData.name,
+                role: response.data.userData.role.name,
+                password: ""
+            };
+
+            user.value = response.data.user;
             roles.value = response.data.roles;
         }
         else {
-            // SHOW ERROR
+            showToast('Erro ao carregar dados do usuário', 'error');
         }
     } catch (error) {
+        showToast('Erro de conexão com o servidor', 'error');
         console.error("Erro em buscar usuário: ", error);
     }
 });
 
 const handleEdit = async () => {
+    loadingBtn.value = true;
     try {
         const response = await api({
             url: `/users/edit/${props.name}`,
             method: "patch",
             data: {
-                userName: userName.value,
-                roleName: roleName.value
+                user: user.value
             }
         });
         
         if (response.status === 200) {
-            // MOSTRAR SUCESSO
+            showToast('Usuário atualizado com sucesso!', 'success');
         }
         else {
-            // SHOW ERROR
+            showToast('Erro ao atualizar usuário', 'error');
         }
-    } catch (error) {
-        console.error("Erro ao buscar cargos: ", error);
+    } catch (error: any) {
+        const message = error.response?.data?.error || 'Erro ao processar solicitação';
+        showToast(message, 'error');
+        console.error("Erro ao editar usuário: ", error);
+    } finally {
+        loadingBtn.value = false;
     }
 };
 </script>
 
 <template>
-    <TemplatePage>
+    <TemplatePage :name="user.name">
         <Breadcrumbs
             class="mt-2"
             :breadcrumbs="[...metadata.breadcrumbs, { label: `${name}`, path: `/users/${name}` }, { label: 'Editar' },]"
@@ -80,17 +106,25 @@ const handleEdit = async () => {
 
         <Input 
             label="Usuário"
-            v-model="userName"
-            class="max-w-[300px] mt-15"
+            v-model="userData.name"
+            class="max-w-[400px] mt-15"
             :disabled="name === 'admin' ? true : false"
+        />
+
+        <Input 
+            label="Senha"
+            v-model="userData.password"
+            password
+            placeholder="Nova Senha"
+            class="max-w-[400px] mt-8"
         />
 
         <Dropdown 
             label="Cargo"
-            v-model="roleName"
+            v-model="userData.role"
             :options="roleOptions"
             class="max-w-[400px] mt-8"
-            :selected-option="roleName"
+            :selected-option="userData.role"
         />
 
         <button 

@@ -4,8 +4,13 @@ import { api } from '../../services/api';
 import TemplatePage from '../../components/template-page.vue';
 import { resources } from '../../config/resources';
 import List from '../../components/list.vue';
+import type { User } from '../../types/user';
 
 const metadata = resources.roles;
+
+const user = ref<User>({
+    name: ''
+});
 
 const roles = ref<any>([]);
 const loading = ref(true);
@@ -18,6 +23,7 @@ onMounted(async () => {
         });
         
         if (response.status === 200) {
+            user.value = response.data.user;
             roles.value = response.data.roles;
         }
     } catch (error) {
@@ -29,7 +35,7 @@ onMounted(async () => {
 </script>
 
 <template>
-    <TemplatePage>
+    <TemplatePage :name="user.name">
         <List 
             :data="roles"
             :label="metadata.label"

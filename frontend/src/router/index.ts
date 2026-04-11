@@ -27,7 +27,7 @@ const routes: Array<RouteRecordRaw> = [
   },
   {
     path: '/users/edit/:name',
-    name: 'UsersCreate',
+    name: 'UsersEdit',
     props: true,
     component: () => import('../pages/users/users-edit.vue'),
     meta: { requiresAuth: true }

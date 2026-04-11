@@ -12,9 +12,7 @@ interface Props {
 }
 
 const id = useId();
-const props = withDefaults(defineProps<Props>(), {
-    placeholder: 'Selecione uma opção',
-});
+const props = defineProps<Props>();
 
 const modelValue = defineModel<any>();
 </script>

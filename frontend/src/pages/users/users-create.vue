@@ -6,13 +6,22 @@ import { resources } from '../../config/resources';
 import Breadcrumbs from '../../components/breadcrumbs.vue';
 import Input from '../../components/input.vue';
 import Dropdown from '../../components/dropdown.vue';
+import type { User, UserMetadata } from '../../types/user';
 
 const metadata = resources.users;
 
-const name = ref<string>('');
-const password = ref<string>('');
+const userData = ref<UserMetadata>({
+    name: '',
+    password: '',
+    role: ''
+});
+
+const user = ref<User>({
+    name: ''
+});
+
 const roles = ref<any>([]);
-const roleName = ref<string>('');
+
 const loadingBtn = ref<boolean>(false);
 
 const roleOptions = computed(() => {
@@ -31,6 +40,7 @@ onMounted(async () => {
         });
         
         if (response.status === 200) {
+            user.value = response.data.user;
             roles.value = response.data.roles;
         }
         else {
@@ -47,9 +57,9 @@ const handleCreate = async () => {
             url: "/users/create",
             method: "post",
             data: {
-                name: name.value,
-                password: password.value,
-                role: roleName.value
+                name: userData.value.name,
+                password: userData.value.password,
+                role: userData.value.role
             }
         });
 
@@ -67,7 +77,7 @@ const handleCreate = async () => {
 </script>
 
 <template>
-    <TemplatePage>
+    <TemplatePage :name="user.name">
         <Breadcrumbs
             class="mt-2"
             :breadcrumbs="[...metadata.breadcrumbs, { label: 'Criar' }]"
@@ -75,20 +85,21 @@ const handleCreate = async () => {
 
         <Input 
             label="Usuário"
-            v-model="name"
+            v-model="userData.name"
             class="max-w-[400px] mt-15"
         />
         
         <Dropdown 
             label="Cargo"
-            v-model="roleName"
+            v-model="userData.role"
             :options="roleOptions"
+            placeholder="Selecione um Cargo"
             class="max-w-[400px] mt-8"
         />
 
         <Input 
             label="Senha"
-            v-model="password"
+            v-model="userData.password"
             password
             class="max-w-[400px] mt-8"
         />

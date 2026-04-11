@@ -57,7 +57,7 @@ const handleCreate = async () => {
 </script>
 
 <template>
-    <TemplatePage>
+    <TemplatePage name="">
         <Breadcrumbs
             class="mt-2"
             :breadcrumbs="[...metadata.breadcrumbs, { label: 'Criar' },]"
@@ -66,7 +66,7 @@ const handleCreate = async () => {
         <Input 
             label="Nome do Cargo"
             v-model="name"
-            class="max-w-[300px] mt-15"
+            class="max-w-[400px] mt-15"
         />
 
         <div class="mt-10">

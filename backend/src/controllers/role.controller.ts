@@ -1,40 +1,46 @@
-import { Request, Response, NextFunction } from 'express';
-import database from '../config/database.js';
-import clientRedis from '../config/redis-client.js';
-import { updatePermissions } from '../services/update-permissions.js';
-import { verifyPermissions } from '../services/verify-permissions.js';
-import { AppError } from '../errors/app-error.js';
+import { Request, Response, NextFunction } from "express";
+import database from "../config/database.js";
+import clientRedis from "../config/redis-client.js";
+import { updatePermissions } from "../services/update-permissions.js";
+import { verifyPermissions } from "../services/verify-permissions.js";
+import { AppError } from "../errors/app-error.js";
+import { User } from "../types/user.js";
 
 export class RoleController {
-  async index(req: Request, res: Response, next: NextFunction) {
+  async list(req: Request, res: Response, next: NextFunction) {
     try {
       const user = (req as any).user;
 
-      if (!await verifyPermissions(user.role.name, ["roles:read"])) {
-        throw new AppError('Unauthorized', 403);
+      if (!(await verifyPermissions(user.role.name, ["roles:read"]))) {
+        throw new AppError("Unauthorized", 403);
       }
 
       const rolesRaw = await database.role.findMany({
-        select: { name: true }
+        select: { name: true },
       });
 
-      const roles = rolesRaw.map(role => {
+      const roles = rolesRaw.map((role) => {
         return {
-          id: role.name
-        }
+          id: role.name,
+        };
       });
-      return res.status(200).json({ roles });
+      return res.status(200).json({ user: { name: user.name }, roles });
     } catch (error) {
       next(error);
     }
   }
 
-  async resources(req: Request, res: Response, next: NextFunction) {
+  async createForGet(req: Request, res: Response, next: NextFunction) {
     try {
       const user = (req as any).user;
 
-      if (!await verifyPermissions(user.role.name, ["roles:read", "roles:create"])) {
-        throw new AppError('Unauthorized', 403);
+      if (
+        !(await verifyPermissions(user.role.name, [
+          "roles:read",
+          "roles:create",
+        ]))
+      ) {
+        throw new AppError("Unauthorized", 403);
       }
 
       const resources = await database.resource.findMany({
@@ -43,74 +49,81 @@ export class RoleController {
           actions: {
             select: {
               label: true,
-              slug: true
-            }
-          }
-        }
+              slug: true,
+            },
+          },
+        },
       });
 
-      res.status(200).json({ resources });
+      return res.status(200).json({ user: { name: user.name }, resources });
     } catch (error) {
       next(error);
     }
   }
 
-  async create(req: Request, res: Response, next: NextFunction) {
+  async createForPost(req: Request, res: Response, next: NextFunction) {
     try {
       const user = (req as any).user;
 
-      if (!await verifyPermissions(user.role.name, ["roles:read", "roles:create"])) {
-        throw new AppError('Unauthorized', 403);
+      if (
+        !(await verifyPermissions(user.role.name, [
+          "roles:read",
+          "roles:create",
+        ]))
+      ) {
+        throw new AppError("Unauthorized", 403);
       }
 
       const { name, rolePermissions } = req.body;
 
       await database.$transaction(async (tx) => {
         const role = await tx.role.create({
-          data: { name }
+          data: { name },
         });
 
         for (const rolePermission of rolePermissions) {
           const action = await tx.action.findUnique({
             where: {
-              slug: rolePermission
-            }
+              slug: rolePermission,
+            },
           });
 
           await tx.rolePermission.create({
             data: {
               roleId: role.id,
-              actionId: action.id
-            }
+              actionId: action.id,
+            },
           });
         }
-      })
+      });
 
       await updatePermissions();
 
-      return res.status(200).json('Success');
+      return res.status(200).json("Success");
     } catch (error) {
       next(error);
     }
   }
 
-  async show(req: Request, res: Response, next: NextFunction) {
+  async read(req: Request, res: Response, next: NextFunction) {
     try {
       const user = (req as any).user;
 
-      if (!await verifyPermissions(user.role.name, ["roles:read", "roles:update"])) {
-        throw new AppError('Unauthorized', 403);
+      if (
+        !(await verifyPermissions(user.role.name, ["roles:read"]))
+      ) {
+        throw new AppError("Unauthorized", 403);
       }
 
       const { name } = req.params as { name: string };
 
       const role = await database.role.findUnique({
         where: { name },
-        select: { name: true }
+        select: { name: true },
       });
 
       if (!role) {
-        throw new AppError('Role Not Found', 404);
+        throw new AppError("Role Not Found", 404);
       }
 
       const resources = await database.resource.findMany({
@@ -119,13 +132,13 @@ export class RoleController {
           actions: {
             select: {
               label: true,
-              slug: true
+              slug: true,
             },
           },
         },
       });
 
-      const permissions = await clientRedis.get('permissions');
+      const permissions = await clientRedis.get("permissions");
       let rolePermissions = [];
 
       if (permissions) {
@@ -133,52 +146,109 @@ export class RoleController {
         rolePermissions = permissionsJson[name] || [];
       }
 
-      return res.status(200).json({ resources, role, rolePermissions });
+      return res.status(200)
+        .json({ user: { name: user.name }, resources, role, rolePermissions });
     } catch (error) {
       next(error);
     }
   }
 
-  async update(req: Request, res: Response, next: NextFunction) {
+  async updateForGet(req: Request, res: Response, next: NextFunction) {
     try {
       const user = (req as any).user;
 
-      if (!await verifyPermissions(user.role.name, ["roles:read", "roles:update"])) {
-        throw new AppError('Unauthorized', 403);
+      if (
+        !(await verifyPermissions(user.role.name, [
+          "roles:read",
+          "roles:update",
+        ]))
+      ) {
+        throw new AppError("Unauthorized", 403);
+      }
+
+      const { name } = req.params as { name: string };
+
+      const role = await database.role.findUnique({
+        where: { name },
+        select: { name: true },
+      });
+
+      if (!role) {
+        throw new AppError("Role Not Found", 404);
+      }
+
+      const resources = await database.resource.findMany({
+        select: {
+          label: true,
+          actions: {
+            select: {
+              label: true,
+              slug: true,
+            },
+          },
+        },
+      });
+
+      const permissions = await clientRedis.get("permissions");
+      let rolePermissions = [];
+
+      if (permissions) {
+        const permissionsJson = JSON.parse(permissions.toString());
+        rolePermissions = permissionsJson[name] || [];
+      }
+
+      return res.status(200)
+        .json({ user: { name: user.name }, resources, role, rolePermissions });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async updateForPatch(req: Request, res: Response, next: NextFunction) {
+    try {
+      const user = (req as any).user;
+
+      if (
+        !(await verifyPermissions(user.role.name, [
+          "roles:read",
+          "roles:update",
+        ]))
+      ) {
+        throw new AppError("Unauthorized", 403);
       }
 
       const { name } = req.params as { name: string };
       const { roleName, permissions } = req.body;
 
       const role = await database.role.findUnique({
-        where: { name }
+        where: { name },
       });
 
       if (!role) {
-        throw new AppError('Role Not Found', 404);
+        throw new AppError("Role Not Found", 404);
       }
 
       await database.$transaction(async (tx) => {
         await tx.role.update({
           where: { name },
-          data: { name: roleName }
+          data: { name: roleName },
         });
 
         await tx.rolePermission.deleteMany({
-          where: { roleId: role.id }
+          where: { roleId: role.id },
         });
 
         for (const permission of permissions) {
           const permissionData = await tx.action.findUnique({
-            where: { slug: permission }
+            where: { slug: permission },
           });
 
           if (permissionData) {
             await tx.rolePermission.create({
               data: {
                 roleId: role.id,
-                actionId: permissionData.id
-              }
+                actionId: permissionData.id,
+              },
             });
           }
         }
@@ -186,7 +256,7 @@ export class RoleController {
 
       await updatePermissions();
 
-      return res.status(200).json('Success');
+      return res.status(200).json("Success");
     } catch (error) {
       next(error);
     }
@@ -196,27 +266,29 @@ export class RoleController {
     try {
       const user = (req as any).user;
 
-      if (!await verifyPermissions(user.role.name, ['role:read', 'role:delete'])) {
-        throw new AppError('Unauthorized', 403);
+      if (
+        !(await verifyPermissions(user.role.name, ["role:read", "role:delete"]))
+      ) {
+        throw new AppError("Unauthorized", 403);
       }
 
       const { name } = req.body;
 
       const role = await database.role.findUnique({
-        where: { name }
+        where: { name },
       });
 
       if (!role) {
-        throw new AppError('Role Not Found', 400);
+        throw new AppError("Role Not Found", 400);
       }
 
       await database.role.delete({
-        where: { name }
+        where: { name },
       });
 
-      return res.status(200).json('Success');
+      return res.status(200).json("Success");
     } catch (error) {
       next(error);
     }
-  } 
+  }
 }

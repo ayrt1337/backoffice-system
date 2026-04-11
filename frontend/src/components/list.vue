@@ -15,7 +15,7 @@ const props = defineProps<Props>();
 const loading = ref<boolean>(false);
 
 const handleCreate = () => {
-    router.push(`${props.resource}/create`)
+    router.push(`/${props.resource}/create`);
 };
 </script>
 
