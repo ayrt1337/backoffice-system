@@ -73,6 +73,10 @@ export class UserController {
 
       const { name, role, password } = req.body;
 
+      if (!name || !role) {
+        throw new AppError("Preencha os campos", 400);
+      }
+
       const userData = await database.user.findUnique({
         where: { name }
       });
@@ -220,6 +224,10 @@ export class UserController {
 
       const { name } = req.params as { name: string };
       let { userName, roleName, password } = req.body;
+
+      if (!userName || !roleName) {
+        throw new AppError("Preencha os campos", 400);
+      }
 
       const verifyUser = await database.user.findUnique({
         where: { name }

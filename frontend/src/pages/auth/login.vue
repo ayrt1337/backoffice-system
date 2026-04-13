@@ -4,39 +4,60 @@ import { ref } from 'vue';
 import Container from '../../components/container.vue';
 import router from '../../router';
 import Input from '../../components/input.vue';
+import type { Error } from '../../types/error';
+import ErrorMessage from '../../components/error-message.vue';
+import { verifyApiError } from '../../services/verifyApiError';
+import type { UserMetadata } from '../../types/user';
 
-const user = ref<string>("");
-const password = ref<string>("");
+const errorData = ref<Error>({
+    show: false,
+    message: ""
+});
+
+const user = ref<Partial<UserMetadata>>({
+    name: "",
+    password: ""
+});
 const loading = ref<boolean>(false);
-const errorMsg = ref<string>("");
 
 const handleLogin = async (): Promise<void> => {
-    if (!user.value || !password.value) {
-        errorMsg.value = "Please fill in all fields.";
+    if (!user.value.name || !user.value.password) {
+        errorData.value = {
+            show: true,
+            message: "Preencha os campos"
+        };
         return;
     }
     
-    loading.value = true;
-    errorMsg.value = "";
+    errorData.value = {
+        show: false
+    };
+    loading.value = !loading.value;
     
     try {
-        const response = await api({
+        await api({
             url: "/login",
             method: "post",
             data: {
-                name: user.value,
-                password: password.value
+                name: user.value.name,
+                password: user.value.password
             }
         });
         
-        if (response.data) {
-            router.push("/users");
-        }
+        router.push("/users");
     } catch (error: any) {
         console.error("Erro ao fazer login: ", error);
-        errorMsg.value = error.response?.data?.message || "Invalid credentials. Please try again.";
+        const hasMessage = verifyApiError(error.response.status);
+
+        if (hasMessage) {
+            errorData.value = {
+                show: true,
+                message: error.response.data
+            };
+            return;
+        }
     } finally {
-        loading.value = false;
+        loading.value = !loading.value;
     }
 }
 </script>
@@ -49,19 +70,21 @@ const handleLogin = async (): Promise<void> => {
             </header>
 
             <form @submit.prevent="handleLogin" class="flex flex-col gap-6">
-                <div v-if="errorMsg" class="px-4 py-3 bg-red-50 border border-red-100 rounded-lg text-red-600 text-sm text-center">
-                    {{ errorMsg }}
-                </div>
-
+                <ErrorMessage 
+                    :show="errorData.show"
+                    :message="errorData.message"
+                    class="text-center"  
+                />
+                
                 <Input 
                     label="Usuário"
-                    v-model="user"
+                    v-model="user.name"
                 />
 
                 <Input 
                     label="Senha"
                     :password="true"     
-                    v-model="password"
+                    v-model="user.password"
                 />
 
                 <button 

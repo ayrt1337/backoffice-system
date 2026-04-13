@@ -58,9 +58,18 @@ onMounted(async () => {
 })
 
 const handleCreate = async () => {
+    if (!data.value.name) {
+        errorData.value = {
+            show: true,
+            message: "Preencha os campos!"
+        };
+        return;
+    }
+
     errorData.value = {
         show: false
     };
+
     loadingBtn.value = !loadingBtn.value;
 
     try {

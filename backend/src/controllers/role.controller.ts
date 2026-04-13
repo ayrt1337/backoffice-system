@@ -66,6 +66,10 @@ export class RoleController {
 
       const { name, rolePermissions } = req.body;
 
+      if (!name || !rolePermissions) {
+        throw new AppError("Preencha os campos", 400);
+      }
+
       const roleData = await database.role.findUnique({
         where: { name }
       });
@@ -203,6 +207,10 @@ export class RoleController {
 
       const { name } = req.params as { name: string };
       const { roleName, permissions } = req.body;
+
+      if (!roleName || !permissions) {
+        throw new AppError("Preencha os campos", 400);
+      }
 
       const role = await database.role.findUnique({
         where: { name },

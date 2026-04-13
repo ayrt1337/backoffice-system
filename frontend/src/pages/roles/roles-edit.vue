@@ -68,11 +68,20 @@ onMounted(async () => {
 })
 
 const handleEdit = async () => {
+    if (!data.value.role) {
+        errorData.value = {
+            show: true,
+            message: "Preencha os campos!"
+        };
+        return;
+    }
+    
     errorData.value = {
         show: false,
     };
+
     loadingBtn.value = !loadingBtn.value;
-    
+
     try {
         await api({
             url: `/roles/edit/${props.name}`,

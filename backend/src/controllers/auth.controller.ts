@@ -22,7 +22,7 @@ export class AuthController {
       });
 
       if (!user || !await services.compareHash(password, user.password)) {
-        throw new AppError('Invalid Credentials', 400);
+        throw new AppError('Dados incorretos', 400);
       }
 
       const maxAge = 3600000 * 24;
