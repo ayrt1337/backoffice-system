@@ -38,9 +38,9 @@ const togglePermission = (slug: string): void => {
 
                     <input 
                         type="checkbox" 
-                        :checked="hasPermission(action.slug) || props.role.name === 'admin'"
+                        :checked="hasPermission(action.slug) || role === 'admin'"
                         @change="togglePermission(action.slug)"
-                        :disabled="disabled || props.role.name === 'admin' ? true : false"
+                        :disabled="disabled || role === 'admin' ? true : false"
                         class="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 transition cursor-pointer"
                     />
                 </td>

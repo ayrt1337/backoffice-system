@@ -5,11 +5,11 @@ import { api } from '../../services/api';
 import { resources } from '../../config/resources';
 import List from '../../components/list.vue';
 import type { User } from '../../types/user';
+import { verifyApiError } from '../../services/verifyApiError';
 
 const metadata = resources.users;
 
 const users = ref<any>([]);
-const loading = ref(true);
 
 const user =  ref<User>({
     name: ''
@@ -22,14 +22,13 @@ onMounted(async () => {
             method: "get",
         });
         
-        if (response.status === 200) {
-            user.value = response.data.user;
-            users.value = response.data.users;
-        }
-    } catch (error) {
+        user.value = response.data.user;
+        users.value = response.data.users;
+    } catch (error: any) {
         console.error("Erro ao buscar usuários: ", error);
+        verifyApiError(error.response.status);
     } finally {
-        loading.value = false;
+        // showLoading(false);
     }
 })
 </script>

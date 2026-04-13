@@ -7,12 +7,12 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
   try {
     const token = req.cookies.sessionId;
     if (!token) {
-      throw new AppError('Unauthorized', 403);
+      throw new AppError('Unauthorized', 401);
     }
 
     const decodedUser = services.verifyToken(token);
     if (!decodedUser) {
-      throw new AppError('Unauthorized', 403);
+      throw new AppError('Unauthorized', 401);
     }
 
     const user = await database.user.findUnique({
@@ -21,7 +21,7 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
     });
 
     if (!user) {
-      throw new AppError('User Not Found', 404);
+      throw new AppError('Unauthorized', 403);
     }
 
     (req as any).user = user;

@@ -6,12 +6,38 @@ import Input from '../../components/input.vue';
 import Breadcrumbs from '../../components/breadcrumbs.vue';
 import CheckboxPanel from '../../components/checkbox-panel.vue';
 import { resources as resourcesMetadata } from '../../config/resources';
+import type { User } from '../../types/user';
+import type { Error } from '../../types/error';
+import ErrorMessage from '../../components/error-message.vue';
+import { verifyApiError } from '../../services/verifyApiError';
+import { useToast } from '../../composables/useToast';
+import router from '../../router';
+
+const { showToast } = useToast();
+
+interface Data {
+    name: string,
+    resources: any,
+    rolePermissions: string[]
+};
 
 const metadata = resourcesMetadata.roles;
 
-const name = ref<string>('');
-const selectedOptions = ref<string[]>([]);
-const resources = ref<any>([]);
+const user = ref<User>({
+    name: ""
+});
+
+const data = ref<Data>({
+    name: "",
+    rolePermissions: [],
+    resources: []
+});
+
+const errorData = ref<Error>({
+    show: false,
+    message: ''
+});
+
 const loadingBtn = ref<boolean>(false);
 
 onMounted(async () => {
@@ -21,71 +47,88 @@ onMounted(async () => {
             method: "get",
         });
         
-        if (response.status === 200) {
-            resources.value = response.data.resources;
-        }
-        else {
-            // SHOW ERROR
-        }
-    } catch (error) {
+        data.value.resources = response.data.resources;
+        user.value = response.data.user;
+    } catch (error: any) {
         console.error("Erro ao buscar cargos:", error);
+        verifyApiError(error.response.status);
+    } finally {
+        // showLoading(false);
     }
 })
 
 const handleCreate = async () => {
+    errorData.value = {
+        show: false
+    };
+    loadingBtn.value = !loadingBtn.value;
+
     try {
-        const response = await api({
+        await api({
             url: "/roles/create",
             method: "post",
             data: {
-                name: name.value,
-                rolePermissions: selectedOptions.value
+                name: data.value.name,
+                rolePermissions: data.value.rolePermissions
             }
         });
 
-        if (response.status === 200) {
-            // CARGO CRIADO COM SUCESSO
+        showToast("Cargo criado com sucesso!", "success");
+        router.push("/roles");
+    } catch (error: any) {
+        console.error("Erro ao criar cargo: ", error);
+        const hasMessage = verifyApiError(error.response.status, false);
+
+        if (hasMessage) {
+            errorData.value = {
+                show: true,
+                message: error.response.data
+            };
+            return;
         }
-        else {
-            // SHOW ERROR
-        }
-    } catch (error) {
-        console.log("Erro ao criar cargo: ", error);
-        // MOSTRAR ERRO
+    } finally {
+        loadingBtn.value = !loadingBtn.value;
     }
 }
 </script>
 
 <template>
-    <TemplatePage name="">
+    <TemplatePage :name="user.name">
         <Breadcrumbs
             class="mt-2"
             :breadcrumbs="[...metadata.breadcrumbs, { label: 'Criar' },]"
         />
 
-        <Input 
-            label="Nome do Cargo"
-            v-model="name"
-            class="max-w-[400px] mt-15"
-        />
-
-        <div class="mt-10">
-            <h1 class="text-[15px] font-medium text-slate-600">Permissões</h1>
-        
-            <CheckboxPanel 
-                role=""
-                :selected-permissions="selectedOptions"
-                :resources="resources"
+        <div class="mt-15">
+            <ErrorMessage 
+                :show="errorData.show"
+                :message="errorData.message"
             />
-        </div>
 
-        <button 
-            @click="handleCreate()"
-            :disabled="loadingBtn"
-            class="mt-5 p-2 px-8 rounded-lg bg-blue-600 text-white text-base font-semibold cursor-pointer transition-all flex justify-center items-center hover:bg-blue-700 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed"
-        >
-            <span v-if="!loadingBtn">Criar</span>
-            <span v-else class="w-5 h-5 border-2 border-white/30 rounded-full border-t-white animate-spin"></span>
-        </button>
+            <Input 
+                label="Nome do Cargo"
+                v-model="data.name"
+                class="max-w-[400px] mt-8"
+            />
+
+            <div class="mt-10">
+                <h1 class="text-[15px] font-medium text-slate-600">Permissões</h1>
+            
+                <CheckboxPanel 
+                    role=""
+                    :selected-permissions="data.rolePermissions"
+                    :resources="data.resources"
+                />
+            </div>
+
+            <button 
+                @click="handleCreate()"
+                :disabled="loadingBtn"
+                class="mt-5 p-2 px-8 rounded-lg bg-blue-600 text-white text-base font-semibold cursor-pointer transition-all flex justify-center items-center hover:bg-blue-700 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed"
+            >
+                <span v-if="!loadingBtn">Criar</span>
+                <span v-else class="w-5 h-5 border-2 border-white/30 rounded-full border-t-white animate-spin"></span>
+            </button>
+        </div>
     </TemplatePage>
 </template>

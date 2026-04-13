@@ -9,7 +9,7 @@ export class UserController {
     try {
       const user = (req as any).user;
 
-      if (!(await services.verifyPermissions(user.role.name, ["roles:read"]))) {
+      if (!await services.verifyPermissions(user.role.name, ["roles:read"])) {
         throw new AppError("Unauthorized", 403);
       }
 
@@ -39,29 +39,25 @@ export class UserController {
     try {
       const user = (req as any).user;
 
-      if (!(await verifyPermissions(user.role.name, ["users:read", "users:create"]))) {
+      if (!await verifyPermissions(user.role.name, ["roles:read"])) {
         throw new AppError("Unauthorized", 403);
       }
 
-      const { name } = req.params as { name: string };
-
-      const userData = await database.user.findUnique({
-        where: { name },
-        select: {
-          name: true,
-          role: {
-            select: {
-              name: true,
-            },
+      const rolesRaw = await database.role.findMany({
+        where: {
+          name: {
+            not: "admin",
           },
         },
+        select: { name: true },
       });
 
-      if (!userData) {
-        throw new AppError("User Not Found", 400);
-      }
-
-      return res.status(200).json({ user: { name: user.name }, userData });
+      const roles = rolesRaw.map((role) => {
+        return {
+          id: role.name,
+        };
+      });
+      return res.status(200).json({ user: { name: user.name }, roles });
     } catch (error) {
       next(error);
     }
@@ -71,16 +67,19 @@ export class UserController {
     try {
       const user = (req as any).user;
 
-      if (
-        !(await services.verifyPermissions(user.role.name, [
-          "roles:read",
-          "roles:create",
-        ]))
-      ) {
+      if (!await services.verifyPermissions(user.role.name, ["roles:read", "roles:create"])) {
         throw new AppError("Unauthorized", 403);
       }
 
       const { name, role, password } = req.body;
+
+      const userData = await database.user.findUnique({
+        where: { name }
+      });
+
+      if (userData) {
+        throw new AppError("Usuário já existente", 400);
+      }
 
       const hashPassword = await services.hashData(password);
 
@@ -91,7 +90,7 @@ export class UserController {
         });
 
         if (!roleData) {
-          throw new AppError("Role Not Found", 404);
+          throw new AppError("Cargo não encontrado", 404);
         }
 
         await tx.user.create({
@@ -113,7 +112,7 @@ export class UserController {
     try {
       const user = (req as any).user;
 
-      if (!(await verifyPermissions(user.role.name, ["users:read"]))) {
+      if (!await verifyPermissions(user.role.name, ["users:read"])) {
         throw new AppError("Unauthorized", 403);
       }
 
@@ -132,7 +131,7 @@ export class UserController {
       });
 
       if (!userData) {
-        throw new AppError("User Not Found", 400);
+        throw new AppError("Usuário não encontrado", 404);
       }
 
       return res.status(200).json({ user: { name: user.name }, userData });
@@ -145,12 +144,7 @@ export class UserController {
     try {
       const user = (req as any).user;
 
-      if (
-        !(await verifyPermissions(user.role.name, [
-          "users:read",
-          "users:delete",
-        ]))
-      ) {
+      if (!await verifyPermissions(user.role.name, ["users:read", "users:delete"])) {
         throw new AppError("Unauthorized", 403);
       }
 
@@ -161,7 +155,7 @@ export class UserController {
       });
 
       if (!userData) {
-        throw new AppError("User Not Found", 400);
+        throw new AppError("User Not Found", 404);
       }
 
       await database.user.delete({
@@ -178,12 +172,7 @@ export class UserController {
     try {
       const user = (req as any).user;
 
-      if (
-        !(await verifyPermissions(user.role.name, [
-          "users:read",
-          "users:update",
-        ]))
-      ) {
+      if (!await verifyPermissions(user.role.name, ["users:read", "users:update"])) {
         throw new AppError("Unauthorized", 403);
       }
 
@@ -193,6 +182,7 @@ export class UserController {
         where: { name },
         select: {
           name: true,
+          password: true,
           role: {
             select: {
               name: true,
@@ -202,7 +192,7 @@ export class UserController {
       });
 
       if (!userData) {
-        throw new AppError("User Not Found", 400);
+        throw new AppError("User Not Found", 404);
       }
 
       const roles = await database.role.findMany({
@@ -214,13 +204,7 @@ export class UserController {
         select: { name: true },
       });
 
-      if (!roles) {
-        throw new AppError("Cannot Get Roles", 400);
-      }
-
-      return res
-        .status(200)
-        .json({ user: { name: user.name }, userData, roles });
+      return res.status(200).json({ user: { name: user.name }, userData, roles });
     } catch (error) {
       next(error);
     }
@@ -230,24 +214,27 @@ export class UserController {
     try {
       const user = (req as any).user;
 
-      if (
-        !(await verifyPermissions(user.role.name, [
-          "users:read",
-          "users:update",
-        ]))
-      ) {
+      if (!await verifyPermissions(user.role.name, ["users:read", "users:update"])) {
         throw new AppError("Unauthorized", 403);
       }
 
       const { name } = req.params as { name: string };
-      const { userName, roleName } = req.body;
+      let { userName, roleName, password } = req.body;
+
+      const verifyUser = await database.user.findUnique({
+        where: { name }
+      });
+
+      if (!verifyUser) {
+        throw new AppError("Usuário não encontrado", 404);
+      }
 
       const userData = await database.user.findUnique({
         where: { name: userName },
       });
 
       if (userData && name !== userName) {
-        throw new AppError("User Name Taken", 400);
+        throw new AppError("Usuário já existente", 400);
       }
 
       const role = await database.role.findUnique({
@@ -255,7 +242,11 @@ export class UserController {
       });
 
       if (!role) {
-        throw new AppError("Role Not Found", 400);
+        throw new AppError("Cargo não encontrado", 404);
+      }
+
+      if (password) {
+        password = await services.hashData(password);
       }
 
       await database.user.update({
@@ -263,6 +254,7 @@ export class UserController {
         data: {
           name: userName,
           roleId: role.id,
+          password: password ? password : undefined
         },
       });
 

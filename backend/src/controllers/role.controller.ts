@@ -11,7 +11,7 @@ export class RoleController {
     try {
       const user = (req as any).user;
 
-      if (!(await verifyPermissions(user.role.name, ["roles:read"]))) {
+      if (!await verifyPermissions(user.role.name, ["roles:read"])) {
         throw new AppError("Unauthorized", 403);
       }
 
@@ -34,12 +34,7 @@ export class RoleController {
     try {
       const user = (req as any).user;
 
-      if (
-        !(await verifyPermissions(user.role.name, [
-          "roles:read",
-          "roles:create",
-        ]))
-      ) {
+      if (!await verifyPermissions(user.role.name, ["roles:read", "roles:create"])) {
         throw new AppError("Unauthorized", 403);
       }
 
@@ -65,16 +60,19 @@ export class RoleController {
     try {
       const user = (req as any).user;
 
-      if (
-        !(await verifyPermissions(user.role.name, [
-          "roles:read",
-          "roles:create",
-        ]))
-      ) {
+      if (!await verifyPermissions(user.role.name, ["roles:read", "roles:create"])) {
         throw new AppError("Unauthorized", 403);
       }
 
       const { name, rolePermissions } = req.body;
+
+      const roleData = await database.role.findUnique({
+        where: { name }
+      });
+
+      if (roleData) {
+        throw new AppError("Cargo já existente", 400);
+      }
 
       await database.$transaction(async (tx) => {
         const role = await tx.role.create({
@@ -109,9 +107,7 @@ export class RoleController {
     try {
       const user = (req as any).user;
 
-      if (
-        !(await verifyPermissions(user.role.name, ["roles:read"]))
-      ) {
+      if (!await verifyPermissions(user.role.name, ["roles:read"])) {
         throw new AppError("Unauthorized", 403);
       }
 
@@ -146,8 +142,7 @@ export class RoleController {
         rolePermissions = permissionsJson[name] || [];
       }
 
-      return res.status(200)
-        .json({ user: { name: user.name }, resources, role, rolePermissions });
+      return res.status(200).json({ user: { name: user.name }, resources, role, rolePermissions });
     } catch (error) {
       next(error);
     }
@@ -157,12 +152,7 @@ export class RoleController {
     try {
       const user = (req as any).user;
 
-      if (
-        !(await verifyPermissions(user.role.name, [
-          "roles:read",
-          "roles:update",
-        ]))
-      ) {
+      if (!await verifyPermissions(user.role.name, ["roles:read", "roles:update"])) {
         throw new AppError("Unauthorized", 403);
       }
 
@@ -197,8 +187,7 @@ export class RoleController {
         rolePermissions = permissionsJson[name] || [];
       }
 
-      return res.status(200)
-        .json({ user: { name: user.name }, resources, role, rolePermissions });
+      return res.status(200).json({ user: { name: user.name }, resources, role, rolePermissions });
     } catch (error) {
       next(error);
     }
@@ -208,12 +197,7 @@ export class RoleController {
     try {
       const user = (req as any).user;
 
-      if (
-        !(await verifyPermissions(user.role.name, [
-          "roles:read",
-          "roles:update",
-        ]))
-      ) {
+      if (!await verifyPermissions(user.role.name, ["roles:read", "roles:update"])) {
         throw new AppError("Unauthorized", 403);
       }
 
@@ -225,7 +209,15 @@ export class RoleController {
       });
 
       if (!role) {
-        throw new AppError("Role Not Found", 404);
+        throw new AppError("Cargo não encontrado", 404);
+      }
+
+      const verifyRole = await database.role.findUnique({
+        where: { name: roleName }
+      });
+
+      if (verifyRole && name !== roleName) {
+        throw new AppError("Cargo já existente", 400);
       }
 
       await database.$transaction(async (tx) => {
@@ -266,9 +258,7 @@ export class RoleController {
     try {
       const user = (req as any).user;
 
-      if (
-        !(await verifyPermissions(user.role.name, ["role:read", "role:delete"]))
-      ) {
+      if (!await verifyPermissions(user.role.name, ["role:read", "role:delete"])) {
         throw new AppError("Unauthorized", 403);
       }
 
@@ -279,7 +269,7 @@ export class RoleController {
       });
 
       if (!role) {
-        throw new AppError("Role Not Found", 400);
+        throw new AppError("Role Not Found", 404);
       }
 
       await database.role.delete({

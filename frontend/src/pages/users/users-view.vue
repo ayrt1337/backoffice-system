@@ -7,8 +7,11 @@ import router from '../../router';
 import Breadcrumbs from '../../components/breadcrumbs.vue';
 import ConfirmModal from '../../components/confirm-modal.vue';
 import type { UserMetadata, User } from '../../types/user';
+import { verifyApiError } from '../../services/verifyApiError';
+import { useToast } from '../../composables/useToast';
 
 const metadata = resources.users;
+const { showToast } = useToast();
 
 interface Props {
     name: string
@@ -26,6 +29,7 @@ const user = ref<User>({
 });
 
 const showDeleteModal = ref<boolean>(false);
+const loadingBtn = ref<boolean>(false);
 
 onMounted(async () => {
     try {
@@ -34,36 +38,34 @@ onMounted(async () => {
             method: 'get',
         });
 
-        if (response.status === 200) {
-            userData.value = {
-                name: response.data.userData.name,
-                role: response.data.userData.role.name
-            };
-        }
-        else {
-            // SHOW ERROR
-        }
-    } catch (error) {
+        userData.value = {
+            name: response.data.userData.name,
+            role: response.data.userData.role.name
+        };
+    } catch (error: any) {
         console.error("Erro em buscar usuário: ", error);
+        verifyApiError(error.response.status);
+    } finally {
+        // showLoading(false);
     }
 });
 
 const handleDelete = async () => {
+    loadingBtn.value = !loadingBtn.value;
     try {
-        const response = await api({
+        await api({
             url: '/users/delete',
             method: 'delete',
             data: { name: props.name }
         });
 
-        if (response.status === 200) {
-            // SHOW SUCESSO
-        }
-        else {
-            // SHOW ERROR   
-        }
+        showToast("Usuário excluído com sucesso!", "success");
+        router.push("/users");
     } catch (error) {
         console.error("Erro em excluir usuário: ", error);
+        showToast("Ops! Algo deu errado.", "error");
+    } finally {
+        loadingBtn.value = !loadingBtn.value;
     }
 };
 </script>

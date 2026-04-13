@@ -7,8 +7,14 @@ import Breadcrumbs from '../../components/breadcrumbs.vue';
 import Input from '../../components/input.vue';
 import Dropdown from '../../components/dropdown.vue';
 import type { User, UserMetadata } from '../../types/user';
+import type { Error } from '../../types/error';
+import { verifyApiError } from '../../services/verifyApiError';
+import ErrorMessage from '../../components/error-message.vue';
+import { useToast } from '../../composables/useToast';
+import router from '../../router';
 
 const metadata = resources.users;
+const { showToast } = useToast();
 
 const userData = ref<UserMetadata>({
     name: '',
@@ -20,8 +26,12 @@ const user = ref<User>({
     name: ''
 });
 
-const roles = ref<any>([]);
+const errorData = ref<Error>({
+    show: false,
+    message: ''
+});
 
+const roles = ref<any>([]);
 const loadingBtn = ref<boolean>(false);
 
 const roleOptions = computed(() => {
@@ -35,25 +45,28 @@ const roleOptions = computed(() => {
 onMounted(async () => {
     try {
         const response = await api({
-            url: "/roles",
+            url: "/users/create",
             method: "get",
         });
-        
-        if (response.status === 200) {
-            user.value = response.data.user;
-            roles.value = response.data.roles;
-        }
-        else {
-            // SHOW ERROR
-        }
-    } catch (error) {
+
+        user.value = response.data.user;
+        roles.value = response.data.roles;
+    } catch (error: any) {
         console.error("Erro ao buscar cargos:", error);
+        verifyApiError(error.response.status);  
+    } finally {
+        // showLoading(false);
     }
 })
 
 const handleCreate = async () => {
+    errorData.value = {
+        show: false
+    };
+    loadingBtn.value = !loadingBtn.value;
+
     try {
-        const response = await api({
+        await api({
             url: "/users/create",
             method: "post",
             data: {
@@ -63,15 +76,21 @@ const handleCreate = async () => {
             }
         });
 
-        if (response.status === 200) {
-            // USUÁRIO CRIADO COM SUCESSO
-        }
-        else {
-            // SHOW ERROR
-        }
-    } catch (error) {
+        showToast("Usuário criado com sucesso!", "success");
+        router.push("/users");
+    } catch (error: any) {
         console.log("Erro ao criar usuário: ", error);
-        // MOSTRAR ERRO
+        const hasMessage = verifyApiError(error.response.status, false);
+
+        if (hasMessage) {
+            errorData.value = {
+                show: true,
+                message: error.response.data
+            };
+            return;
+        }
+    } finally {
+        loadingBtn.value = !loadingBtn.value;
     }
 }
 </script>
@@ -83,34 +102,42 @@ const handleCreate = async () => {
             :breadcrumbs="[...metadata.breadcrumbs, { label: 'Criar' }]"
         />
 
-        <Input 
-            label="Usuário"
-            v-model="userData.name"
-            class="max-w-[400px] mt-15"
-        />
-        
-        <Dropdown 
-            label="Cargo"
-            v-model="userData.role"
-            :options="roleOptions"
-            placeholder="Selecione um Cargo"
-            class="max-w-[400px] mt-8"
-        />
+        <div class="mt-15">
+           <ErrorMessage
+                :show="errorData.show"
+                :message="errorData.message"
+                class="mb-8"
+            /> 
 
-        <Input 
-            label="Senha"
-            v-model="userData.password"
-            password
-            class="max-w-[400px] mt-8"
-        />
+            <Input 
+                label="Usuário"
+                v-model="userData.name"
+                class="max-w-[400px]"
+            />
+            
+            <Dropdown 
+                label="Cargo"
+                v-model="userData.role"
+                :options="roleOptions"
+                placeholder="Selecione um Cargo"
+                class="max-w-[400px] mt-8"
+            />
 
-        <button 
-            @click="handleCreate()"
-            :disabled="loadingBtn"
-            class="mt-5 p-2 px-8 rounded-lg bg-blue-600 text-white text-base font-semibold cursor-pointer transition-all flex justify-center items-center hover:bg-blue-700 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed"
-        >
-            <span v-if="!loadingBtn">Criar</span>
-            <span v-else class="w-5 h-5 border-2 border-white/30 rounded-full border-t-white animate-spin"></span>
-        </button>
+            <Input 
+                label="Senha"
+                v-model="userData.password"
+                password
+                class="max-w-[400px] mt-8"
+            />
+
+            <button 
+                @click="handleCreate()"
+                :disabled="loadingBtn"
+                class="mt-5 p-2 px-8 rounded-lg bg-blue-600 text-white text-base font-semibold cursor-pointer transition-all flex justify-center items-center hover:bg-blue-700 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed"
+            >
+                <span v-if="!loadingBtn">Criar</span>
+                <span v-else class="w-5 h-5 border-2 border-white/30 rounded-full border-t-white animate-spin"></span>
+            </button>
+        </div>
     </TemplatePage>
 </template>

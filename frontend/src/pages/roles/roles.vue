@@ -5,6 +5,7 @@ import TemplatePage from '../../components/template-page.vue';
 import { resources } from '../../config/resources';
 import List from '../../components/list.vue';
 import type { User } from '../../types/user';
+import { verifyApiError } from '../../services/verifyApiError';
 
 const metadata = resources.roles;
 
@@ -13,7 +14,6 @@ const user = ref<User>({
 });
 
 const roles = ref<any>([]);
-const loading = ref(true);
 
 onMounted(async () => {
     try {
@@ -21,15 +21,14 @@ onMounted(async () => {
             url: "/roles",
             method: "get",
         });
-        
-        if (response.status === 200) {
-            user.value = response.data.user;
-            roles.value = response.data.roles;
-        }
-    } catch (error) {
+
+        user.value = response.data.user;
+        roles.value = response.data.roles;
+    } catch (error: any) {
         console.error("Erro ao buscar cargos: ", error);
+        verifyApiError(error.response.status);
     } finally {
-        loading.value = false;
+        // showLoading(false);
     }
 })
 </script>

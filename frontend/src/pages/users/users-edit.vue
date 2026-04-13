@@ -8,6 +8,9 @@ import Input from '../../components/input.vue';
 import { resources } from '../../config/resources';
 import Dropdown from '../../components/dropdown.vue';
 import type { User, UserMetadata } from '../../types/user';
+import type { Error } from '../../types/error';
+import { verifyApiError } from '../../services/verifyApiError';
+import ErrorMessage from '../../components/error-message.vue';
 
 interface Props {
     name: string
@@ -24,6 +27,11 @@ const userData = ref<UserMetadata>({
 
 const user = ref<User>({
     name: ''
+});
+
+const errorData = ref<Error>({
+    show: false,
+    message: ''
 });
 
 const { showToast } = useToast();
@@ -51,48 +59,53 @@ onMounted(async () => {
             method: 'get'
         });
 
-        if (response.status === 200) {
-            userData.value = {
-                name: response.data.userData.name,
-                role: response.data.userData.role.name,
-                password: ""
-            };
+        userData.value = {
+            name: response.data.userData.name,
+            role: response.data.userData.role.name,
+            password: ""
+        };
 
-            user.value = response.data.user;
-            roles.value = response.data.roles;
-        }
-        else {
-            showToast('Erro ao carregar dados do usuário', 'error');
-        }
-    } catch (error) {
-        showToast('Erro de conexão com o servidor', 'error');
+        user.value = response.data.user;
+        roles.value = response.data.roles;
+    } catch (error: any) {
         console.error("Erro em buscar usuário: ", error);
+        verifyApiError(error.response.status);
+    } finally {
+        // showLoading(false);
     }
 });
 
 const handleEdit = async () => {
-    loadingBtn.value = true;
+    errorData.value = {
+        show: false
+    };
+    loadingBtn.value = !loadingBtn.value;
+
     try {
-        const response = await api({
+        await api({
             url: `/users/edit/${props.name}`,
             method: "patch",
             data: {
-                user: user.value
+                userName: userData.value.name,
+                roleName: userData.value.role,
+                password: userData.value.password
             }
         });
         
-        if (response.status === 200) {
-            showToast('Usuário atualizado com sucesso!', 'success');
-        }
-        else {
-            showToast('Erro ao atualizar usuário', 'error');
-        }
-    } catch (error: any) {
-        const message = error.response?.data?.error || 'Erro ao processar solicitação';
-        showToast(message, 'error');
+        showToast('Usuário atualizado com sucesso!', 'success');
+    } catch (error: any) {    
         console.error("Erro ao editar usuário: ", error);
+        const hasMessage = verifyApiError(error.response.status, false);
+
+        if (hasMessage) {
+            errorData.value = {
+                show: true,
+                message: error.response.data
+            };
+            return;
+        }
     } finally {
-        loadingBtn.value = false;
+        loadingBtn.value = !loadingBtn.value;
     }
 };
 </script>
@@ -104,36 +117,42 @@ const handleEdit = async () => {
             :breadcrumbs="[...metadata.breadcrumbs, { label: `${name}`, path: `/users/${name}` }, { label: 'Editar' },]"
         />
 
-        <Input 
-            label="Usuário"
-            v-model="userData.name"
-            class="max-w-[400px] mt-15"
-            :disabled="name === 'admin' ? true : false"
-        />
+        <div class="mt-15">
+           <ErrorMessage
+                :show="errorData.show"
+                :message="errorData.message"
+                class="mb-8"
+            /> 
 
-        <Input 
-            label="Senha"
-            v-model="userData.password"
-            password
-            placeholder="Nova Senha"
-            class="max-w-[400px] mt-8"
-        />
+            <Input 
+                label="Usuário"
+                v-model="userData.name"
+                class="max-w-[400px]"
+            />
+            
+            <Dropdown 
+                label="Cargo"
+                v-model="userData.role"
+                :options="roleOptions"
+                placeholder="Selecione um Cargo"
+                class="max-w-[400px] mt-8"
+            />
 
-        <Dropdown 
-            label="Cargo"
-            v-model="userData.role"
-            :options="roleOptions"
-            class="max-w-[400px] mt-8"
-            :selected-option="userData.role"
-        />
+            <Input 
+                label="Senha"
+                v-model="userData.password"
+                password
+                class="max-w-[400px] mt-8"
+            />
 
-        <button 
-            @click="handleEdit()"
-            :disabled="loadingBtn"
-            class="mt-5 p-2 px-8 rounded-lg bg-blue-600 text-white text-base font-semibold cursor-pointer transition-all flex justify-center items-center hover:bg-blue-700 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed"
-        >
-            <span v-if="!loadingBtn">Salvar</span>
-            <span v-else class="w-5 h-5 border-2 border-white/30 rounded-full border-t-white animate-spin"></span>
-        </button>
+            <button 
+                @click="handleEdit()"
+                :disabled="loadingBtn"
+                class="mt-5 p-2 px-8 rounded-lg bg-blue-600 text-white text-base font-semibold cursor-pointer transition-all flex justify-center items-center hover:bg-blue-700 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed"
+            >
+                <span v-if="!loadingBtn">Criar</span>
+                <span v-else class="w-5 h-5 border-2 border-white/30 rounded-full border-t-white animate-spin"></span>
+            </button>
+        </div>
     </TemplatePage>
 </template>
