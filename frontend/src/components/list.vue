@@ -40,7 +40,7 @@ const handleCreate = () => {
         </div>
     </div>
 
-    <div class="bg-white border border-slate-200 rounded-[15px] overflow-hidden flex flex-col">
+    <div class="bg-white border border-slate-200 rounded-lg overflow-hidden flex flex-col">
         <div v-if="loading" class="flex-1 flex items-center justify-center">
             <div class="w-8 h-8 border-3 border-blue-600/30 border-t-blue-600 rounded-full animate-spin"></div>
         </div>

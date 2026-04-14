@@ -34,4 +34,13 @@ export class AuthController {
       next(error);
     }
   }
+
+  async logout (req: Request, res: Response, next: NextFunction) {
+    try {
+      res.clearCookie('sessionId');
+      res.status(200).json("Success");
+    } catch (error) {
+      next(error);
+    }
+  }
 }

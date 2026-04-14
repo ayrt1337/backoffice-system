@@ -1,9 +1,29 @@
 <script setup lang="ts">
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import { faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
+import router from '../router';
+import { api } from '../services/api';
+import { verifyApiError } from '../services/verifyApiError';
+
 interface Props {
     name: string
 };
 
 const props = defineProps<Props>();
+
+const handleLogout = async () => {
+    try {
+        await api({
+            url: "/logout",
+            method: "get",
+        });
+
+        router.push('/login');
+    } catch(error: any) {
+        console.error("Erro ao fazer logout: ", error);
+        verifyApiError(error.response.status);
+    }
+};
 </script>
 
 <template>
@@ -15,12 +35,25 @@ const props = defineProps<Props>();
         </div>
         
         <div class="flex items-center space-x-4 pr-1">
-            <div class="flex items-center gap-3 pl-4">
+            <div class="flex items-center gap-3 pl-4 relative group">
                 <div class="text-right hidden sm:block">
                     <p class="font-bold text-slate-800 leading-none mb-0.5">{{ name }}</p>
                 </div>
-                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-700 font-bold text-[15px] ring-2 ring-white cursor-pointer transition-colors">
+                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-700 font-bold text-[15px] ring-2 ring-white cursor-pointer">
                     {{ name.charAt(0).toUpperCase() }}
+                </div>
+
+                <!-- Dropdown -->
+                <div class="absolute right-0 top-full pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible z-50">
+                    <div class="group bg-white rounded-lg border border-slate-100 min-w-[200px] overflow-hidden">
+                        <button 
+                            @click="handleLogout"   
+                            class="cursor-pointer w-full flex items-center gap-3 px-4 py-4 text-sm text-slate-700 text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors text-left"
+                        >
+                            <FontAwesomeIcon :icon="faRightFromBracket" class="text-slate-400 group-hover:text-slate-900" />
+                            Sair
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
