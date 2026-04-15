@@ -9,7 +9,7 @@ export class UserController {
     try {
       const user = (req as any).user;
 
-      if (!await services.verifyPermissions(user.role.name, ["roles:read"])) {
+      if (!await services.verifyPermissions(user.role.name, ["users:read"])) {
         throw new AppError("Unauthorized", 403);
       }
 
@@ -39,7 +39,7 @@ export class UserController {
     try {
       const user = (req as any).user;
 
-      if (!await verifyPermissions(user.role.name, ["roles:read"])) {
+      if (!await verifyPermissions(user.role.name, ["users:read", "users:create"])) {
         throw new AppError("Unauthorized", 403);
       }
 
@@ -67,7 +67,7 @@ export class UserController {
     try {
       const user = (req as any).user;
 
-      if (!await services.verifyPermissions(user.role.name, ["roles:read", "roles:create"])) {
+      if (!await services.verifyPermissions(user.role.name, ["users:read", "users:create"])) {
         throw new AppError("Unauthorized", 403);
       }
 

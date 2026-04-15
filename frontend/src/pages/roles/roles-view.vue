@@ -10,9 +10,10 @@ import router from '../../router';
 import type { User } from '../../types/user';
 import { verifyApiError } from '../../services/verifyApiError';
 import { useToast } from '../../composables/useToast';
+import { useLoading } from '../../composables/useLoading';
 
 const { showToast } = useToast();
-
+const { showLoadingPage } = useLoading();
 const metadata = resourcesMetadata.roles;
 
 interface Data {
@@ -58,7 +59,7 @@ onMounted(async () => {
         console.error("Erro ao buscar cargo: ", error);
         verifyApiError(error.response.error);
     } finally {
-        // showLoading(false);
+        showLoadingPage(false);
     }
 })
 

@@ -6,7 +6,9 @@ import { resources } from '../../config/resources';
 import List from '../../components/list.vue';
 import type { User } from '../../types/user';
 import { verifyApiError } from '../../services/verifyApiError';
+import { useLoading } from '../../composables/useLoading';
 
+const { showLoadingPage } = useLoading();
 const metadata = resources.roles;
 
 const user = ref<User>({
@@ -28,7 +30,7 @@ onMounted(async () => {
         console.error("Erro ao buscar cargos: ", error);
         verifyApiError(error.response.status);
     } finally {
-        // showLoading(false);
+        showLoadingPage(false);
     }
 })
 </script>

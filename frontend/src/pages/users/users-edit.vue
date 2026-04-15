@@ -11,13 +11,22 @@ import type { User, UserMetadata } from '../../types/user';
 import type { Error } from '../../types/error';
 import { verifyApiError } from '../../services/verifyApiError';
 import ErrorMessage from '../../components/error-message.vue';
+import { useLoading } from '../../composables/useLoading';
+
+const { showToast } = useToast();
+const { showLoadingPage } = useLoading();
+const metadata = resources.users;
+
+interface Roles {
+    label: string,
+    value: string
+};
 
 interface Props {
     name: string
 };
-const props = defineProps<Props>();
 
-const metadata = resources.users;
+const props = defineProps<Props>();
 
 const userData = ref<UserMetadata>({
     name: '',
@@ -33,13 +42,6 @@ const errorData = ref<Error>({
     show: false,
     message: ''
 });
-
-const { showToast } = useToast();
-
-interface Roles {
-    label: string,
-    value: string
-};
 
 const roles = ref<Roles[]>([]);
 const loadingBtn = ref<boolean>(false);
@@ -71,7 +73,7 @@ onMounted(async () => {
         console.error("Erro em buscar usuário: ", error);
         verifyApiError(error.response.status);
     } finally {
-        // showLoading(false);
+        showLoadingPage(false);
     }
 });
 

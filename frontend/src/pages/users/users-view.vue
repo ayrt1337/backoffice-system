@@ -9,9 +9,11 @@ import ConfirmModal from '../../components/confirm-modal.vue';
 import type { UserMetadata, User } from '../../types/user';
 import { verifyApiError } from '../../services/verifyApiError';
 import { useToast } from '../../composables/useToast';
+import { useLoading } from '../../composables/useLoading';
 
-const metadata = resources.users;
 const { showToast } = useToast();
+const { showLoadingPage } = useLoading();
+const metadata = resources.users;
 
 interface Props {
     name: string
@@ -46,7 +48,7 @@ onMounted(async () => {
         console.error("Erro em buscar usuário: ", error);
         verifyApiError(error.response.status);
     } finally {
-        // showLoading(false);
+        showLoadingPage(false);
     }
 });
 

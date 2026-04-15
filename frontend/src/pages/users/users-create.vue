@@ -12,9 +12,11 @@ import { verifyApiError } from '../../services/verifyApiError';
 import ErrorMessage from '../../components/error-message.vue';
 import { useToast } from '../../composables/useToast';
 import router from '../../router';
+import { useLoading } from '../../composables/useLoading';
 
-const metadata = resources.users;
 const { showToast } = useToast();
+const { showLoadingPage } = useLoading();
+const metadata = resources.users;
 
 const userData = ref<UserMetadata>({
     name: '',
@@ -55,7 +57,7 @@ onMounted(async () => {
         console.error("Erro ao buscar cargos:", error);
         verifyApiError(error.response.status);  
     } finally {
-        // showLoading(false);
+        showLoadingPage(false);
     }
 })
 

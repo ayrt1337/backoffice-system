@@ -1,21 +1,28 @@
 import router from "../router";
 import { useToast } from "../composables/useToast";
+import { useServerError } from "../composables/useServerError";
+import { useUnauthorized } from "../composables/useUnauthorized";
 
 const { showToast } = useToast();
+const { showServerErrorPage } = useServerError();
+const { showUnauthorizedPage } = useUnauthorized();
 
-export const verifyApiError = (statusCode: number, isMethodGet: boolean = true): boolean => {
+export const verifyApiError = (
+  statusCode: number,
+  isMethodGet: boolean = true,
+): boolean => {
   switch (statusCode) {
     case 401: {
       router.push("/login");
       return false;
     }
     case 403: {
-      // SHOW 403 PAGE
+      showUnauthorizedPage(true);
       return false;
     }
     case 500: {
       if (isMethodGet) {
-        // SHOW 500 PAGE
+        showServerErrorPage(true);
         return false;
       }
 

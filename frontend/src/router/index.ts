@@ -57,6 +57,11 @@ const routes: Array<RouteRecordRaw> = [
     props: true,
     component: () => import('../pages/roles/roles-view.vue'),
     meta: { requiresAuth: true }
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    component: () => import('../pages/notFound/notFound.vue')
   }
 ];
 

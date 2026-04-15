@@ -11,9 +11,10 @@ import type { Error } from '../../types/error';
 import { verifyApiError } from '../../services/verifyApiError';
 import { useToast } from '../../composables/useToast';
 import ErrorMessage from '../../components/error-message.vue';
+import { useLoading } from '../../composables/useLoading';
 
 const { showToast } = useToast();
-
+const { showLoadingPage } = useLoading();
 const metadata = resourcesMetadata.roles;
 
 interface Data {
@@ -63,7 +64,7 @@ onMounted(async () => {
         console.error("Erro ao buscar cargos: ", error);
         verifyApiError(error.response.status);
     } finally {
-        // showLoading(false);
+        showLoadingPage(false);
     }
 })
 

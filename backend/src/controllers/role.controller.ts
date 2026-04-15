@@ -266,7 +266,7 @@ export class RoleController {
     try {
       const user = (req as any).user;
 
-      if (!await verifyPermissions(user.role.name, ["role:read", "role:delete"])) {
+      if (!await verifyPermissions(user.role.name, ["roles:read", "roles:delete"])) {
         throw new AppError("Unauthorized", 403);
       }
 
