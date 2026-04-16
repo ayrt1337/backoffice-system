@@ -75,13 +75,8 @@ const handleCreate = () => {
         </div>
 
         <div v-if="!loading && data.length === 0" class="flex-1 flex flex-col items-center justify-center p-12 text-center">
-            <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4 text-slate-400">
-                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0-6a5.99 5.99 0 00-4.846 2.518M18 14l2 2m0 0l2-2m-2 2l-2-2m2 2l2 2"></path>
-                </svg>
-            </div>
-            <h3 class="text-sm font-bold text-slate-800">Nenhum resultado encontrado</h3>
-            <button @click="() => router.push(`/${resource}/create`)" class="mt-6 text-xs font-bold text-blue-600 hover:underline">Adicionar {{ label }}</button>
+            <h3 class="font-bold text-slate-800">Nenhum resultado encontrado</h3>
+            <button @click="() => router.push(`/${resource}/create`)" class="mt-4 cursor-pointer text-sm font-bold text-blue-600 hover:underline">Adicionar {{ label }}</button>
         </div>
     </div>
 </template>

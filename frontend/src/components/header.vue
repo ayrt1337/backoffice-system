@@ -4,12 +4,9 @@ import { faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
 import router from '../router';
 import { api } from '../services/api';
 import { verifyApiError } from '../services/verifyApiError';
+import { useUser } from '../composables/useUser';
 
-interface Props {
-    name: string
-};
-
-const props = defineProps<Props>();
+const { showUser } = useUser();
 
 const handleLogout = async () => {
     try {
@@ -37,13 +34,12 @@ const handleLogout = async () => {
         <div class="flex items-center space-x-4 pr-1">
             <div class="flex items-center gap-3 pl-4 relative group">
                 <div class="text-right hidden sm:block">
-                    <p class="font-bold text-slate-800 leading-none mb-0.5">{{ name }}</p>
+                    <p class="font-bold text-slate-800 leading-none mb-0.5">{{ showUser.name }}</p>
                 </div>
                 <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-700 font-bold text-[15px] ring-2 ring-white cursor-pointer">
-                    {{ name.charAt(0).toUpperCase() }}
+                    {{ showUser.name.charAt(0).toUpperCase() }}
                 </div>
 
-                <!-- Dropdown -->
                 <div class="absolute right-0 top-full pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible z-50">
                     <div class="group bg-white rounded-lg border border-slate-100 min-w-[200px] overflow-hidden">
                         <button 

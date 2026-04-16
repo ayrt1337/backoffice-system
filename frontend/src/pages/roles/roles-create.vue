@@ -6,14 +6,15 @@ import Input from '../../components/input.vue';
 import Breadcrumbs from '../../components/breadcrumbs.vue';
 import CheckboxPanel from '../../components/checkbox-panel.vue';
 import { resources as resourcesMetadata } from '../../config/resources';
-import type { User } from '../../types/user';
 import type { Error } from '../../types/error';
 import ErrorMessage from '../../components/error-message.vue';
 import { verifyApiError } from '../../services/verifyApiError';
 import { useToast } from '../../composables/useToast';
 import router from '../../router';
 import { useLoading } from '../../composables/useLoading';
+import { useUser } from '../../composables/useUser';
 
+const { setUser } = useUser();
 const { showToast } = useToast();
 const { showLoadingPage } = useLoading();
 const metadata = resourcesMetadata.roles;
@@ -23,10 +24,6 @@ interface Data {
     resources: any,
     rolePermissions: string[]
 };
-
-const user = ref<User>({
-    name: ""
-});
 
 const data = ref<Data>({
     name: "",
@@ -49,7 +46,7 @@ onMounted(async () => {
         });
         
         data.value.resources = response.data.resources;
-        user.value = response.data.user;
+        setUser(response.data.user);
     } catch (error: any) {
         console.error("Erro ao buscar cargos:", error);
         verifyApiError(error.response.status);
@@ -103,7 +100,7 @@ const handleCreate = async () => {
 </script>
 
 <template>
-    <TemplatePage :name="user.name">
+    <TemplatePage>
         <Breadcrumbs
             class="mt-2"
             :breadcrumbs="[...metadata.breadcrumbs, { label: 'Criar' },]"

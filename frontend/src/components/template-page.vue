@@ -15,12 +15,6 @@ const { showLoading } = useLoading();
 const { showError } = useServerError();
 const { showUnauthorized } = useUnauthorized();
 
-interface Props {
-    name: string
-};
-
-const props = defineProps<Props>();
-
 onMounted(() => resetPageState());
 </script>
 
@@ -33,7 +27,7 @@ onMounted(() => resetPageState());
 
         <div v-else class="min-h-screen bg-slate-50 flex flex-col">
             <Toast />
-            <Header :name="name" />
+            <Header />
 
             <div class="flex-1 flex flex-col ml-70 min-w-0">
                 <Sidebar />

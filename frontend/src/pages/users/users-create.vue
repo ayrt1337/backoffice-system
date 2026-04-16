@@ -6,14 +6,16 @@ import { resources } from '../../config/resources';
 import Breadcrumbs from '../../components/breadcrumbs.vue';
 import Input from '../../components/input.vue';
 import Dropdown from '../../components/dropdown.vue';
-import type { User, UserMetadata } from '../../types/user';
+import type { UserMetadata } from '../../types/user';
 import type { Error } from '../../types/error';
 import { verifyApiError } from '../../services/verifyApiError';
 import ErrorMessage from '../../components/error-message.vue';
 import { useToast } from '../../composables/useToast';
 import router from '../../router';
 import { useLoading } from '../../composables/useLoading';
+import { useUser } from '../../composables/useUser';
 
+const { setUser } = useUser();
 const { showToast } = useToast();
 const { showLoadingPage } = useLoading();
 const metadata = resources.users;
@@ -22,10 +24,6 @@ const userData = ref<UserMetadata>({
     name: '',
     password: '',
     role: ''
-});
-
-const user = ref<User>({
-    name: ''
 });
 
 const errorData = ref<Error>({
@@ -51,7 +49,7 @@ onMounted(async () => {
             method: "get",
         });
 
-        user.value = response.data.user;
+        setUser(response.data.user);
         roles.value = response.data.roles;
     } catch (error: any) {
         console.error("Erro ao buscar cargos:", error);
@@ -107,7 +105,7 @@ const handleCreate = async () => {
 </script>
 
 <template>
-    <TemplatePage :name="user.name">
+    <TemplatePage>
         <Breadcrumbs
             class="mt-2"
             :breadcrumbs="[...metadata.breadcrumbs, { label: 'Criar' }]"

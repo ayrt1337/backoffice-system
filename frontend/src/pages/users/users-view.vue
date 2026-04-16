@@ -6,11 +6,13 @@ import { resources } from '../../config/resources';
 import router from '../../router';
 import Breadcrumbs from '../../components/breadcrumbs.vue';
 import ConfirmModal from '../../components/confirm-modal.vue';
-import type { UserMetadata, User } from '../../types/user';
+import type { UserMetadata } from '../../types/user';
 import { verifyApiError } from '../../services/verifyApiError';
 import { useToast } from '../../composables/useToast';
 import { useLoading } from '../../composables/useLoading';
+import { useUser } from '../../composables/useUser';
 
+const { setUser } = useUser();
 const { showToast } = useToast();
 const { showLoadingPage } = useLoading();
 const metadata = resources.users;
@@ -24,10 +26,6 @@ const props = defineProps<Props>();
 const userData = ref<Partial<UserMetadata>>({
     name: '',
     role: ''
-});
-
-const user = ref<User>({
-    name: ''
 });
 
 const showDeleteModal = ref<boolean>(false);
@@ -44,6 +42,7 @@ onMounted(async () => {
             name: response.data.userData.name,
             role: response.data.userData.role.name
         };
+        setUser(response.data.user);
     } catch (error: any) {
         console.error("Erro em buscar usuário: ", error);
         verifyApiError(error.response.status);
@@ -73,45 +72,51 @@ const handleDelete = async () => {
 </script>
 
 <template>
-    <TemplatePage :name="user.name">
+    <TemplatePage>
         <Breadcrumbs
             class="mt-2"
-            :breadcrumbs="[...metadata.breadcrumbs, { label: `${userData.name}` }]"
+            :breadcrumbs="[...metadata.breadcrumbs, { label: `${name}` }]"
         />
 
-        <div class="mt-15">
-            <p class="text-[15px] font-medium text-slate-600">Usuário</p>
-            <p class="mt-2 text-[17px]">{{ userData.name }}</p>
+        <template v-if="userData.name !== ''">
+            <div class="mt-15">
+                <p class="text-[15px] font-medium text-slate-600">Usuário</p>
+                <p class="mt-2 text-[17px]">{{ userData.name }}</p>
+            </div>
+
+            <div class="mt-10">
+                <p class="text-[15px] font-medium text-slate-600">Nome do Cargo</p>
+                <p class="mt-2 text-[17px]">{{ userData.role }}</p>
+            </div>
+
+            <div v-if="userData.role !== 'admin'"" class="flex mt-10">
+                <button
+                    @click="() => router.push(`/users/edit/${userData.name}`)"
+                    class="mt-5 p-2 px-8 rounded-lg bg-blue-600 text-white text-base font-semibold cursor-pointer transition-all flex justify-center items-center hover:bg-blue-700 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed"
+                >
+                    <span>Editar</span>
+                </button>
+
+                <button
+                    @click="showDeleteModal = true"
+                    class="mt-5 ml-3 p-2 px-8 rounded-lg bg-red-600 text-white text-base font-semibold cursor-pointer transition-all flex justify-center items-center hover:bg-red-700 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed"
+                >
+                    <span>Excluir</span>
+                </button>
+            </div>
+
+            <ConfirmModal
+                :show="showDeleteModal"
+                title="Excluir Cargo"
+                :message="`Tem certeza que deseja excluir o usuário '${userData.name}'? Esta ação não pode ser desfeita.`"
+                :danger="true"
+                @confirm="handleDelete"
+                @cancel="showDeleteModal = false"
+            />
+        </template>
+
+        <div v-else>
+            <p class="text-[18px]">Usuário não encontrado</p>
         </div>
-
-        <div class="mt-10">
-            <p class="text-[15px] font-medium text-slate-600">Nome do Cargo</p>
-            <p class="mt-2 text-[17px]">{{ userData.role }}</p>
-        </div>
-
-        <div v-if="userData.role !== 'admin'"" class="flex mt-10">
-            <button
-                @click="() => router.push(`/users/edit/${userData.name}`)"
-                class="mt-5 p-2 px-8 rounded-lg bg-blue-600 text-white text-base font-semibold cursor-pointer transition-all flex justify-center items-center hover:bg-blue-700 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed"
-            >
-                <span>Editar</span>
-            </button>
-
-            <button
-                @click="showDeleteModal = true"
-                class="mt-5 ml-3 p-2 px-8 rounded-lg bg-red-600 text-white text-base font-semibold cursor-pointer transition-all flex justify-center items-center hover:bg-red-700 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed"
-            >
-                <span>Excluir</span>
-            </button>
-        </div>
-
-        <ConfirmModal
-            :show="showDeleteModal"
-            title="Excluir Cargo"
-            :message="`Tem certeza que deseja excluir o usuário '${userData.name}'? Esta ação não pode ser desfeita.`"
-            :danger="true"
-            @confirm="handleDelete"
-            @cancel="showDeleteModal = false"
-        />
     </TemplatePage>
 </template>

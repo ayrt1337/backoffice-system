@@ -4,18 +4,15 @@ import TemplatePage from '../../components/template-page.vue';
 import { api } from '../../services/api';
 import { resources } from '../../config/resources';
 import List from '../../components/list.vue';
-import type { User } from '../../types/user';
 import { verifyApiError } from '../../services/verifyApiError';
 import { useLoading } from '../../composables/useLoading';
+import { useUser } from '../../composables/useUser';
 
+const { setUser } = useUser();
 const { showLoadingPage } = useLoading();
 const metadata = resources.users;
 
 const users = ref<any>([]);
-
-const user =  ref<User>({
-    name: ''
-});
 
 onMounted(async () => {
     try {
@@ -24,7 +21,7 @@ onMounted(async () => {
             method: "get",
         });
         
-        user.value = response.data.user;
+        setUser(response.data.user);
         users.value = response.data.users;
     } catch (error: any) {
         console.error("Erro ao buscar usuários: ", error);
@@ -36,7 +33,7 @@ onMounted(async () => {
 </script>
 
 <template>
-    <TemplatePage :name="user.name">
+    <TemplatePage>
         <List 
             :data="users"
             :label="metadata.label"
