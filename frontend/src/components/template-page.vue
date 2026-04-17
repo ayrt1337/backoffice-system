@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { onMounted } from 'vue';
 import Sidebar from '../components/sidebar.vue';
 import Header from '../components/header.vue';
 import Toast from '../components/toast.vue';
@@ -9,13 +8,10 @@ import Loading from './loading.vue';
 import { useLoading } from '../composables/useLoading';
 import { useServerError } from '../composables/useServerError';
 import { useUnauthorized } from '../composables/useUnauthorized';
-import { resetPageState } from '../services/pageResetState';
 
 const { showLoading } = useLoading();
 const { showError } = useServerError();
 const { showUnauthorized } = useUnauthorized();
-
-onMounted(() => resetPageState());
 </script>
 
 <template>

@@ -54,7 +54,7 @@ onMounted(async () => {
         setUser(response.data.user);
     } catch (error: any) {
         console.error("Erro ao buscar cargo: ", error);
-        verifyApiError(error.response.error);
+        verifyApiError(error.response?.status);
     } finally {
         showLoadingPage(false);
     }

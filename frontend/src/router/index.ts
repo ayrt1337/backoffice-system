@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router';
+import { resetPageState } from '../services/pageResetState';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -68,6 +69,11 @@ const routes: Array<RouteRecordRaw> = [
 const router = createRouter({
   history: createWebHistory(),
   routes
+});
+
+router.beforeEach(() => {
+  resetPageState();
+  return;
 });
 
 export default router;
