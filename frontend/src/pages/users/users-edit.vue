@@ -69,7 +69,7 @@ onMounted(async () => {
         roles.value = response.data.roles;
     } catch (error: any) {
         console.error("Erro em buscar usuário: ", error);
-        verifyApiError(error.response.status);
+        verifyApiError(error.response?.status);
     } finally {
         showLoadingPage(false);
     }
@@ -104,12 +104,12 @@ const handleEdit = async () => {
         showToast('Usuário atualizado com sucesso!', 'success');
     } catch (error: any) {    
         console.error("Erro ao editar usuário: ", error);
-        const hasMessage = verifyApiError(error.response.status, false);
+        const hasMessage = verifyApiError(error.response?.status, false);
 
         if (hasMessage) {
             errorData.value = {
                 show: true,
-                message: error.response.data
+                message: error.response?.data
             };
             return;
         }
@@ -160,7 +160,7 @@ const handleEdit = async () => {
                     :disabled="loadingBtn"
                     class="mt-5 p-2 px-8 rounded-lg bg-blue-600 text-white text-base font-semibold cursor-pointer transition-all flex justify-center items-center hover:bg-blue-700 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed"
                 >
-                    <span v-if="!loadingBtn">Criar</span>
+                    <span v-if="!loadingBtn">Salvar</span>
                     <span v-else class="w-5 h-5 border-2 border-white/30 rounded-full border-t-white animate-spin"></span>
                 </button>
             </div>

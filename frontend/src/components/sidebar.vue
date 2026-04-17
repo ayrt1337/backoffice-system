@@ -5,7 +5,9 @@ import { faUsers, faShieldHalved, faChartLine, faRightFromBracket } from '@forta
 import router from '../router';
 import { api } from '../services/api';
 import { verifyApiError } from '../services/verifyApiError';
+import { useLoading } from '../composables/useLoading';
 
+const { showLoadingPage } = useLoading();
 const route = useRoute();
 
 const menuItems = [
@@ -15,6 +17,7 @@ const menuItems = [
 ];
 
 const handleLogout = async () => {
+    showLoadingPage(true);
     try {
         await api({
             url: "/logout",
@@ -24,7 +27,8 @@ const handleLogout = async () => {
         router.push('/login');
     } catch(error: any) {
         console.error("Erro ao fazer logout: ", error);
-        verifyApiError(error.response.status);
+        showLoadingPage(false);
+        verifyApiError(error.response?.status, false);
     }
 };
 </script>

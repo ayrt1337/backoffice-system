@@ -25,7 +25,7 @@ onMounted(async () => {
         roles.value = response.data.roles;
     } catch (error: any) {
         console.error("Erro ao buscar cargos: ", error);
-        verifyApiError(error.response.status);
+        verifyApiError(error.response?.status);
     } finally {
         showLoadingPage(false);
     }

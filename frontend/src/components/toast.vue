@@ -18,15 +18,17 @@ const closeToast = () => {
 <template>
     <Teleport to="body">
         <Transition
-            enter-active-class="transform ease-out duration-300 transition"
-            enter-from-class="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
+            mode="out-in"
+            enter-active-class="transform transition-all ease-out duration-300"
+            enter-from-class="translate-y-[-100%] opacity-0 sm:translate-y-0 sm:translate-x-[100%]"
             enter-to-class="translate-y-0 opacity-100 sm:translate-x-0"
-            leave-active-class="transition ease-in duration-200"
-            leave-from-class="opacity-100"
-            leave-to-class="opacity-0"
+            leave-active-class="transform transition-all ease-in duration-300"
+            leave-from-class="translate-y-0 opacity-100 sm:translate-x-0"
+            leave-to-class="translate-y-[-100%] opacity-0 sm:translate-y-0 sm:translate-x-[100%]"
         >
             <div 
                 v-if="toastState.show"
+                :key="toastState.id"
                 class="fixed top-6 right-6 z-[9999] w-full max-w-sm overflow-hidden rounded-xl border bg-white/80 backdrop-blur-md shadow-2xl ring-1 ring-black/5"
                 :class="{
                     'border-emerald-100': toastState.type === 'success',
@@ -63,18 +65,22 @@ const closeToast = () => {
                     </div>
                 </div>
                 
-                <!-- Progress bar animation -->
                 <div 
-                    class="h-1 bg-current opacity-20"
+                    class="h-1 w-full"
                     :class="{
-                        'text-emerald-500': toastState.type === 'success',
-                        'text-rose-500': toastState.type === 'error',
-                        'text-blue-500': toastState.type === 'info'
+                        'bg-emerald-100': toastState.type === 'success',
+                        'bg-rose-100': toastState.type === 'error',
+                        'bg-blue-100': toastState.type === 'info'
                     }"
                 >
                     <div 
-                        class="h-full bg-current animate-progress-shrink"
-                        :style="{ animationDuration: '3000ms' }"
+                        class="h-full animate-progress-shrink"
+                        :class="{
+                            'bg-emerald-500': toastState.type === 'success',
+                            'bg-rose-500': toastState.type === 'error',
+                            'bg-blue-500': toastState.type === 'info'
+                        }"
+                        :style="{ animationDuration: toastState.duration + 'ms' }"
                     ></div>
                 </div>
             </div>
@@ -82,10 +88,10 @@ const closeToast = () => {
     </Teleport>
 </template>
 
-<style scoped>
+<style>
 @keyframes progress-shrink {
-    from { width: 100%; }
-    to { width: 0%; }
+    0% { width: 100%; }
+    100% { width: 0%; }
 }
 
 .animate-progress-shrink {

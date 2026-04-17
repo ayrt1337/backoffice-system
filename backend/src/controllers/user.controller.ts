@@ -3,6 +3,7 @@ import database from "../config/database.js";
 import * as services from "../services/index.js";
 import { AppError } from "../errors/app-error.js";
 import { verifyPermissions } from "../services/index.js";
+import { getUserResponse } from "../services/get-user-response.js";
 
 export class UserController {
   async list(req: Request, res: Response, next: NextFunction) {
@@ -29,7 +30,9 @@ export class UserController {
         role: user.role.name,
       }));
 
-      return res.status(200).json({ user: { name: user.name }, users });
+      const userResponse = await getUserResponse(user);
+
+      return res.status(200).json({ user: userResponse, users });
     } catch (error) {
       next(error);
     }
@@ -57,7 +60,10 @@ export class UserController {
           id: role.name,
         };
       });
-      return res.status(200).json({ user: { name: user.name }, roles });
+
+      const userResponse = await getUserResponse(user);
+
+      return res.status(200).json({ user: userResponse, roles });
     } catch (error) {
       next(error);
     }
@@ -138,7 +144,9 @@ export class UserController {
         throw new AppError("Usuário não encontrado", 404);
       }
 
-      return res.status(200).json({ user: { name: user.name }, userData });
+      const userResponse = await getUserResponse(user);
+
+      return res.status(200).json({ user: userResponse, userData });
     } catch (error) {
       next(error);
     }
@@ -207,8 +215,10 @@ export class UserController {
         },
         select: { name: true },
       });
+      
+      const userResponse = await getUserResponse(user);
 
-      return res.status(200).json({ user: { name: user.name }, userData, roles });
+      return res.status(200).json({ user: userResponse, userData, roles });
     } catch (error) {
       next(error);
     }

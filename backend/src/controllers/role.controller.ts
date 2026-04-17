@@ -1,10 +1,11 @@
 import { Request, Response, NextFunction } from "express";
 import database from "../config/database.js";
-import clientRedis from "../config/redis-client.js";
 import { updatePermissions } from "../services/update-permissions.js";
 import { verifyPermissions } from "../services/verify-permissions.js";
 import { AppError } from "../errors/app-error.js";
 import { User } from "../types/user.js";
+import { getPermissions } from "../services/get-permissions.js";
+import { getUserResponse } from "../services/get-user-response.js";
 
 export class RoleController {
   async list(req: Request, res: Response, next: NextFunction) {
@@ -24,7 +25,10 @@ export class RoleController {
           id: role.name,
         };
       });
-      return res.status(200).json({ user: { name: user.name }, roles });
+
+      const userResponse = await getUserResponse(user);
+
+      return res.status(200).json({ user: userResponse, roles });
     } catch (error) {
       next(error);
     }
@@ -50,7 +54,9 @@ export class RoleController {
         },
       });
 
-      return res.status(200).json({ user: { name: user.name }, resources });
+      const userResponse = await getUserResponse(user);
+
+      return res.status(200).json({ user: userResponse, resources });
     } catch (error) {
       next(error);
     }
@@ -138,15 +144,10 @@ export class RoleController {
         },
       });
 
-      const permissions = await clientRedis.get("permissions");
-      let rolePermissions = [];
+      const rolePermissions = await getPermissions(role.name);
+      const userResponse = await getUserResponse(user);
 
-      if (permissions) {
-        const permissionsJson = JSON.parse(permissions.toString());
-        rolePermissions = permissionsJson[name] || [];
-      }
-
-      return res.status(200).json({ user: { name: user.name }, resources, role, rolePermissions });
+      return res.status(200).json({ user: userResponse, resources, role, rolePermissions });
     } catch (error) {
       next(error);
     }
@@ -183,15 +184,10 @@ export class RoleController {
         },
       });
 
-      const permissions = await clientRedis.get("permissions");
-      let rolePermissions = [];
+      const rolePermissions = await getPermissions(role.name);
+      const userResponse = await getUserResponse(user);
 
-      if (permissions) {
-        const permissionsJson = JSON.parse(permissions.toString());
-        rolePermissions = permissionsJson[name] || [];
-      }
-
-      return res.status(200).json({ user: { name: user.name }, resources, role, rolePermissions });
+      return res.status(200).json({ user: userResponse, resources, role, rolePermissions });
     } catch (error) {
       next(error);
     }

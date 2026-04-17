@@ -12,7 +12,7 @@ import { useToast } from '../../composables/useToast';
 import { useLoading } from '../../composables/useLoading';
 import { useUser } from '../../composables/useUser';
 
-const { setUser } = useUser();
+const { setUser, showUser } = useUser();
 const { showToast } = useToast();
 const { showLoadingPage } = useLoading();
 const metadata = resources.users;
@@ -45,7 +45,7 @@ onMounted(async () => {
         setUser(response.data.user);
     } catch (error: any) {
         console.error("Erro em buscar usuário: ", error);
-        verifyApiError(error.response.status);
+        verifyApiError(error.response?.status);
     } finally {
         showLoadingPage(false);
     }
@@ -89,8 +89,9 @@ const handleDelete = async () => {
                 <p class="mt-2 text-[17px]">{{ userData.role }}</p>
             </div>
 
-            <div v-if="userData.role !== 'admin'"" class="flex mt-10">
+            <div v-if="userData.role !== 'admin'"" class="flex mt-10 gap-3">
                 <button
+                    v-if="showUser.permissions.includes('users:edit') || showUser.name === 'admin'"
                     @click="() => router.push(`/users/edit/${userData.name}`)"
                     class="mt-5 p-2 px-8 rounded-lg bg-blue-600 text-white text-base font-semibold cursor-pointer transition-all flex justify-center items-center hover:bg-blue-700 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed"
                 >
@@ -98,8 +99,9 @@ const handleDelete = async () => {
                 </button>
 
                 <button
+                    v-if="showUser.permissions.includes('users:delete') || showUser.name === 'admin'"
                     @click="showDeleteModal = true"
-                    class="mt-5 ml-3 p-2 px-8 rounded-lg bg-red-600 text-white text-base font-semibold cursor-pointer transition-all flex justify-center items-center hover:bg-red-700 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed"
+                    class="mt-5 p-2 px-8 rounded-lg bg-red-600 text-white text-base font-semibold cursor-pointer transition-all flex justify-center items-center hover:bg-red-700 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                     <span>Excluir</span>
                 </button>

@@ -6,15 +6,20 @@ interface ToastState {
     show: boolean;
     message: string;
     type: ToastType;
+    id: number;
+    duration: number;
 }
 
 const state = ref<ToastState>({
     show: false,
     message: '',
-    type: 'success'
+    type: 'success',
+    id: 0,
+    duration: 3000
 });
 
 let timeoutId: number | null = null;
+let toastCounter = 0;
 
 export function useToast() {
     const showToast = (message: string, type: ToastType = 'success', duration = 3000) => {
@@ -22,10 +27,14 @@ export function useToast() {
             clearTimeout(timeoutId);
         }
 
+        toastCounter++;
+
         state.value = {
             show: true,
             message,
-            type
+            type,
+            id: toastCounter,
+            duration
         };
 
         timeoutId = window.setTimeout(() => {

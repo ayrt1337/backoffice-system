@@ -5,10 +5,13 @@ import router from '../router';
 import { api } from '../services/api';
 import { verifyApiError } from '../services/verifyApiError';
 import { useUser } from '../composables/useUser';
+import { useLoading } from '../composables/useLoading';
 
+const { showLoadingPage } = useLoading();
 const { showUser } = useUser();
 
 const handleLogout = async () => {
+    showLoadingPage(true);
     try {
         await api({
             url: "/logout",
@@ -18,7 +21,8 @@ const handleLogout = async () => {
         router.push('/login');
     } catch(error: any) {
         console.error("Erro ao fazer logout: ", error);
-        verifyApiError(error.response.status);
+        showLoadingPage(false);
+        verifyApiError(error.response?.status, false);
     }
 };
 </script>

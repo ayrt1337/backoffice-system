@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import router from '../router';
+import { useUser } from '../composables/useUser';
+
+const { showUser } = useUser();
 
 interface Props {
     data: any[],
@@ -26,7 +29,8 @@ const handleCreate = () => {
         </div>
 
         <div class="flex items-center gap-3">
-            <button 
+            <button
+                v-if="showUser.permissions.includes(`${resource}:create`) || showUser.name === 'admin'"
                 @click="handleCreate"
                 class="flex items-center px-3.5 cursor-pointer py-2 bg-blue-600 text-white text-[14px] font-bold rounded-lg hover:bg-blue-700 transition-all"
             >

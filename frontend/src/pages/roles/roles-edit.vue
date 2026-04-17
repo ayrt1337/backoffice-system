@@ -59,7 +59,7 @@ onMounted(async () => {
         setUser(response.data.user);
     } catch (error: any) {
         console.error("Erro ao buscar cargos: ", error);
-        verifyApiError(error.response.status);
+        verifyApiError(error.response?.status);
     } finally {
         showLoadingPage(false);
     }
@@ -93,12 +93,12 @@ const handleEdit = async () => {
         showToast("Cargo editado com sucesso!", "success");
     } catch (error: any) {
         console.error("Erro ao buscar cargos: ", error);
-        const hasMessage = verifyApiError(error.response.status, false);
+        const hasMessage = verifyApiError(error.response?.status, false);
 
         if (hasMessage) {
             errorData.value = {
                 show: true,
-                message: error.response.data
+                message: error.response?.data
             };
             return;
         }

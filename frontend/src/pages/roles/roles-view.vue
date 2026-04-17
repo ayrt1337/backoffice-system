@@ -12,7 +12,7 @@ import { useToast } from '../../composables/useToast';
 import { useLoading } from '../../composables/useLoading';
 import { useUser } from '../../composables/useUser';
 
-const { setUser } = useUser();
+const { setUser, showUser } = useUser();
 const { showToast } = useToast();
 const { showLoadingPage } = useLoading();
 const metadata = resourcesMetadata.roles;
@@ -104,17 +104,19 @@ const handleDelete = async () => {
                 />
             </div>
 
-            <div class="flex">
-                <button v-if="data.role !== 'admin'"
+            <div v-if="data.role !== 'admin'" class="flex gap-3">
+                <button 
+                    v-if="showUser.permissions.includes('roles:edit') || showUser.name === 'admin'"
                     @click="() => router.push(`/roles/edit/${data.role}`)"
                     class="mt-5 p-2 px-8 rounded-lg bg-blue-600 text-white text-base font-semibold cursor-pointer transition-all flex justify-center items-center hover:bg-blue-700 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                     <span>Editar</span>
                 </button>
 
-                <button v-if="data.role !== 'admin'"
+                <button
+                    v-if="showUser.permissions.includes('roles:delete') || showUser.name === 'admin'"
                     @click="showDeleteModal = true"
-                    class="mt-5 ml-3 p-2 px-8 rounded-lg bg-red-600 text-white text-base font-semibold cursor-pointer transition-all flex justify-center items-center hover:bg-red-700 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed"
+                    class="mt-5 p-2 px-8 rounded-lg bg-red-600 text-white text-base font-semibold cursor-pointer transition-all flex justify-center items-center hover:bg-red-700 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                     <span>Excluir</span>
                 </button>

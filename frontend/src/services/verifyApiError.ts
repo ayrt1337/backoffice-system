@@ -8,9 +8,19 @@ const { showServerErrorPage } = useServerError();
 const { showUnauthorizedPage } = useUnauthorized();
 
 export const verifyApiError = (
-  statusCode: number,
+  statusCode: number | undefined,
   isMethodGet: boolean = true,
 ): boolean => {
+  if (!statusCode) {
+    if (isMethodGet) {
+      showServerErrorPage(true);
+      return false;
+    }
+
+    showToast("Ops! Algo deu errado.", "error");
+    return false;
+  }
+
   switch (statusCode) {
     case 401: {
       router.push("/login");

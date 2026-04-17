@@ -25,7 +25,7 @@ onMounted(async () => {
         users.value = response.data.users;
     } catch (error: any) {
         console.error("Erro ao buscar usuários: ", error);
-        verifyApiError(error.response.status);
+        verifyApiError(error.response?.status);
     } finally {
         showLoadingPage(false);
     }

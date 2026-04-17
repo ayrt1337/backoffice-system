@@ -47,12 +47,12 @@ const handleLogin = async (): Promise<void> => {
         router.push("/users");
     } catch (error: any) {
         console.error("Erro ao fazer login: ", error);
-        const hasMessage = verifyApiError(error.response.status);
+        const hasMessage = verifyApiError(error.response?.status);
 
         if (hasMessage) {
             errorData.value = {
                 show: true,
-                message: error.response.data
+                message: error.response?.data
             };
             return;
         }

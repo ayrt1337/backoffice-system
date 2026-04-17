@@ -53,7 +53,7 @@ onMounted(async () => {
         roles.value = response.data.roles;
     } catch (error: any) {
         console.error("Erro ao buscar cargos:", error);
-        verifyApiError(error.response.status);  
+        verifyApiError(error.response?.status);  
     } finally {
         showLoadingPage(false);
     }
@@ -89,12 +89,12 @@ const handleCreate = async () => {
         router.push("/users");
     } catch (error: any) {
         console.log("Erro ao criar usuário: ", error);
-        const hasMessage = verifyApiError(error.response.status, false);
+        const hasMessage = verifyApiError(error.response?.status, false);
 
         if (hasMessage) {
             errorData.value = {
                 show: true,
-                message: error.response.data
+                message: error.response?.data
             };
             return;
         }
