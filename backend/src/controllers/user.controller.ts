@@ -4,6 +4,7 @@ import * as services from "../services/index.js";
 import { AppError } from "../errors/app-error.js";
 import { verifyPermissions } from "../services/index.js";
 import { getUserResponse } from "../services/get-user-response.js";
+import { formatDate } from "../utils/format-date.js";
 
 export class UserController {
   async list(req: Request, res: Response, next: NextFunction) {
@@ -22,12 +23,14 @@ export class UserController {
               name: true,
             },
           },
+          created_at: true
         },
       });
 
       const users = usersRaw.map((user) => ({
         id: user.name,
         role: user.role.name,
+        created_at: formatDate(user.created_at)
       }));
 
       const userResponse = await getUserResponse(user);
@@ -128,7 +131,7 @@ export class UserController {
 
       const { name } = req.params as { name: string };
 
-      const userData = await database.user.findUnique({
+      const userDataRaw = await database.user.findUnique({
         where: { name },
         select: {
           name: true,
@@ -137,12 +140,20 @@ export class UserController {
               name: true,
             },
           },
+          created_at: true,
+          updated_at: true
         },
       });
 
-      if (!userData) {
+      if (!userDataRaw) {
         throw new AppError("Usuário não encontrado", 404);
       }
+
+      const userData = {
+          ...userDataRaw,
+          created_at: formatDate(userDataRaw.created_at),
+          updated_at: formatDate(userDataRaw.updated_at)
+      };
 
       const userResponse = await getUserResponse(user);
 
@@ -190,7 +201,7 @@ export class UserController {
 
       const { name } = req.params as { name: string };
 
-      const userData = await database.user.findUnique({
+      const userDataRaw = await database.user.findUnique({
         where: { name },
         select: {
           name: true,
@@ -200,12 +211,20 @@ export class UserController {
               name: true,
             },
           },
+          created_at: true,
+          updated_at: true
         },
       });
 
-      if (!userData) {
+      if (!userDataRaw) {
         throw new AppError("User Not Found", 404);
       }
+
+      const userData = {
+          ...userDataRaw,
+          created_at: formatDate(userDataRaw.created_at),
+          updated_at: formatDate(userDataRaw.updated_at)
+      };
 
       const roles = await database.role.findMany({
         where: {
@@ -272,7 +291,8 @@ export class UserController {
         data: {
           name: userName,
           roleId: role.id,
-          password: password ? password : undefined
+          password: password ? password : undefined,
+          updated_at: new Date()
         },
       });
 

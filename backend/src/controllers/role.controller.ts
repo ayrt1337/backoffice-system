@@ -3,9 +3,9 @@ import database from "../config/database.js";
 import { updatePermissions } from "../services/update-permissions.js";
 import { verifyPermissions } from "../services/verify-permissions.js";
 import { AppError } from "../errors/app-error.js";
-import { User } from "../types/user.js";
 import { getPermissions } from "../services/get-permissions.js";
 import { getUserResponse } from "../services/get-user-response.js";
+import { formatDate } from "../utils/format-date.js";
 
 export class RoleController {
   async list(req: Request, res: Response, next: NextFunction) {
@@ -17,12 +17,13 @@ export class RoleController {
       }
 
       const rolesRaw = await database.role.findMany({
-        select: { name: true },
+        select: { name: true, created_at: true },
       });
-
+      
       const roles = rolesRaw.map((role) => {
         return {
           id: role.name,
+          created_at: formatDate(role.created_at)
         };
       });
 
@@ -123,14 +124,20 @@ export class RoleController {
 
       const { name } = req.params as { name: string };
 
-      const role = await database.role.findUnique({
+      const roleDataRaw = await database.role.findUnique({
         where: { name },
-        select: { name: true },
+        select: { name: true, created_at: true, updated_at: true },
       });
 
-      if (!role) {
+      if (!roleDataRaw) {
         throw new AppError("Role Not Found", 404);
       }
+
+      const role = {
+          ...roleDataRaw,
+          created_at: formatDate(roleDataRaw.created_at),
+          updated_at: formatDate(roleDataRaw.updated_at)
+      };
 
       const resources = await database.resource.findMany({
         select: {
@@ -163,14 +170,20 @@ export class RoleController {
 
       const { name } = req.params as { name: string };
 
-      const role = await database.role.findUnique({
+      const roleDataRaw = await database.role.findUnique({
         where: { name },
-        select: { name: true },
+        select: { name: true, created_at: true, updated_at: true },
       });
 
-      if (!role) {
+      if (!roleDataRaw) {
         throw new AppError("Role Not Found", 404);
       }
+
+      const role = {
+          ...roleDataRaw,
+          created_at: formatDate(roleDataRaw.created_at),
+          updated_at: formatDate(roleDataRaw.updated_at)
+      };
 
       const resources = await database.resource.findMany({
         select: {
@@ -227,7 +240,7 @@ export class RoleController {
       await database.$transaction(async (tx) => {
         await tx.role.update({
           where: { name },
-          data: { name: roleName },
+          data: { name: roleName, updated_at: new Date() },
         });
 
         await tx.rolePermission.deleteMany({

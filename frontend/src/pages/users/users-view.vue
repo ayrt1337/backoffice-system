@@ -40,7 +40,9 @@ onMounted(async () => {
 
         userData.value = {
             name: response.data.userData.name,
-            role: response.data.userData.role.name
+            role: response.data.userData.role.name,
+            created_at: response.data.userData.created_at,
+            updated_at: response.data.userData.updated_at
         };
         setUser(response.data.user);
     } catch (error: any) {
@@ -79,7 +81,7 @@ const handleDelete = async () => {
         />
 
         <template v-if="userData.name !== ''">
-            <div class="mt-15">
+            <div class="mt-12">
                 <p class="text-[15px] font-medium text-slate-600">Usuário</p>
                 <p class="mt-2 text-[17px]">{{ userData.name }}</p>
             </div>
@@ -87,6 +89,18 @@ const handleDelete = async () => {
             <div class="mt-10">
                 <p class="text-[15px] font-medium text-slate-600">Nome do Cargo</p>
                 <p class="mt-2 text-[17px]">{{ userData.role }}</p>
+            </div>
+
+            <div class="mt-12 flex gap-8">
+                <div>
+                    <p class="text-[15px] font-medium text-slate-600">Criado Em</p>
+                    <p class="mt-2 text-[17px]">{{ userData.created_at }}</p>
+                </div>
+
+                <div>
+                    <p class="text-[15px] font-medium text-slate-600">Última Alteração</p>
+                    <p class="mt-2 text-[17px]">{{ userData.updated_at }}</p>
+                </div>
             </div>
 
             <div v-if="userData.role !== 'admin'"" class="flex mt-10 gap-3">

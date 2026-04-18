@@ -12,51 +12,54 @@ datasource db {
 }
 
 model Resource {
-  id            String    @id @default(uuid())
-  name          String    @unique
-  label         String
-  actions       Action[]
+  id      String   @id @default(uuid())
+  name    String   @unique
+  label   String
+  actions Action[]
 
   @@map("resources")
 }
 
 model Action {
-  id                  String              @id @default(uuid())
-  slug                String              @unique
-  resource            Resource            @relation(fields: [resourceId], references: [id], onDelete: Cascade)
-  label               String
-  resourceId          String              
-  role_permissions    RolePermission[]
+  id               String           @id @default(uuid())
+  slug             String           @unique
+  resource         Resource         @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+  label            String
+  resourceId       String
+  role_permissions RolePermission[]
 
   @@map("actions")
 }
 
 model RolePermission {
-  roleId          String
-  actionId        String
-  role            Role         @relation(fields: [roleId], references: [id], onDelete: Cascade)
-  action          Action       @relation(fields: [actionId], references: [id], onDelete: Cascade)
+  roleId   String
+  actionId String
+  role     Role   @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  action   Action @relation(fields: [actionId], references: [id], onDelete: Cascade)
 
   @@id([roleId, actionId])
   @@map("role_permissions")
 }
 
 model User {
-  id        String    @id @default(uuid())
-  name      String    @unique
-  password  String
-  role      Role      @relation(fields: [roleId], references: [id], onDelete: Cascade)
-  roleId    String
+  id         String   @id @default(uuid())
+  name       String   @unique
+  password   String
+  role       Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  roleId     String
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
 
   @@map("users")
 }
 
 model Role {
-  id                  String              @id @default(uuid())
-  name                String              @unique
-  users               User[]
-  role_permissions    RolePermission[]
+  id               String           @id @default(uuid())
+  name             String           @unique
+  users            User[]
+  role_permissions RolePermission[]
+  created_at       DateTime         @default(now())
+  updated_at       DateTime         @default(now())
 
   @@map("roles")
 }
-

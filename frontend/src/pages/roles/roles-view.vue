@@ -11,17 +11,12 @@ import { verifyApiError } from '../../services/verifyApiError';
 import { useToast } from '../../composables/useToast';
 import { useLoading } from '../../composables/useLoading';
 import { useUser } from '../../composables/useUser';
+import type { RoleData } from '../../types/role';
 
 const { setUser, showUser } = useUser();
 const { showToast } = useToast();
 const { showLoadingPage } = useLoading();
 const metadata = resourcesMetadata.roles;
-
-interface Data {
-    role: string,
-    rolePermissions: string[],
-    resources: any
-}
 
 interface Props {
     name: string
@@ -29,10 +24,10 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const data = ref<Data>({
+const data = ref<RoleData>({
     role: "",
     rolePermissions: [],
-    resources: []
+    resources: [],
 });
 
 const showDeleteModal = ref(false);
@@ -46,7 +41,7 @@ onMounted(async () => {
         });
 
         data.value = {
-            role: response.data.role.name,
+            role: response.data.role,
             rolePermissions: response.data.rolePermissions,
             resources: response.data.resources
         };
@@ -88,9 +83,9 @@ const handleDelete = async () => {
         />
 
         <template v-if="data.role !== ''">
-            <div class="mt-15">
+            <div class="mt-12">
                 <p class="text-[15px] font-medium text-slate-600">Nome do Cargo</p>
-                <p class="mt-2 text-[17px]">{{ data.role }}</p>
+                <p class="mt-2 text-[17px]">{{ data.role.name }}</p>
             </div>
 
             <div class="mt-10">
@@ -107,7 +102,7 @@ const handleDelete = async () => {
             <div v-if="data.role !== 'admin'" class="flex gap-3">
                 <button 
                     v-if="showUser.permissions.includes('roles:edit') || showUser.name === 'admin'"
-                    @click="() => router.push(`/roles/edit/${data.role}`)"
+                    @click="() => router.push(`/roles/edit/${data.role.name}`)"
                     class="mt-5 p-2 px-8 rounded-lg bg-blue-600 text-white text-base font-semibold cursor-pointer transition-all flex justify-center items-center hover:bg-blue-700 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                     <span>Editar</span>
@@ -122,10 +117,22 @@ const handleDelete = async () => {
                 </button>
             </div>
 
+            <div class="mt-12 flex gap-8">
+                <div>
+                    <p class="text-[15px] font-medium text-slate-600">Criado Em</p>
+                    <p class="mt-2 text-[17px]">{{ data.role.created_at }}</p>
+                </div>
+
+                <div>
+                    <p class="text-[15px] font-medium text-slate-600">Última Alteração</p>
+                    <p class="mt-2 text-[17px]">{{ data.role.updated_at }}</p>
+                </div>
+            </div>
+
             <ConfirmModal
                 :show="showDeleteModal"
                 title="Excluir Cargo"
-                :message="`Tem certeza que deseja excluir o cargo '${data.role}'? Esta ação não pode ser desfeita.`"
+                :message="`Tem certeza que deseja excluir o cargo '${data.role.name}'? Esta ação não pode ser desfeita.`"
                 :danger="true"
                 @confirm="handleDelete"
                 @cancel="showDeleteModal = false"

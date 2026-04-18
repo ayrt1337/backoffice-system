@@ -12,17 +12,12 @@ import { useToast } from '../../composables/useToast';
 import ErrorMessage from '../../components/error-message.vue';
 import { useLoading } from '../../composables/useLoading';
 import { useUser } from '../../composables/useUser';
+import type { RoleData } from '../../types/role';
 
 const { setUser } = useUser();
 const { showToast } = useToast();
 const { showLoadingPage } = useLoading();
 const metadata = resourcesMetadata.roles;
-
-interface Data {
-    role: string,
-    rolePermissions: string[],
-    resources: any
-}
 
 interface Props {
     name: string
@@ -30,7 +25,7 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const data = ref<Data>({
+const data = ref<RoleData>({
     role: "",
     rolePermissions: [],
     resources: []
@@ -51,7 +46,7 @@ onMounted(async () => {
         });
         
         data.value = {
-            role: response.data.role.name,
+            role: response.data.role,
             rolePermissions: response.data.rolePermissions,
             resources: response.data.resources
         }
@@ -66,7 +61,7 @@ onMounted(async () => {
 })
 
 const handleEdit = async () => {
-    if (!data.value.role) {
+    if (!data.value.role.name) {
         errorData.value = {
             show: true,
             message: "Preencha os campos!"
@@ -85,7 +80,7 @@ const handleEdit = async () => {
             url: `/roles/edit/${props.name}`,
             method: "patch",
             data: {
-                roleName: data.value.role,
+                roleName: data.value.role.name,
                 permissions: data.value.rolePermissions
             }
         });
@@ -115,7 +110,7 @@ const handleEdit = async () => {
             :breadcrumbs="[...metadata.breadcrumbs, { label: `${name}`, path: `/roles/${name}` }, { label: 'Editar' },]"
         />
 
-        <div class="mt-15">
+        <div class="mt-12">
             <template v-if="data.role !== ''">
                 <ErrorMessage 
                     :show="errorData.show"
@@ -124,7 +119,7 @@ const handleEdit = async () => {
 
                 <Input 
                     label="Nome do Cargo"
-                    v-model="data.role"
+                    v-model="data.role.name"
                     class="max-w-[400px] mt-8"
                     :disabled="name === 'admin' ? true : false"
                 />
@@ -147,6 +142,18 @@ const handleEdit = async () => {
                     <span v-if="!loadingBtn">Salvar</span>
                     <span v-else class="w-5 h-5 border-2 border-white/30 rounded-full border-t-white animate-spin"></span>
                 </button>
+
+                <div class="mt-12 flex gap-8">
+                    <div>
+                        <p class="text-[15px] font-medium text-slate-600">Criado Em</p>
+                        <p class="mt-2 text-[17px]">{{ data.role.created_at }}</p>
+                    </div>
+
+                    <div>
+                        <p class="text-[15px] font-medium text-slate-600">Última Alteração</p>
+                        <p class="mt-2 text-[17px]">{{ data.role.updated_at }}</p>
+                    </div>
+                </div>
             </template>
 
             <div v-else>

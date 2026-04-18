@@ -106,7 +106,7 @@ const handleCreate = async () => {
             :breadcrumbs="[...metadata.breadcrumbs, { label: 'Criar' },]"
         />
 
-        <div class="mt-15">
+        <div class="mt-12">
             <ErrorMessage 
                 :show="errorData.show"
                 :message="errorData.message"

@@ -5,6 +5,8 @@ export interface User {
 
 export interface UserMetadata {
     name: string,
-    password: string,
-    role: string
+    password?: string,
+    role: string,
+    created_at?: string,
+    updated_at?: string
 };

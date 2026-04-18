@@ -14,7 +14,7 @@ export const resources: Record<string, ResourceMetadata> = {
         name: 'users',
         label: 'Usuário',
         pluralLabel: 'Usuários',
-        tableLabels: ['Usuário', 'Cargo'],
+        tableLabels: ['Usuário', 'Cargo', 'Criação'],
         breadcrumbs: [
             { label: 'Usuários', path: '/users' }
         ]
@@ -23,7 +23,7 @@ export const resources: Record<string, ResourceMetadata> = {
         name: 'roles',
         label: 'Cargo',
         pluralLabel: 'Cargos',
-        tableLabels: ['Nome'],
+        tableLabels: ['Nome', 'Criação'],
         breadcrumbs: [
             { label: 'Cargos', path: '/roles' }
         ]

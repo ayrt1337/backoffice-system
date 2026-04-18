@@ -62,7 +62,9 @@ onMounted(async () => {
         userData.value = {
             name: response.data.userData.name,
             role: response.data.userData.role.name,
-            password: ""
+            password: "",
+            created_at: response.data.userData.created_at,
+            updated_at: response.data.userData.updated_at
         };
 
         setUser(response.data.user);
@@ -127,7 +129,7 @@ const handleEdit = async () => {
         />
 
         <template v-if="userData.name !== ''">
-            <div class="mt-15">
+            <div class="mt-12">
                 <ErrorMessage
                     :show="errorData.show"
                     :message="errorData.message"
@@ -163,6 +165,18 @@ const handleEdit = async () => {
                     <span v-if="!loadingBtn">Salvar</span>
                     <span v-else class="w-5 h-5 border-2 border-white/30 rounded-full border-t-white animate-spin"></span>
                 </button>
+
+                <div class="mt-12 flex gap-8">
+                    <div class="mt-10">
+                        <p class="text-[15px] font-medium text-slate-600">Criado Em</p>
+                        <p class="mt-2 text-[17px]">{{ userData.created_at }}</p>
+                    </div>
+
+                    <div class="mt-10">
+                        <p class="text-[15px] font-medium text-slate-600">Última Alteração</p>
+                        <p class="mt-2 text-[17px]">{{ userData.updated_at }}</p>
+                    </div>
+                </div>
             </div>
         </template>
 
