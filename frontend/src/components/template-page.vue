@@ -15,6 +15,7 @@ const { showUnauthorized } = useUnauthorized();
 </script>
 
 <template>
+    <Toast />
     <Loading v-if="showLoading" />
 
     <template v-else>
@@ -22,7 +23,6 @@ const { showUnauthorized } = useUnauthorized();
         <ServerError v-else-if="showError" />
 
         <div v-else class="min-h-screen bg-slate-50 flex flex-col">
-            <Toast />
             <Header />
 
             <div class="flex-1 flex flex-col ml-70 min-w-0">
