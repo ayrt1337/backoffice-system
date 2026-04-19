@@ -14,7 +14,8 @@ const metadata = resources.users;
 
 const users = ref<any>([]);
 
-onMounted(async () => {
+const loadData = async () => {
+    showLoadingPage(true);
     try {
         const response = await api({
             url: "/users",
@@ -29,6 +30,10 @@ onMounted(async () => {
     } finally {
         showLoadingPage(false);
     }
+};
+
+onMounted(() => {
+    loadData();
 })
 </script>
 
@@ -40,6 +45,7 @@ onMounted(async () => {
             :pluralLabel="metadata.pluralLabel"
             :labels="metadata.tableLabels"
             :resource="metadata.name"
+            @reload="loadData"
         />
     </TemplatePage>
 </template>

@@ -171,19 +171,29 @@ export class UserController {
         throw new AppError("Unauthorized", 403);
       }
 
-      const { name } = req.body;
+      const { names } = req.body;
 
-      const userData = await database.user.findUnique({
-        where: { name },
-      });
-
-      if (!userData) {
-        throw new AppError("User Not Found", 404);
+      if (names.includes("admin")) {
+        throw new AppError("Usuário admin não pode ser deletado", 400);
       }
 
-      await database.user.delete({
-        where: { name },
-      });
+      for (const name of names) {
+        const userData = await database.user.findUnique({
+          where: { name },
+        });
+
+        if (!userData) {
+          throw new AppError("User Not Found", 404);
+        }
+      };
+
+      await database.$transaction(async (tx) => {
+        for (const name of names) {
+          await tx.user.delete({
+            where: { name },
+          });
+        }
+      })
 
       return res.status(200).json("Success");
     } catch (error) {
@@ -205,7 +215,6 @@ export class UserController {
         where: { name },
         select: {
           name: true,
-          password: true,
           role: {
             select: {
               name: true,

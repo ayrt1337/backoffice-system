@@ -59,7 +59,7 @@ const handleDelete = async () => {
         await api({
             url: '/users/delete',
             method: 'delete',
-            data: { name: props.name }
+            data: { names: [props.name] }
         });
 
         showToast("Usuário excluído com sucesso!", "success");

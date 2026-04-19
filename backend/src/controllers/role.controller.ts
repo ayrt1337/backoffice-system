@@ -279,19 +279,29 @@ export class RoleController {
         throw new AppError("Unauthorized", 403);
       }
 
-      const { name } = req.body;
+      const { names } = req.body;
 
-      const role = await database.role.findUnique({
-        where: { name },
-      });
-
-      if (!role) {
-        throw new AppError("Role Not Found", 404);
+      if (names.includes("admin")) {
+        throw new AppError("Cargo admin não pode ser deletado", 400);
       }
 
-      await database.role.delete({
-        where: { name },
-      });
+      for (const name of names) {
+        const role = await database.user.findUnique({
+          where: { name },
+        });
+
+        if (!role) {
+          throw new AppError("Role Not Found", 404);
+        }
+      };
+
+      await database.$transaction(async (tx) => {
+        for (const name of names) {
+          await tx.role.delete({
+            where: { name },
+          });
+        }
+      })
 
       return res.status(200).json("Success");
     } catch (error) {

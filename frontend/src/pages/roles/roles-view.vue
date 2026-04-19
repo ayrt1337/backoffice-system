@@ -61,7 +61,7 @@ const handleDelete = async () => {
         await api({
             url: '/roles/delete',
             method: 'delete',
-            data: { name: data.value.role }
+            data: { names: [props.name] }
         });
 
         showToast("Cargo excluído com sucesso!", "success");

@@ -12,7 +12,7 @@ const seed = async (): Promise<void> => {
             create: {
                 name: "admin",
             }
-        })
+        });
 
         await tx.user.upsert({
             where: { name: "admin" },
@@ -22,8 +22,8 @@ const seed = async (): Promise<void> => {
                 password: hashPassword,
                 roleId: role.id,
             }
-        })
-    })
+        });
+    });
 
     for (const resource of systemResources) {
         await database.$transaction(async (tx) => {
@@ -34,7 +34,7 @@ const seed = async (): Promise<void> => {
                     name: resource.name,
                     label: resource.label
                 }
-            })
+            });
 
             for (const action of resource.actions) {
                 await tx.action.upsert({
@@ -45,9 +45,9 @@ const seed = async (): Promise<void> => {
                         slug: `${resource.name}:${action.name}`,
                         resourceId: resourceId.id
                     }
-                })
+                });
             }
-        })
+        });
     }
 }
 
