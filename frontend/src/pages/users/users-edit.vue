@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useToast } from '../../composables/useToast';
 import TemplatePage from '../../components/template-page.vue';
 import { api } from '../../services/api';
@@ -13,6 +13,8 @@ import { verifyApiError } from '../../services/verifyApiError';
 import ErrorMessage from '../../components/error-message.vue';
 import { useLoading } from '../../composables/useLoading';
 import { useUser } from '../../composables/useUser';
+import BaseButton from '../../components/base-button.vue';
+import router from '../../router';
 
 const { setUser } = useUser();
 const { showToast } = useToast();
@@ -49,10 +51,10 @@ const roleOptions = computed(() => {
     return roles.value.map((role: any) => ({
         label: role.name,
         value: role.name
-    }));
+      }));
 });
 
-onMounted(async () => {
+const loadData = async () => {
     try {
         const response = await api({
             url: `/users/edit/${props.name}`,
@@ -75,6 +77,14 @@ onMounted(async () => {
     } finally {
         showLoadingPage(false);
     }
+};
+
+onMounted(() => {
+    loadData();
+});
+
+watch(() => props.name, () => {
+    loadData();
 });
 
 const handleEdit = async () => {
@@ -104,6 +114,7 @@ const handleEdit = async () => {
         });
         
         showToast('Usuário atualizado com sucesso!', 'success');
+        router.replace(`/users/edit/${userData.value.name}`);
     } catch (error: any) {    
         console.error("Erro ao editar usuário: ", error);
         const hasMessage = verifyApiError(error.response?.status, false);
@@ -157,26 +168,13 @@ const handleEdit = async () => {
                     class="max-w-[400px] mt-8"
                 />
 
-                <button 
+                <BaseButton 
                     @click="handleEdit()"
-                    :disabled="loadingBtn"
-                    class="mt-5 p-2 px-8 rounded-lg bg-blue-600 text-white text-base font-semibold cursor-pointer transition-all flex justify-center items-center hover:bg-blue-700 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed"
+                    :loading="loadingBtn"
+                    class="mt-5 p-2 px-8 rounded-lg bg-blue-600 text-white text-base font-semibold hover:bg-blue-700"
                 >
-                    <span v-if="!loadingBtn">Salvar</span>
-                    <span v-else class="w-5 h-5 border-2 border-white/30 rounded-full border-t-white animate-spin"></span>
-                </button>
-
-                <div class="mt-12 flex gap-8">
-                    <div class="mt-10">
-                        <p class="text-[15px] font-medium text-slate-600">Criado Em</p>
-                        <p class="mt-2 text-[17px]">{{ userData.created_at }}</p>
-                    </div>
-
-                    <div class="mt-10">
-                        <p class="text-[15px] font-medium text-slate-600">Última Alteração</p>
-                        <p class="mt-2 text-[17px]">{{ userData.updated_at }}</p>
-                    </div>
-                </div>
+                    Salvar
+                </BaseButton>
             </div>
         </template>
 

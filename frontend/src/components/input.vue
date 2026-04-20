@@ -6,7 +6,6 @@ import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 const id = useId();
 
 interface Props {
-    value?: string,
     label?: string,
     password?: boolean,
     disabled?: boolean,
@@ -34,7 +33,7 @@ const handlePasswordVisibility = () => {
                 :placeholder="placeholder"
                 :type="password ? (showPassword ? 'text' : 'password') : 'text'"
                 :class="password ? 'pr-10' : ''"
-                class="w-full px-3.5 py-2 rounded-lg border-[1.5px] border-slate-200 bg-white text-base text-slate-800 transition-all focus:outline-none focus:border-blue-500 placeholder:text-slate-400"
+                class="w-full px-3.5 py-2 rounded-lg border-[1.5px] border-slate-200 bg-white text-base text-slate-800 transition-all focus:outline-none focus:border-blue-500 placeholder:text-slate-400 placeholder:text-[15px]"
             >
 
             <FontAwesomeIcon 

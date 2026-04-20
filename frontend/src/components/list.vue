@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { api } from '../services/api';
 import { useToast } from '../composables/useToast';
+import BaseButton from './base-button.vue';
 
 const { showToast } = useToast();
 const { showUser } = useUser();
@@ -19,7 +20,7 @@ interface Props {
 };
 
 const props = defineProps<Props>();
-const emit = defineEmits(['reload']);
+const emit = defineEmits(['reload', 'openFilter']);
 
 const selectedItems = ref<string[]>([]);
 const listContainer = ref<HTMLElement | null>(null);
@@ -112,7 +113,7 @@ const handleDelete = async () => {
                 >
                     <span class="text-[16px]">+&nbsp;</span>Criar Novo
                 </button>
-                <button class="p-2.5 py-[12px] text-slate-400 hover:text-slate-900 transition-colors rounded-lg border border-slate-200 bg-white hover:border-slate-300">
+                <button @click="emit('openFilter')" class="cursor-pointer p-2.5 py-[12px] text-slate-400 hover:text-slate-900 transition-colors rounded-lg border border-slate-200 bg-white hover:border-slate-300">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4.5h18M5.5 12h13M8 19.5h8"></path>
                     </svg>
@@ -123,15 +124,16 @@ const handleDelete = async () => {
         <div class="bg-white border border-slate-200 rounded-lg overflow-hidden flex flex-col">
             <div v-if="selectedItems.length > 0" class="bg-[#3e47df] px-6 py-2.5 flex items-center gap-4">
                 <span class="text-white text-[13px] font-medium tracking-wide">Selecionado ({{ selectedItems.length }})</span>
-                <button
+                <BaseButton
                     @click="handleDelete"
-                    class="cursor-pointer flex items-center gap-1.5 text-white text-[12px] font-medium border border-white/30 rounded-full px-3 py-1 hover:bg-white/10 transition-colors"
+                    :loading="loadingBtn"
+                    class="flex items-center gap-1.5 text-white text-[12px] font-medium border border-white/30 rounded-full px-3 py-1 hover:bg-white/10 transition-colors"
                 >
                     <FontAwesomeIcon 
                         :icon="faTrash"
                     />
                     Excluir Tudo
-                </button>
+                </BaseButton>
             </div>
 
             <div v-if="data.length !== 0" class="overflow-x-auto">

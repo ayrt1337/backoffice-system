@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { api } from '../../services/api';
 import TemplatePage from '../../components/template-page.vue';
 import { resources } from '../../config/resources';
@@ -31,7 +31,7 @@ const userData = ref<Partial<UserMetadata>>({
 const showDeleteModal = ref<boolean>(false);
 const loadingBtn = ref<boolean>(false);
 
-onMounted(async () => {
+const loadData = async () => {
     try {
         const response = await api({
             url: `/users/${props.name}`,
@@ -51,6 +51,14 @@ onMounted(async () => {
     } finally {
         showLoadingPage(false);
     }
+};
+
+onMounted(() => {
+    loadData();
+});
+
+watch(() => props.name, () => {
+    loadData();
 });
 
 const handleDelete = async () => {
@@ -103,7 +111,7 @@ const handleDelete = async () => {
                 </div>
             </div>
 
-            <div v-if="userData.role !== 'admin'"" class="flex mt-10 gap-3">
+            <div v-if="userData.role !== 'admin'" class="flex mt-10 gap-3">
                 <button
                     v-if="showUser.permissions.includes('users:edit') || showUser.name === 'admin'"
                     @click="() => router.push(`/users/edit/${userData.name}`)"
@@ -123,7 +131,8 @@ const handleDelete = async () => {
 
             <ConfirmModal
                 :show="showDeleteModal"
-                title="Excluir Cargo"
+                :loading="loadingBtn"
+                title="Excluir Usuário"
                 :message="`Tem certeza que deseja excluir o usuário '${userData.name}'? Esta ação não pode ser desfeita.`"
                 :danger="true"
                 @confirm="handleDelete"

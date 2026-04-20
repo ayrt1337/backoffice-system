@@ -15,7 +15,15 @@ export class UserController {
         throw new AppError("Unauthorized", 403);
       }
 
+      const { name, role, created_at, updated_at } = req.query as { name?: string; role?: string; created_at?: string; updated_at?: string };
+
       const usersRaw = await database.user.findMany({
+        where: {
+          ...(name && { name: { contains: name } }),
+          ...(role && { role: { name: { contains: role } } }),
+          ...(created_at && { created_at: { gte: new Date(created_at) } }),
+          ...(updated_at && { updated_at: { gte: new Date(updated_at) } }),
+        },
         select: {
           name: true,
           role: {
@@ -23,19 +31,21 @@ export class UserController {
               name: true,
             },
           },
-          created_at: true
+          created_at: true,
+          updated_at: true
         },
       });
 
       const users = usersRaw.map((user) => ({
         id: user.name,
         role: user.role.name,
-        created_at: formatDate(user.created_at)
+        created_at: formatDate(user.created_at),
+        updated_at: formatDate(user.updated_at)
       }));
 
       const userResponse = await getUserResponse(user);
 
-      return res.status(200).json({ user: userResponse, users });
+      return res.status(200).json({ user: userResponse, data: users });
     } catch (error) {
       next(error);
     }

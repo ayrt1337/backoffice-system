@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import TemplatePage from '../../components/template-page.vue';
 import { api } from '../../services/api';
 import Breadcrumbs from '../../components/breadcrumbs.vue';
@@ -33,7 +33,7 @@ const data = ref<RoleData>({
 const showDeleteModal = ref(false);
 const loadingBtn = ref<boolean>(false);
 
-onMounted(async () => {
+const loadData = async () => {
     try {
         const response = await api({
             url: `/roles/${props.name}`,
@@ -53,7 +53,15 @@ onMounted(async () => {
     } finally {
         showLoadingPage(false);
     }
-})
+};
+
+onMounted(() => {
+    loadData();
+});
+
+watch(() => props.name, () => {
+    loadData();
+});
 
 const handleDelete = async () => {
     loadingBtn.value = !loadingBtn.value;
@@ -82,7 +90,7 @@ const handleDelete = async () => {
             :breadcrumbs="[...metadata.breadcrumbs, { label: `${name}` }]"
         />
 
-        <template v-if="data.role !== ''">
+        <template v-if="data.role">
             <div class="mt-12">
                 <p class="text-[15px] font-medium text-slate-600">Nome do Cargo</p>
                 <p class="mt-2 text-[17px]">{{ data.role.name }}</p>
@@ -99,7 +107,19 @@ const handleDelete = async () => {
                 />
             </div>
 
-            <div v-if="data.role !== 'admin'" class="flex gap-3">
+            <div class="mt-12 flex gap-8">
+                <div>
+                    <p class="text-[15px] font-medium text-slate-600">Criado Em</p>
+                    <p class="mt-2 text-[17px]">{{ data.role.created_at }}</p>
+                </div>
+
+                <div>
+                    <p class="text-[15px] font-medium text-slate-600">Última Alteração</p>
+                    <p class="mt-2 text-[17px]">{{ data.role.updated_at }}</p>
+                </div>
+            </div>
+
+            <div v-if="data.role.name !== 'admin'" class="mt-10 flex gap-3">
                 <button 
                     v-if="showUser.permissions.includes('roles:edit') || showUser.name === 'admin'"
                     @click="() => router.push(`/roles/edit/${data.role.name}`)"
@@ -117,20 +137,9 @@ const handleDelete = async () => {
                 </button>
             </div>
 
-            <div class="mt-12 flex gap-8">
-                <div>
-                    <p class="text-[15px] font-medium text-slate-600">Criado Em</p>
-                    <p class="mt-2 text-[17px]">{{ data.role.created_at }}</p>
-                </div>
-
-                <div>
-                    <p class="text-[15px] font-medium text-slate-600">Última Alteração</p>
-                    <p class="mt-2 text-[17px]">{{ data.role.updated_at }}</p>
-                </div>
-            </div>
-
             <ConfirmModal
                 :show="showDeleteModal"
+                :loading="loadingBtn"
                 title="Excluir Cargo"
                 :message="`Tem certeza que deseja excluir o cargo '${data.role.name}'? Esta ação não pode ser desfeita.`"
                 :danger="true"

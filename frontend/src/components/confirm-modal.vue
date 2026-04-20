@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted } from 'vue';
+import BaseButton from './base-button.vue';
 
 interface Props {
     show: boolean;
@@ -8,12 +9,14 @@ interface Props {
     confirmLabel?: string;
     cancelLabel?: string;
     danger?: boolean;
+    loading?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
     confirmLabel: 'Confirmar',
     cancelLabel: 'Cancelar',
-    danger: true
+    danger: true,
+    loading: false
 });
 
 const emit = defineEmits(['confirm', 'cancel']);
@@ -70,21 +73,23 @@ onUnmounted(() => {
                         </div>
 
                         <div class="p-4 flex flex-col-reverse sm:flex-row sm:justify-center gap-3 px-10 pt-2 pb-6">
-                            <button
+                            <BaseButton
                                 @click="handleCancel"
+                                :disabled="loading"
                                 class="w-full sm:w-auto px-6 py-2.5 text-sm font-semibold flex-1 text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer"
                             >
                                 {{ cancelLabel }}
-                            </button>
-                            <button
+                            </BaseButton>
+                            <BaseButton
                                 @click="handleConfirm"
+                                :loading="loading"
                                 :class="[
                                     'w-full sm:w-auto px-6 py-2.5 text-sm font-semibold flex-1 text-white rounded-lg transition-all cursor-pointer',
-                                    danger ? 'bg-red-600 hover:bg-red-700 shadow-red-200' : 'bg-blue-600 hover:bg-blue-700 shadow-blue-200'
+                                    danger ? 'bg-red-600 hover:bg-red-700 shadow-red-200' : 'bg-blue-600 hover:bg-blue-700'
                                 ]"
                             >
                                 {{ confirmLabel }}
-                            </button>
+                            </BaseButton>
                         </div>
                     </div>
                 </Transition>

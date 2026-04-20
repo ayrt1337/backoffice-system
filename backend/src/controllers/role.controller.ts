@@ -16,20 +16,28 @@ export class RoleController {
         throw new AppError("Unauthorized", 403);
       }
 
+      const { name, created_at, updated_at } = req.query as { name?: string; role?: string; created_at?: string; updated_at?: string };
+
       const rolesRaw = await database.role.findMany({
-        select: { name: true, created_at: true },
+        where: {
+          ...(name && { name: { contains: name } }),
+          ...(created_at && { created_at: { gte: new Date(created_at) } }),
+          ...(updated_at && { updated_at: { gte: new Date(updated_at) } }),
+        },
+        select: { name: true, created_at: true, updated_at: true },
       });
       
       const roles = rolesRaw.map((role) => {
         return {
           id: role.name,
-          created_at: formatDate(role.created_at)
+          created_at: formatDate(role.created_at),
+          updated_at: formatDate(role.updated_at)
         };
       });
 
       const userResponse = await getUserResponse(user);
 
-      return res.status(200).json({ user: userResponse, roles });
+      return res.status(200).json({ user: userResponse, data: roles });
     } catch (error) {
       next(error);
     }

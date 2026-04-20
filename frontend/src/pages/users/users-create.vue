@@ -14,6 +14,7 @@ import { useToast } from '../../composables/useToast';
 import router from '../../router';
 import { useLoading } from '../../composables/useLoading';
 import { useUser } from '../../composables/useUser';
+import BaseButton from '../../components/base-button.vue';
 
 const { setUser } = useUser();
 const { showToast } = useToast();
@@ -139,14 +140,13 @@ const handleCreate = async () => {
                 class="max-w-[400px] mt-8"
             />
 
-            <button 
+            <BaseButton 
                 @click="handleCreate()"
-                :disabled="loadingBtn"
-                class="mt-5 p-2 px-8 rounded-lg bg-blue-600 text-white text-base font-semibold cursor-pointer transition-all flex justify-center items-center hover:bg-blue-700 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed"
+                :loading="loadingBtn"
+                class="mt-5 p-2 px-8 rounded-lg bg-blue-600 text-white text-base font-semibold hover:bg-blue-700"
             >
-                <span v-if="!loadingBtn">Criar</span>
-                <span v-else class="w-5 h-5 border-2 border-white/30 rounded-full border-t-white animate-spin"></span>
-            </button>
+                Criar
+            </BaseButton>
         </div>
     </TemplatePage>
 </template>
