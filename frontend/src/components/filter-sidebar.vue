@@ -47,6 +47,7 @@ const search = async () => {
             emit("apply-filter", data);
             close();
         } else if (allEmpty && currentQuery) {
+            await router.replace({ path: route.path });
             const data = await getData("");
 
             emit("apply-filter", data);
