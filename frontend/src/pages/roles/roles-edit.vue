@@ -42,6 +42,7 @@ const loadingBtn = ref<boolean>(false);
 
 const loadData = async () => {
     try {
+        showLoadingPage(true);
         const response = await api({
             url: `/roles/edit/${props.name}`,
             method: "get",

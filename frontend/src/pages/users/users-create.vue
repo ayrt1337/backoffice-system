@@ -45,6 +45,7 @@ const roleOptions = computed(() => {
 
 onMounted(async () => {
     try {
+        showLoadingPage(true);
         const response = await api({
             url: "/users/create",
             method: "get",

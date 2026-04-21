@@ -33,6 +33,7 @@ const loadingBtn = ref<boolean>(false);
 
 const loadData = async () => {
     try {
+        showLoadingPage(true);
         const response = await api({
             url: `/users/${props.name}`,
             method: 'get',

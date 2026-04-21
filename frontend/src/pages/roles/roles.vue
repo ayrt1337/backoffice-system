@@ -26,9 +26,10 @@ const filter = ref<any>({
 
 const loadData = async () => {
     showLoadingPage(true);
+    const urlQuery = new URLSearchParams(window.location.search).toString();
     try {
         const response = await api({
-            url: "/roles",
+            url: `/roles${urlQuery ? "?" + urlQuery : ""}`,
             method: "get",
         });
 

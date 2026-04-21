@@ -41,6 +41,7 @@ const loadingBtn = ref<boolean>(false);
 
 onMounted(async () => {
     try {
+        showLoadingPage(true);
         const response = await api({
             url: "/roles/create",
             method: "get",

@@ -56,6 +56,7 @@ const roleOptions = computed(() => {
 
 const loadData = async () => {
     try {
+        showLoadingPage(true);
         const response = await api({
             url: `/users/edit/${props.name}`,
             method: 'get'

@@ -35,6 +35,7 @@ const loadingBtn = ref<boolean>(false);
 
 const loadData = async () => {
     try {
+        showLoadingPage(true);
         const response = await api({
             url: `/roles/${props.name}`,
             method: 'get'
@@ -100,7 +101,7 @@ const handleDelete = async () => {
                 <h1 class="text-[15px] font-medium text-slate-600">Permissões</h1>
             
                 <CheckboxPanel 
-                    :role="data.role"
+                    :role="data.role.name"
                     :selected-permissions="data.rolePermissions"
                     :resources="data.resources"
                     :disabled="true"

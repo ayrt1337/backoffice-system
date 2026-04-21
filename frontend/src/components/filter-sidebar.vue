@@ -3,6 +3,10 @@ import { ref } from 'vue';
 import { api } from '../services/api';
 import { useToast } from '../composables/useToast';
 import BaseButton from './base-button.vue';
+import { useRouter, useRoute } from 'vue-router';
+
+const router = useRouter();
+const route = useRoute();
 
 interface Props {
     data: any,
@@ -17,56 +21,52 @@ const emit = defineEmits(['update:isOpen', 'reset', 'apply-filter']);
 
 const close = () => emit('update:isOpen', false);
 
-const loadingSearch = ref(false);
-const loadingReset = ref(false);
+const loadingSearch = ref<boolean>(false);
+const loadingReset = ref<boolean>(false);
 
 const search = async () => {
     let allEmpty = true;
+    const query: any = {};
+    
+    loadingSearch.value = true;
 
-    Object.values(props.data).map(value => {
+    Object.entries(props.data).forEach(([key, value]) => {
         if (value) {
-            allEmpty = false;
-            return;
+            query[key] = value;
+            if (allEmpty) allEmpty = false;
         }
     });
-    
-    if (!allEmpty) {
-        loadingSearch.value = true;
-        let query = '';
+    const newQuery = new URLSearchParams(query).toString();
+    const currentQuery = new URLSearchParams(window.location.search).toString();
 
-        Object.entries(props.data).map(([key, value]) => {
-            if (value) {
-                if (!query) query += `?${key}=${value}`
-                else query += `&${key}=${value}`
-            }
-        });
+    try {
+        if (!allEmpty && newQuery !== currentQuery) {
+            await router.replace({ query });
+            const data = await getData(newQuery ? "?" + newQuery : "");
 
-        try {
-            const response = await api({
-                url: `/${props.resource}` + query,
-                method: "get",
-            });
-
-            emit("apply-filter", response.data.data);
+            emit("apply-filter", data);
             close();
-        } catch (error: any) {
-            console.error("Erro ao aplicar filtro: ", error);
-            showToast("Ops! Algo deu errado.", "error");
-        } finally {
-            loadingSearch.value = false;
+        } else if (allEmpty && currentQuery) {
+            const data = await getData("");
+
+            emit("apply-filter", data);
+            close();
         }
+    } catch (error: any) {
+        console.error("Erro ao aplicar filtro: ", error);
+        showToast("Ops! Algo deu errado.", "error");
+    } finally {
+        loadingSearch.value = false;
     }
 };
 
 const reset = async () => {
     loadingReset.value = true;
+    await router.replace({ path: route.path });
     try {
-        const response = await api({
-            url: `/${props.resource}`,
-            method: "get",
-        });
-        
-        emit("reset", response.data.data);
+        const data = await getData("");
+
+        emit("reset", data);
         close();
     } catch (error: any) {
         console.error("Erro ao limpar filtro: ", error);
@@ -74,6 +74,15 @@ const reset = async () => {
     } finally {
         loadingReset.value = false;
     }
+};
+
+const getData = async (query: string) => {
+    const response = await api({
+        url: `/${props.resource}${query}`,
+        method: "get",
+    });
+
+    return response.data.data;
 };
 </script>
 
