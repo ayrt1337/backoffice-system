@@ -33,6 +33,11 @@ const isFilterOpen = ref<boolean>(false);
 const loadData = async () => {
     showLoadingPage(true);
     const urlQuery = new URLSearchParams(window.location.search).toString();
+
+    if (urlQuery) {
+        var search = location.search.substring(1);
+        filter.value = JSON.parse('{"' + decodeURI(search).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"') + '"}');
+    }
     try {
         const response = await getData(urlQuery);
         setUser(response.data.user);
@@ -48,8 +53,12 @@ onMounted(() => {
     loadData();
 })
 
-const resetFilters = async () => {
+const clearFilterFields = () => {
     filter.value = { name: "", created_at: "", updated_at: "" };
+};
+
+const resetFilters = async () => {
+    clearFilterFields();
     await getData();
 };
 
@@ -83,6 +92,7 @@ const getData = async (query = "") => {
             :apply-filter="getData"
             :resource="metadata.name"
             :data="filter"
+            :clear-fields="clearFilterFields"
         >
             <div class="flex flex-col gap-6">
                 <Input 

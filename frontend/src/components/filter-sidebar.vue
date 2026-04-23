@@ -13,7 +13,8 @@ interface Props {
     isOpen: boolean,
     close: () => void,
     reset: () => Promise<any>,
-    applyFilter: (query?: string) => Promise<any>
+    applyFilter: (query?: string) => Promise<any>,
+    clearFields: () => void
 };
 
 const props = defineProps<Props>();
@@ -23,10 +24,10 @@ const loadingSearch = ref<boolean>(false);
 const loadingReset = ref<boolean>(false);
 
 const search = async () => {
+    loadingSearch.value = !loadingSearch.value;
+
     let allEmpty = true;
     const query: any = {};
-    
-    loadingSearch.value = true;
 
     Object.entries(props.data).forEach(([key, value]) => {
         if (value) {
@@ -51,12 +52,33 @@ const search = async () => {
         console.error("Erro ao aplicar filtro: ", error);
         showToast("Ops! Algo deu errado.", "error");
     } finally {
-        loadingSearch.value = false;
+        loadingSearch.value = !loadingSearch.value;
     }
 };
 
 const reset = async () => {
-    loadingReset.value = true;
+    let allEmpty = true;
+
+    Object.values(props.data).forEach((value) => {
+        if (value) {
+            if (allEmpty) allEmpty = false;
+            return;
+        }
+    });
+
+    const currentQuery = new URLSearchParams(window.location.search).toString();
+
+    if (allEmpty && !currentQuery) {
+        return;
+    }
+
+    if (!allEmpty && !currentQuery) {
+        props.clearFields();
+        return;
+    }
+
+    loadingReset.value = !loadingReset.value;
+
     try {
         await props.reset();
         await router.replace({ path: route.path });
@@ -65,7 +87,7 @@ const reset = async () => {
         console.error("Erro ao limpar filtro: ", error);
         showToast("Ops! Algo deu errado.", "error");
     } finally {
-        loadingReset.value = false;
+        loadingReset.value = !loadingReset.value;
     }
 };
 </script>
