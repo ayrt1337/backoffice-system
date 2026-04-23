@@ -18,7 +18,14 @@ const metadata = resources.users;
 const users = ref<any>([]);
 const isFilterOpen = ref<boolean>(false);
 
-const filter = ref<any>({
+interface FilterProps {
+    name: string,
+    role: string,
+    created_at: string,
+    updated_at: string
+};
+
+const filter = ref<FilterProps>({
     name: "",
     role: "",
     created_at: "",
@@ -29,13 +36,8 @@ const loadData = async () => {
     showLoadingPage(true);
     const urlQuery = new URLSearchParams(window.location.search).toString();
     try {
-        const response = await api({
-            url: `/users${urlQuery ? "?" + urlQuery : ""}`,
-            method: "get",
-        });
-        
+        const response = await getData(urlQuery);
         setUser(response.data.user);
-        users.value = response.data.data;
     } catch (error: any) {
         console.error("Erro ao buscar usuários: ", error);
         verifyApiError(error.response?.status);
@@ -44,18 +46,24 @@ const loadData = async () => {
     }
 };
 
-const resetFilters = (data: any) => {
-    filter.value = { name: "", role: "", created_at: "", updated_at: "" };
-    users.value = data;
-};
-
-const applyFilters = (data: any) => {
-    users.value = data;
-};
-
 onMounted(() => {
     loadData();
 })
+
+const resetFilters = async () => {
+    filter.value = { name: "", role: "", created_at: "", updated_at: "" };
+    await getData();
+};
+
+const getData = async (query = "") => {
+    const response = await api({
+        url: `/users${query ? "?" + query : query}`,
+        method: "get",
+    });
+
+    users.value = response.data.data;
+    return response;
+};
 </script>
 
 <template>
@@ -66,14 +74,15 @@ onMounted(() => {
             :pluralLabel="metadata.pluralLabel"
             :labels="metadata.tableLabels"
             :resource="metadata.name"
-            @reload="loadData"
-            @openFilter="isFilterOpen = true"
+            :reload="getData"
+            :open-filter="() => isFilterOpen = true"
         />
 
         <FilterSidebar 
-            v-model:isOpen="isFilterOpen" 
-            @reset="resetFilters"
-            @apply-filter="applyFilters"
+            :isOpen="isFilterOpen"
+            :close="() => isFilterOpen = false"
+            :reset="resetFilters"
+            :apply-filter="getData"
             :resource="metadata.name"
             :data="filter"
         >

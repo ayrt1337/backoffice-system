@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import router from '../router';
 import { useUser } from '../composables/useUser';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
@@ -7,20 +7,23 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { api } from '../services/api';
 import { useToast } from '../composables/useToast';
 import BaseButton from './base-button.vue';
+import { useRoute } from 'vue-router';
 
+const route  = useRoute();
 const { showToast } = useToast();
 const { showUser } = useUser();
 
 interface Props {
     data: any[],
     label: string,
+    openFilter: () => void,
+    reload: (query: string) => Promise<any>,
     labels: string[],
     resource: string,
     pluralLabel: string
 };
 
 const props = defineProps<Props>();
-const emit = defineEmits(['reload', 'openFilter']);
 
 const selectedItems = ref<string[]>([]);
 const listContainer = ref<HTMLElement | null>(null);
@@ -86,9 +89,16 @@ const handleDelete = async () => {
             data: { names: selectedItems.value }
         });
 
+        await props.reload(new URLSearchParams(window.location.search).toString());
+
         selectedItems.value = [];
+        
+        const inputs = listContainer.value?.querySelectorAll("input");
+        inputs?.forEach((input) => {
+            input.checked = false;
+        });
+
         showToast(`${props.pluralLabel} excluídos com sucesso!`, "success");
-        emit('reload');
     } catch (error) {
         console.error(`Erro em excluir ${props.pluralLabel.toLocaleLowerCase()}: `, error);
         showToast("Ops! Algo deu errado.", "error");
@@ -96,6 +106,15 @@ const handleDelete = async () => {
         loadingBtn.value = !loadingBtn.value;
     }
 };
+
+watch(() => route.query, () => {
+    selectedItems.value = [];
+
+    const inputs = listContainer.value?.querySelectorAll("input");
+    inputs?.forEach((input) => {
+        input.checked = false;
+    });
+});
 </script>
 
 <template>
@@ -113,7 +132,7 @@ const handleDelete = async () => {
                 >
                     <span class="text-[16px]">+&nbsp;</span>Criar Novo
                 </button>
-                <button @click="emit('openFilter')" class="cursor-pointer p-2.5 py-[12px] text-slate-400 hover:text-slate-900 transition-colors rounded-lg border border-slate-200 bg-white hover:border-slate-300">
+                <button @click="openFilter" class="cursor-pointer p-2.5 py-[12px] text-slate-400 hover:text-slate-900 transition-colors rounded-lg border border-slate-200 bg-white hover:border-slate-300">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4.5h18M5.5 12h13M8 19.5h8"></path>
                     </svg>

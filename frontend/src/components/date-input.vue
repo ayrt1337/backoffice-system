@@ -18,7 +18,7 @@ const date = defineModel<string>();
 
         <div class="flex items-center relative">
             <input 
-                v-model="date"
+                v-model.trim="date"
                 :disabled="disabled"
                 :id="id"
                 type="date"

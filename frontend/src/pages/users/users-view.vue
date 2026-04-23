@@ -136,8 +136,8 @@ const handleDelete = async () => {
                 title="Excluir Usuário"
                 :message="`Tem certeza que deseja excluir o usuário '${userData.name}'? Esta ação não pode ser desfeita.`"
                 :danger="true"
-                @confirm="handleDelete"
-                @cancel="showDeleteModal = false"
+                :confirm="handleDelete"
+                :cancel="() => showDeleteModal = false"
             />
         </template>
 

@@ -294,7 +294,7 @@ export class RoleController {
       }
 
       for (const name of names) {
-        const role = await database.user.findUnique({
+        const role = await database.role.findUnique({
           where: { name },
         });
 

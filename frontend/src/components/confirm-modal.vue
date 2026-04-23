@@ -6,6 +6,8 @@ interface Props {
     show: boolean;
     title: string;
     message: string;
+    confirm: () => void;
+    cancel: () => void;
     confirmLabel?: string;
     cancelLabel?: string;
     danger?: boolean;
@@ -18,16 +20,6 @@ const props = withDefaults(defineProps<Props>(), {
     danger: true,
     loading: false
 });
-
-const emit = defineEmits(['confirm', 'cancel']);
-
-const handleConfirm = () => {
-    emit('confirm');
-};
-
-const handleCancel = () => {
-    emit('cancel');
-};
 
 onMounted(() => {
     if (props.show) {
@@ -51,7 +43,7 @@ onUnmounted(() => {
             <div v-if="show" class="fixed inset-0 z-50 flex items-center justify-center p-4">
                 <div 
                     class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
-                    @click="handleCancel"
+                    @click="cancel"
                 ></div>
 
                 <Transition
@@ -74,14 +66,14 @@ onUnmounted(() => {
 
                         <div class="p-4 flex flex-col-reverse sm:flex-row sm:justify-center gap-3 px-10 pt-2 pb-6">
                             <BaseButton
-                                @click="handleCancel"
+                                @click="cancel"
                                 :disabled="loading"
                                 class="w-full sm:w-auto px-6 py-2.5 text-sm font-semibold flex-1 text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer"
                             >
                                 {{ cancelLabel }}
                             </BaseButton>
                             <BaseButton
-                                @click="handleConfirm"
+                                @click="confirm"
                                 :loading="loading"
                                 :class="[
                                     'w-full sm:w-auto px-6 py-2.5 text-sm font-semibold flex-1 text-white rounded-lg transition-all cursor-pointer',

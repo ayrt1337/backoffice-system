@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { api } from '../services/api';
 import { useToast } from '../composables/useToast';
 import BaseButton from './base-button.vue';
 import { useRouter, useRoute } from 'vue-router';
@@ -11,15 +10,14 @@ const route = useRoute();
 interface Props {
     data: any,
     resource: string,
-    isOpen: boolean;
+    isOpen: boolean,
+    close: () => void,
+    reset: () => Promise<any>,
+    applyFilter: (query?: string) => Promise<any>
 };
 
 const props = defineProps<Props>();
 const { showToast } = useToast();
-
-const emit = defineEmits(['update:isOpen', 'reset', 'apply-filter']);
-
-const close = () => emit('update:isOpen', false);
 
 const loadingSearch = ref<boolean>(false);
 const loadingReset = ref<boolean>(false);
@@ -41,17 +39,13 @@ const search = async () => {
 
     try {
         if (!allEmpty && newQuery !== currentQuery) {
+            await props.applyFilter(newQuery);
             await router.replace({ query });
-            const data = await getData(newQuery ? "?" + newQuery : "");
-
-            emit("apply-filter", data);
-            close();
+            props.close();
         } else if (allEmpty && currentQuery) {
+            await props.applyFilter();
             await router.replace({ path: route.path });
-            const data = await getData("");
-
-            emit("apply-filter", data);
-            close();
+            props.close();
         }
     } catch (error: any) {
         console.error("Erro ao aplicar filtro: ", error);
@@ -63,27 +57,16 @@ const search = async () => {
 
 const reset = async () => {
     loadingReset.value = true;
-    await router.replace({ path: route.path });
     try {
-        const data = await getData("");
-
-        emit("reset", data);
-        close();
+        await props.reset();
+        await router.replace({ path: route.path });
+        props.close();
     } catch (error: any) {
         console.error("Erro ao limpar filtro: ", error);
         showToast("Ops! Algo deu errado.", "error");
     } finally {
         loadingReset.value = false;
     }
-};
-
-const getData = async (query: string) => {
-    const response = await api({
-        url: `/${props.resource}${query}`,
-        method: "get",
-    });
-
-    return response.data.data;
 };
 </script>
 
@@ -97,7 +80,7 @@ const getData = async (query: string) => {
             leave-from-class="opacity-100"
             leave-to-class="opacity-0"
         >
-            <div v-if="isOpen" @click="close" class="fixed inset-0 bg-slate-900/50 z-[100]"></div>
+            <div v-if="isOpen && !loadingReset && !loadingSearch" @click="close" class="fixed inset-0 bg-slate-900/50 z-[100]"></div>
         </Transition>
 
         <Transition
@@ -124,7 +107,7 @@ const getData = async (query: string) => {
 
                 <div class="p-6 border-t border-slate-100 bg-slate-50 flex items-center justify-between gap-4">
                     <BaseButton 
-                        @click="reset" 
+                        @click="reset"
                         :loading="loadingReset"
                         class="flex-1 py-3 px-4 rounded-md font-medium text-blue-600 bg-white border border-slate-300 hover:bg-slate-50"
                     >

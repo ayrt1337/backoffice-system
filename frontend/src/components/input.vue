@@ -27,7 +27,7 @@ const handlePasswordVisibility = () => {
 
         <div class="flex items-center relative">
             <input 
-                v-model="text"
+                v-model.trim="text"
                 :disabled="disabled"
                 :id="id" 
                 :placeholder="placeholder"
