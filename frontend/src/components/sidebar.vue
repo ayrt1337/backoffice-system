@@ -6,15 +6,21 @@ import router from '../router';
 import { api } from '../services/api';
 import { verifyApiError } from '../services/verifyApiError';
 import { useLoading } from '../composables/useLoading';
+import { useUser } from '../composables/useUser';
 
+const { showUser } = useUser();
 const { showLoadingPage } = useLoading();
 const route = useRoute();
 
 const menuItems = [
-    { name: 'Dashboard', path: '/dashboard', icon: faChartLine },
-    { name: 'Usuários', path: '/users', icon: faUsers },
-    { name: 'Cargos', path: '/roles', icon: faShieldHalved },
+    { name: 'Dashboard', path: '/dashboard', icon: faChartLine, permission: 'dashboard:read' },
+    { name: 'Usuários', path: '/users', icon: faUsers, permission: 'users:read' },
+    { name: 'Cargos', path: '/roles', icon: faShieldHalved, permission: 'roles:read' },
 ];
+
+const filteredItems = menuItems.filter(obj => {
+    return showUser.value.permissions.includes(obj.permission) || showUser.value.name === 'admin';
+});
 
 const handleLogout = async () => {
     showLoadingPage(true);
@@ -42,7 +48,7 @@ const handleLogout = async () => {
                         <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-widest px-2 mb-4">Navegação</h3>
                         <div class="space-y-1">
                             <router-link 
-                                v-for="item in menuItems" 
+                                v-for="item in filteredItems"
                                 :key="item.path"
                                 :to="item.path"
                                 class="flex items-center px-3 py-2 text-[15px] font-medium rounded-xl transition-colors group"
