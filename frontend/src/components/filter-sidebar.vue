@@ -102,7 +102,11 @@ const reset = async () => {
             leave-from-class="opacity-100"
             leave-to-class="opacity-0"
         >
-            <div v-if="isOpen && !loadingReset && !loadingSearch" @click="close" class="fixed inset-0 bg-slate-900/50 z-[100]"></div>
+            <div 
+                v-if="isOpen"
+                @click="(!loadingReset && !loadingSearch) ? close() : null" 
+                class="fixed inset-0 bg-slate-900/50 z-[100]"
+            ></div>
         </Transition>
 
         <Transition
@@ -130,13 +134,15 @@ const reset = async () => {
                 <div class="p-6 border-t border-slate-100 bg-slate-50 flex items-center justify-between gap-4">
                     <BaseButton 
                         @click="reset"
+                        :disabled="loadingReset || loadingSearch"
                         :loading="loadingReset"
                         class="flex-1 py-3 px-4 rounded-md font-medium text-blue-600 bg-white border border-slate-300 hover:bg-slate-50"
                     >
                         Limpar
                     </BaseButton>
                     <BaseButton 
-                        @click="search" 
+                        @click="search"
+                        :disabled="loadingReset || loadingSearch"
                         :loading="loadingSearch"
                         class="flex-1 py-3 px-4 rounded-md font-medium text-white bg-blue-600 hover:bg-blue-700"
                     >

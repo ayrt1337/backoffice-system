@@ -41,9 +41,9 @@ onUnmounted(() => {
             leave-to-class="opacity-0"
         >
             <div v-if="show" class="fixed inset-0 z-50 flex items-center justify-center p-4">
-                <div 
+                <div
                     class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
-                    @click="cancel"
+                    @click="!loading ? cancel : null"
                 ></div>
 
                 <Transition
