@@ -4,3 +4,11 @@ export interface User {
     password: string,
     role: string
 };
+
+export interface UsersListQuery {
+    name?: string,
+    role?: string,
+    created_at?: string,
+    updated_at?: string,
+    page: string
+};

@@ -6,6 +6,7 @@ import { AppError } from "../errors/app-error.js";
 import { getPermissions } from "../services/get-permissions.js";
 import { getUserResponse } from "../services/get-user-response.js";
 import { formatDate } from "../utils/format-date.js";
+import { RolesListQuery } from "../types/role.js";
 
 export class RoleController {
   async list(req: Request, res: Response, next: NextFunction) {
@@ -16,16 +17,27 @@ export class RoleController {
         throw new AppError("Unauthorized", 403);
       }
 
-      const { name, created_at, updated_at } = req.query as { name?: string; role?: string; created_at?: string; updated_at?: string };
+      const { name, created_at, updated_at, page } = req.query as unknown as RolesListQuery;
 
-      const rolesRaw = await database.role.findMany({
-        where: {
-          ...(name && { name: { contains: name } }),
-          ...(created_at && { created_at: { gte: new Date(created_at) } }),
-          ...(updated_at && { updated_at: { gte: new Date(updated_at) } }),
-        },
-        select: { name: true, created_at: true, updated_at: true },
-      });
+      const take = 20;
+      const currentPage = Number(page) || 1;
+      const skip = (currentPage - 1) * take;
+
+      const where = {
+        ...(name && { name: { contains: name } }),
+        ...(created_at && { created_at: { gte: new Date(created_at) } }),
+        ...(updated_at && { updated_at: { gte: new Date(updated_at) } }),
+      };
+
+      const [totalCount, rolesRaw] = await database.$transaction([
+        database.role.count({ where }),
+        database.role.findMany({
+          where,
+          skip,
+          take,
+          select: { name: true, created_at: true, updated_at: true },
+        })
+      ]);
       
       const roles = rolesRaw.map((role) => {
         return {
@@ -37,7 +49,16 @@ export class RoleController {
 
       const userResponse = await getUserResponse(user);
 
-      return res.status(200).json({ user: userResponse, data: roles });
+      return res.status(200).json({ 
+        user: userResponse, 
+        data: roles,
+        pagination: {
+          total: totalCount,
+          pages: Math.ceil(totalCount / take),
+          currentPage,
+          perPage: take
+        }
+      });
     } catch (error) {
       next(error);
     }

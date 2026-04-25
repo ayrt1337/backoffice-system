@@ -116,7 +116,7 @@ const handleDelete = async () => {
                 <button
                     v-if="showUser.permissions.includes('users:edit') || showUser.name === 'admin'"
                     @click="() => router.push(`/users/edit/${userData.name}`)"
-                    class="mt-5 p-2 px-8 rounded-lg bg-blue-600 text-white text-base font-semibold cursor-pointer transition-all flex justify-center items-center hover:bg-blue-700 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed"
+                    class="p-2 px-8 rounded-lg bg-blue-600 text-white text-base font-semibold cursor-pointer transition-all flex justify-center items-center hover:bg-blue-700 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                     <span>Editar</span>
                 </button>
@@ -124,7 +124,7 @@ const handleDelete = async () => {
                 <button
                     v-if="showUser.permissions.includes('users:delete') || showUser.name === 'admin'"
                     @click="showDeleteModal = true"
-                    class="mt-5 p-2 px-8 rounded-lg bg-red-600 text-white text-base font-semibold cursor-pointer transition-all flex justify-center items-center hover:bg-red-700 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed"
+                    class="p-2 px-8 rounded-lg bg-red-600 text-white text-base font-semibold cursor-pointer transition-all flex justify-center items-center hover:bg-red-700 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                     <span>Excluir</span>
                 </button>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import { api } from '../../services/api';
 import TemplatePage from '../../components/template-page.vue';
 import { resources } from '../../config/resources';
@@ -13,6 +14,7 @@ import DateInput from '../../components/date-input.vue';
 
 const { setUser } = useUser();
 const { showLoadingPage } = useLoading();
+const route = useRoute();
 const metadata = resources.roles;
 
 interface FilterProps {
@@ -28,15 +30,16 @@ const filter = ref<FilterProps>({
 });
 
 const roles = ref<any>([]);
+const pagination = ref<any>({ current_page: 1, last_page: 1 });
 const isFilterOpen = ref<boolean>(false);
 
 const loadData = async () => {
     showLoadingPage(true);
-    const urlQuery = new URLSearchParams(window.location.search).toString();
+    const urlQuery = new URLSearchParams(route.query as Record<string, string>).toString();
 
     if (urlQuery) {
-        var search = location.search.substring(1);
-        filter.value = JSON.parse('{"' + decodeURI(search).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"') + '"}');
+        var search = urlQuery;
+        filter.value = JSON.parse('{"' + decodeURI(search).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"').replaceAll('+', ' ') + '"}');
     }
     try {
         const response = await getData(urlQuery);
@@ -51,7 +54,11 @@ const loadData = async () => {
 
 onMounted(() => {
     loadData();
-})
+});
+
+watch(() => route.query.page, () => {
+    loadData();
+});
 
 const clearFilterFields = () => {
     filter.value = { name: "", created_at: "", updated_at: "" };
@@ -69,6 +76,10 @@ const getData = async (query = "") => {
     });
 
     roles.value = response.data.data;
+    pagination.value = {
+        current_page: response.data.pagination.currentPage || 1,
+        last_page: response.data.pagination.pages || 1
+    };
     return response;
 };
 </script>
@@ -83,6 +94,7 @@ const getData = async (query = "") => {
             :resource="metadata.name"
             :reload="getData"
             :open-filter="() => isFilterOpen = true"
+            :pagination="pagination"
         />
 
         <FilterSidebar 

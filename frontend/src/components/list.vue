@@ -9,6 +9,7 @@ import { useToast } from '../composables/useToast';
 import BaseButton from './base-button.vue';
 import { useRoute } from 'vue-router';
 import ConfirmModal from './confirm-modal.vue';
+import Pagination from './pagination.vue';
 
 const route  = useRoute();
 const { showToast } = useToast();
@@ -21,7 +22,11 @@ interface Props {
     reload: (query: string) => Promise<any>,
     labels: string[],
     resource: string,
-    pluralLabel: string
+    pluralLabel: string,
+    pagination?: {
+        current_page: number;
+        last_page: number;
+    }
 };
 
 const props = defineProps<Props>();
@@ -206,7 +211,7 @@ watch(() => route.query, () => {
         </div>
 
         <div class="bg-white border border-slate-200 rounded-lg overflow-hidden flex flex-col">
-            <div v-if="selectedItems.length > 0" class="bg-[#3e47df] px-6 py-2.5 flex items-center gap-4">
+            <div v-if="selectedItems.length > 0" class="bg-blue-600 px-6 py-2.5 flex items-center gap-4">
                 <span class="text-white text-[13px] font-medium tracking-wide">Selecionado ({{ selectedItems.length }})</span>
                 <BaseButton
                     @click="handleDeleteMany"
@@ -271,6 +276,12 @@ watch(() => route.query, () => {
                 <h3 class="font-bold text-slate-800">Nenhum resultado encontrado</h3>
                 <button @click="() => router.push(`/${resource}/create`)" class="mt-4 cursor-pointer text-sm font-bold text-blue-600 hover:underline">Adicionar {{ label }}</button>
             </div>
+
+            <Pagination 
+                v-if="pagination && data.length > 0"
+                :current-page="pagination.current_page"
+                :total-pages="pagination.last_page"
+            />
         </div>
     </div>
 

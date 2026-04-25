@@ -5,6 +5,7 @@ import { AppError } from "../errors/app-error.js";
 import { verifyPermissions } from "../services/index.js";
 import { getUserResponse } from "../services/get-user-response.js";
 import { formatDate } from "../utils/format-date.js";
+import { UsersListQuery } from "../types/user.js";
 
 export class UserController {
   async list(req: Request, res: Response, next: NextFunction) {
@@ -15,26 +16,37 @@ export class UserController {
         throw new AppError("Unauthorized", 403);
       }
 
-      const { name, role, created_at, updated_at } = req.query as { name?: string; role?: string; created_at?: string; updated_at?: string };
+      const { name, role, created_at, updated_at, page } = req.query as unknown as UsersListQuery;
 
-      const usersRaw = await database.user.findMany({
-        where: {
-          ...(name && { name: { contains: name } }),
-          ...(role && { role: { name: { contains: role } } }),
-          ...(created_at && { created_at: { gte: new Date(created_at) } }),
-          ...(updated_at && { updated_at: { gte: new Date(updated_at) } }),
-        },
-        select: {
-          name: true,
-          role: {
-            select: {
-              name: true,
+      const take = 20;
+      const currentPage = Number(page) || 1;
+      const skip = (currentPage - 1) * take;
+
+      const where = {
+        ...(name && { name: { contains: name } }),
+        ...(role && { role: { name: { contains: role } } }),
+        ...(created_at && { created_at: { gte: new Date(created_at) } }),
+        ...(updated_at && { updated_at: { gte: new Date(updated_at) } }),
+      };
+
+      const [totalCount, usersRaw] = await database.$transaction([
+        database.user.count({ where }),
+        database.user.findMany({
+          where,
+          skip,
+          take,
+          select: {
+            name: true,
+            role: {
+              select: {
+                name: true,
+              },
             },
+            created_at: true,
+            updated_at: true
           },
-          created_at: true,
-          updated_at: true
-        },
-      });
+        })
+      ]);
 
       const users = usersRaw.map((user) => ({
         id: user.name,
@@ -45,7 +57,16 @@ export class UserController {
 
       const userResponse = await getUserResponse(user);
 
-      return res.status(200).json({ user: userResponse, data: users });
+      return res.status(200).json({ 
+        user: userResponse, 
+        data: users,
+        pagination: {
+          total: totalCount,
+          pages: Math.ceil(totalCount / take),
+          currentPage,
+          perPage: take
+        }
+      });
     } catch (error) {
       next(error);
     }
