@@ -96,7 +96,7 @@ const handleDeleteMany = async () => {
     loadingBtn.value = !loadingBtn.value;
 
     try {
-        await deleteApi(selectedItems);
+        await deleteApi(selectedItems.value);
         selectedItems.value = [];
         
         const inputs = listContainer.value?.querySelectorAll("input");
@@ -117,7 +117,7 @@ const handleDeleteOne = async () => {
     loadingModal.value = !loadingModal.value;
 
     try {
-        await deleteApi(activeDropdownItem.value.id);
+        await deleteApi([activeDropdownItem.value.id]);
         showToast(`${props.label} excluído com sucesso!`, "success");
     } catch (error: any) {
         console.error(`Erro ao excluir ${props.label}: `, error);
@@ -132,7 +132,7 @@ const deleteApi = async (items: any) => {
     await api({
         url: `/${props.resource}/delete`,
         method: 'delete',
-        data: { names: [items] }
+        data: { names: items }
     });
 
     await props.reload(new URLSearchParams(window.location.search).toString());
