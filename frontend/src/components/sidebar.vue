@@ -14,8 +14,8 @@ const route = useRoute();
 
 const menuItems = [
     { name: 'Dashboard', path: '/dashboard', icon: faChartLine, permission: 'dashboard:read' },
-    { name: 'Usuários', path: '/users', icon: faUsers, permission: 'users:read' },
-    { name: 'Cargos', path: '/roles', icon: faShieldHalved, permission: 'roles:read' },
+    { name: 'Usuários', path: '/users', query: '?page=1', icon: faUsers, permission: 'users:read' },
+    { name: 'Cargos', path: '/roles', query: '?page=1', icon: faShieldHalved, permission: 'roles:read' },
 ];
 
 const filteredItems = menuItems.filter(obj => {
@@ -50,9 +50,9 @@ const handleLogout = async () => {
                             <router-link 
                                 v-for="item in filteredItems"
                                 :key="item.path"
-                                :to="item.path"
+                                :to="item.path + item.query"
                                 class="flex items-center px-3 py-2 text-[15px] font-medium rounded-xl transition-colors group"
-                                :class="route.path.startsWith(item.path) 
+                                :class="route.path.startsWith(item.path)
                                     ? 'bg-blue-50 text-blue-600' 
                                     : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'"
                             >

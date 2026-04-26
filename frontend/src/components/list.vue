@@ -20,6 +20,7 @@ interface Props {
     label: string,
     openFilter: () => void,
     reload: (query: string) => Promise<any>,
+    loadData: () => void,
     labels: string[],
     resource: string,
     pluralLabel: string,
@@ -138,7 +139,6 @@ const deleteApi = async (items: any) => {
 };
 
 const showDropdown = (e: MouseEvent, item: any) => {
-    console.log(item)
     if (dropdownTimeout.value) clearTimeout(dropdownTimeout.value);
     
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
@@ -281,6 +281,7 @@ watch(() => route.query, () => {
                 v-if="pagination && data.length > 0"
                 :current-page="pagination.current_page"
                 :total-pages="pagination.last_page"
+                :load-data="loadData"
             />
         </div>
     </div>

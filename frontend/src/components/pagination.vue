@@ -5,7 +5,8 @@ import { useRoute, useRouter } from 'vue-router';
 interface Props {
     currentPage: number;
     totalPages: number;
-}
+    loadData: () => void;
+};
 
 const props = defineProps<Props>();
 const route = useRoute();
@@ -40,11 +41,12 @@ const pages = computed(() => {
     return rangeWithDots;
 });
 
-const changePage = (page: number | string) => {
+const changePage = async (page: number | string) => {
     if (page === '...' || page === props.currentPage) return;
-    
+
     const query = { ...route.query, page: String(page) };
-    router.push({ query });
+    await router.replace({ query });
+    props.loadData();
 };
 </script>
 

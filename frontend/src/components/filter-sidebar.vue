@@ -36,16 +36,19 @@ const search = async () => {
         }
     });
     const newQuery = new URLSearchParams(query).toString();
-    const currentQuery = new URLSearchParams(window.location.search).toString();
+    
+    const currentSearchParams = new URLSearchParams(window.location.search);
+    currentSearchParams.delete('page');
+    const currentQuery = currentSearchParams.toString();
 
     try {
         if (!allEmpty && newQuery !== currentQuery) {
             await props.applyFilter(newQuery);
-            await router.replace({ query });
+            await router.replace({ query: { page: 1, ...query } });
             props.close();
         } else if (allEmpty && currentQuery) {
             await props.applyFilter();
-            await router.replace({ path: route.path });
+            await router.replace({ path: route.path, query: { page: 1 } });
             props.close();
         }
     } catch (error: any) {
@@ -66,7 +69,9 @@ const reset = async () => {
         }
     });
 
-    const currentQuery = new URLSearchParams(window.location.search).toString();
+    const currentSearchParams = new URLSearchParams(window.location.search);
+    currentSearchParams.delete('page');
+    const currentQuery = currentSearchParams.toString();
 
     if (allEmpty && !currentQuery) {
         return;
@@ -81,7 +86,7 @@ const reset = async () => {
 
     try {
         await props.reset();
-        await router.replace({ path: route.path });
+        await router.replace({ path: route.path, query: { page: 1 } });
         props.close();
     } catch (error: any) {
         console.error("Erro ao limpar filtro: ", error);

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import TemplatePage from '../../components/template-page.vue';
 import { api } from '../../services/api';
@@ -41,7 +41,9 @@ const loadData = async () => {
 
     if (urlQuery) {
         var search = urlQuery;
-        filter.value = JSON.parse('{"' + decodeURI(search).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"').replaceAll('+', ' ') + '"}');
+        const filterObj = JSON.parse('{"' + decodeURI(search).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"').replaceAll('+', ' ') + '"}');
+        delete filterObj["page"];
+        filter.value = filterObj as FilterProps;
     }
     try {
         const response = await getData(urlQuery);
@@ -55,10 +57,6 @@ const loadData = async () => {
 };
 
 onMounted(() => {
-    loadData();
-});
-
-watch(() => route.query.page, () => {
     loadData();
 });
 
@@ -96,6 +94,7 @@ const getData = async (query = "") => {
             :resource="metadata.name"
             :reload="getData"
             :open-filter="() => isFilterOpen = true"
+            :load-data="loadData"
             :pagination="pagination"
         />
 
