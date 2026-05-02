@@ -114,8 +114,8 @@ const handleEdit = async () => {
             }
         });
         
+        await router.push(`/users/${userData.value.name}`);
         showToast('Usuário atualizado com sucesso!', 'success');
-        router.replace(`/users/edit/${userData.value.name}`);
     } catch (error: any) {    
         console.error("Erro ao editar usuário: ", error);
         const hasMessage = verifyApiError(error.response?.status, false);

@@ -82,8 +82,8 @@ const handleCreate = async () => {
             }
         });
 
+        await router.push("/roles?page=1");
         showToast("Cargo criado com sucesso!", "success");
-        router.push("/roles");
     } catch (error: any) {
         console.error("Erro ao criar cargo: ", error);
         const hasMessage = verifyApiError(error.response?.status, false);

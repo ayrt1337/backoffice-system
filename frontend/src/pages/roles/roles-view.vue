@@ -73,8 +73,8 @@ const handleDelete = async () => {
             data: { names: [props.name] }
         });
 
+        await router.push('/roles?page=1');
         showToast("Cargo excluído com sucesso!", "success");
-        router.push('/roles');
     } catch(error: any) {
         console.error("Erro ao excluir cargo: ", error);
         showToast("Ops! Algo deu errado.", "error");

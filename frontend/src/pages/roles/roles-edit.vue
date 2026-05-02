@@ -95,9 +95,9 @@ const handleEdit = async () => {
                 permissions: data.value.rolePermissions
             }
         });
-        
+
+        await router.push(`/roles/${data.value.role.name}`);
         showToast("Cargo editado com sucesso!", "success");
-        router.replace(`/roles/edit/${data.value.role.name}`);
     } catch (error: any) {
         console.error("Erro ao editar cargo: ", error);
         const hasMessage = verifyApiError(error.response?.status, false);

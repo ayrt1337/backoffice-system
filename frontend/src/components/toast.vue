@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useToast } from '../composables/useToast';
+import { useLoading } from '../composables/useLoading';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { 
     faCheckCircle, 
@@ -9,6 +10,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 const { toastState } = useToast();
+const { showLoading } = useLoading();
 
 const closeToast = () => {
     toastState.value.show = false;
@@ -27,7 +29,7 @@ const closeToast = () => {
             leave-to-class="translate-y-[-100%] opacity-0 sm:translate-y-0 sm:translate-x-[100%]"
         >
             <div 
-                v-if="toastState.show"
+                v-if="toastState.show && !showLoading"
                 :key="toastState.id"
                 class="fixed top-6 right-6 z-[9999] w-full max-w-sm overflow-hidden rounded-xl border bg-white/80 backdrop-blur-md shadow-2xl ring-1 ring-black/5"
                 :class="{

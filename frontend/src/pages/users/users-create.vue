@@ -87,8 +87,8 @@ const handleCreate = async () => {
             }
         });
 
+        await router.push("/users?page=1");
         showToast("Usuário criado com sucesso!", "success");
-        router.push("/users");
     } catch (error: any) {
         console.error("Erro ao criar usuário: ", error);
         const hasMessage = verifyApiError(error.response?.status, false);
