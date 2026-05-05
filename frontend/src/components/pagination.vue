@@ -89,7 +89,7 @@ const changePage = async (page: number | string) => {
 
         <button
             @click="changePage(currentPage + 1)"
-            :disabled="currentPage === totalPages"
+            :disabled="currentPage >= totalPages"
             class="cursor-pointer flex items-center justify-center w-9 h-9 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>

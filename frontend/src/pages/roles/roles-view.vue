@@ -74,7 +74,7 @@ const handleDelete = async () => {
         });
 
         await router.push('/roles?page=1');
-        showToast("Cargo excluído com sucesso!", "success");
+        showToast("Cargo excluído com sucesso!", "success", true);
     } catch(error: any) {
         console.error("Erro ao excluir cargo: ", error);
         showToast("Ops! Algo deu errado.", "error");

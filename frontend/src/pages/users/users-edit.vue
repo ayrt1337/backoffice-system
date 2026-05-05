@@ -8,18 +8,23 @@ import Input from '../../components/input.vue';
 import { resources } from '../../config/resources';
 import Dropdown from '../../components/dropdown.vue';
 import type { UserMetadata } from '../../types/user';
-import type { Error } from '../../types/error';
 import { verifyApiError } from '../../services/verifyApiError';
-import ErrorMessage from '../../components/error-message.vue';
 import { useLoading } from '../../composables/useLoading';
 import { useUser } from '../../composables/useUser';
 import BaseButton from '../../components/base-button.vue';
 import router from '../../router';
+import * as z from 'zod';
 
 const { setUser } = useUser();
 const { showToast } = useToast();
 const { showLoadingPage } = useLoading();
 const metadata = resources.users;
+
+const userSchema = z.object({
+    name: z.string().min(1, "O nome é obrigatório").min(3, "O nome deve ter pelo menos 3 caracteres"),
+    role: z.string().min(1, "O cargo é obrigatório"),
+    password: z.string().min(6, "A senha deve ter pelo menos 6 caracteres").optional().or(z.literal(''))
+});
 
 interface Roles {
     label: string,
@@ -32,16 +37,9 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const userData = ref<UserMetadata>({
-    name: '',
-    password: '',
-    role: ''
-});
+const userData = ref<Partial<UserMetadata>>({});
 
-const errorData = ref<Error>({
-    show: false,
-    message: ''
-});
+const formErrors = ref<Record<string, string>>({});
 
 const roles = ref<Roles[]>([]);
 const loadingBtn = ref<boolean>(false);
@@ -89,17 +87,17 @@ watch(() => props.name, () => {
 });
 
 const handleEdit = async () => {
-    if (!userData.value.name || !userData.value.role) {
-        errorData.value = {
-            show: true,
-            message: "Preencha os campos!"
-        };
+    formErrors.value = {};
+    const result = userSchema.safeParse(userData.value);
+    if (!result.success) {
+        result.error.issues.forEach((issue) => {
+            const field = issue.path[0] as string;
+            if (!formErrors.value[field]) {
+                formErrors.value[field] = issue.message;
+            }
+        });
         return;
     }
-
-    errorData.value = {
-        show: false
-    };
 
     loadingBtn.value = !loadingBtn.value;
 
@@ -115,16 +113,18 @@ const handleEdit = async () => {
         });
         
         await router.push(`/users/${userData.value.name}`);
-        showToast('Usuário atualizado com sucesso!', 'success');
+        showToast('Usuário atualizado com sucesso!', 'success', true);
     } catch (error: any) {    
         console.error("Erro ao editar usuário: ", error);
         const hasMessage = verifyApiError(error.response?.status, false);
 
         if (hasMessage) {
-            errorData.value = {
-                show: true,
-                message: error.response?.data
-            };
+            const apiMessage = error.response?.data;
+            if (typeof apiMessage === 'string' && apiMessage.toLowerCase().includes('usuário')) {
+                formErrors.value.name = apiMessage;
+            } else {
+                showToast(apiMessage || "Erro ao atualizar usuário", "error");
+            }
             return;
         }
     } finally {
@@ -140,18 +140,13 @@ const handleEdit = async () => {
             :breadcrumbs="[...metadata.breadcrumbs, { label: `${name}`, path: `/users/${name}` }, { label: 'Editar' },]"
         />
 
-        <template v-if="userData.name !== ''">
+        <template v-if="userData.name != undefined">
             <div class="mt-12">
-                <ErrorMessage
-                    :show="errorData.show"
-                    :message="errorData.message"
-                    class="mb-8"
-                /> 
-
                 <Input 
                     label="Usuário"
                     v-model="userData.name"
                     class="max-w-[400px]"
+                    :error=formErrors.name
                 />
                 
                 <Dropdown 
@@ -160,6 +155,7 @@ const handleEdit = async () => {
                     :options="roleOptions"
                     placeholder="Selecione um Cargo"
                     class="max-w-[400px] mt-8"
+                    :error=formErrors.role
                 />
 
                 <Input 
@@ -167,6 +163,7 @@ const handleEdit = async () => {
                     v-model="userData.password"
                     password
                     class="max-w-[400px] mt-8"
+                    :error=formErrors.password
                 />
 
                 <BaseButton 

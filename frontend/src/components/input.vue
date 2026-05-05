@@ -9,7 +9,8 @@ interface Props {
     label?: string,
     password?: boolean,
     disabled?: boolean,
-    placeholder?: string
+    placeholder?: string,
+    error?: string
 };
 
 const showPassword = ref<boolean>(false);
@@ -32,8 +33,11 @@ const handlePasswordVisibility = () => {
                 :id="id" 
                 :placeholder="placeholder"
                 :type="password ? (showPassword ? 'text' : 'password') : 'text'"
-                :class="password ? 'pr-10' : ''"
-                class="w-full px-3.5 py-2 rounded-lg border-[1.5px] border-slate-200 bg-white text-base text-slate-800 transition-all focus:outline-none focus:border-blue-500 placeholder:text-slate-400 placeholder:text-[15px]"
+                :class="[
+                    password ? 'pr-10' : '',
+                    error ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-blue-500'
+                ]"
+                class="w-full px-3.5 py-2 rounded-lg border-[1.5px] bg-white text-base text-slate-800 transition-all focus:outline-none placeholder:text-slate-400 placeholder:text-[15px]"
             >
 
             <FontAwesomeIcon 
@@ -43,5 +47,6 @@ const handlePasswordVisibility = () => {
                 @click="handlePasswordVisibility"
             />
         </div>
+        <span v-if="error" class="text-[15px] text-red-500">{{ error }}</span>
     </div>
 </template>

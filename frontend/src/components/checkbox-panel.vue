@@ -2,7 +2,7 @@
 interface Props {
     role: any,
     resources: any,
-    selectedPermissions: string[],
+    selectedPermissions: any,
     disabled?: boolean,
 };
 

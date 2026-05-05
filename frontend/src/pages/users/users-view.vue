@@ -72,7 +72,7 @@ const handleDelete = async () => {
         });
 
         await router.push("/users?page=1");
-        showToast("Usuário excluído com sucesso!", "success");
+        showToast("Usuário excluído com sucesso!", "success", true);
     } catch (error) {
         console.error("Erro em excluir usuário: ", error);
         showToast("Ops! Algo deu errado.", "error");

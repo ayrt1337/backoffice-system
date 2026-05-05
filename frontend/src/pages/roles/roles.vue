@@ -76,7 +76,8 @@ const getData = async (query = "") => {
     roles.value = response.data.data;
     pagination.value = {
         current_page: response.data.pagination.currentPage || 1,
-        last_page: response.data.pagination.pages || 1
+        last_page: response.data.pagination.pages || 1,
+        total_items: response.data.pagination.total || 0
     };
     return response;
 };

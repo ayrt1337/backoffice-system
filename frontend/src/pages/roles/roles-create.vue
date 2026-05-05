@@ -6,19 +6,22 @@ import Input from '../../components/input.vue';
 import Breadcrumbs from '../../components/breadcrumbs.vue';
 import CheckboxPanel from '../../components/checkbox-panel.vue';
 import { resources as resourcesMetadata } from '../../config/resources';
-import type { Error } from '../../types/error';
-import ErrorMessage from '../../components/error-message.vue';
 import { verifyApiError } from '../../services/verifyApiError';
 import { useToast } from '../../composables/useToast';
 import router from '../../router';
 import { useLoading } from '../../composables/useLoading';
 import { useUser } from '../../composables/useUser';
 import BaseButton from '../../components/base-button.vue';
+import * as z from 'zod';
 
 const { setUser } = useUser();
 const { showToast } = useToast();
 const { showLoadingPage } = useLoading();
 const metadata = resourcesMetadata.roles;
+
+const roleSchema = z.object({
+    name: z.string().min(1, "O nome é obrigatório")
+});
 
 interface Data {
     name: string,
@@ -32,10 +35,7 @@ const data = ref<Data>({
     resources: []
 });
 
-const errorData = ref<Error>({
-    show: false,
-    message: ''
-});
+const formErrors = ref<Record<string, string>>({});
 
 const loadingBtn = ref<boolean>(false);
 
@@ -58,17 +58,17 @@ onMounted(async () => {
 })
 
 const handleCreate = async () => {
-    if (!data.value.name) {
-        errorData.value = {
-            show: true,
-            message: "Preencha os campos!"
-        };
+    formErrors.value = {};
+    const result = roleSchema.safeParse(data.value);
+    if (!result.success) {
+        result.error.issues.forEach((issue) => {
+            const field = issue.path[0] as string;
+            if (!formErrors.value[field]) {
+                formErrors.value[field] = issue.message;
+            }
+        });
         return;
     }
-
-    errorData.value = {
-        show: false
-    };
 
     loadingBtn.value = !loadingBtn.value;
 
@@ -83,16 +83,18 @@ const handleCreate = async () => {
         });
 
         await router.push("/roles?page=1");
-        showToast("Cargo criado com sucesso!", "success");
+        showToast("Cargo criado com sucesso!", "success", true);
     } catch (error: any) {
         console.error("Erro ao criar cargo: ", error);
         const hasMessage = verifyApiError(error.response?.status, false);
 
         if (hasMessage) {
-            errorData.value = {
-                show: true,
-                message: error.response?.data
-            };
+            const apiMessage = error.response?.data;
+            if (typeof apiMessage === 'string' && apiMessage.toLowerCase().includes('cargo')) {
+                formErrors.value.name = apiMessage;
+            } else {
+                showToast(apiMessage || "Erro ao criar cargo", "error");
+            }
             return;
         }
     } finally {
@@ -109,15 +111,11 @@ const handleCreate = async () => {
         />
 
         <div class="mt-12">
-            <ErrorMessage 
-                :show="errorData.show"
-                :message="errorData.message"
-            />
-
             <Input 
                 label="Nome do Cargo"
                 v-model="data.name"
                 class="max-w-[400px] mt-8"
+                :error=formErrors.name
             />
 
             <div class="mt-10">

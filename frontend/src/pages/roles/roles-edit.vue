@@ -6,20 +6,23 @@ import Input from '../../components/input.vue';
 import Breadcrumbs from '../../components/breadcrumbs.vue';
 import { resources as resourcesMetadata } from '../../config/resources';
 import CheckboxPanel from '../../components/checkbox-panel.vue';
-import type { Error } from '../../types/error';
 import { verifyApiError } from '../../services/verifyApiError';
 import { useToast } from '../../composables/useToast';
-import ErrorMessage from '../../components/error-message.vue';
 import { useLoading } from '../../composables/useLoading';
 import { useUser } from '../../composables/useUser';
 import type { RoleData } from '../../types/role';
 import BaseButton from '../../components/base-button.vue';
 import router from '../../router';
+import * as z from 'zod';
 
 const { setUser } = useUser();
 const { showToast } = useToast();
 const { showLoadingPage } = useLoading();
 const metadata = resourcesMetadata.roles;
+
+const roleSchema = z.object({
+    name: z.string().min(1, "O nome é obrigatório")
+});
 
 interface Props {
     name: string
@@ -27,16 +30,9 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const data = ref<RoleData>({
-    role: "",
-    rolePermissions: [],
-    resources: []
-});
+const data = ref<Partial<RoleData>>({});
 
-const errorData = ref<Error>({
-    show: false,
-    message: ""
-});
+const formErrors = ref<Record<string, string>>({});
 
 const loadingBtn = ref<boolean>(false);
 
@@ -72,17 +68,17 @@ watch(() => props.name, () => {
 });
 
 const handleEdit = async () => {
-    if (!data.value.role.name) {
-        errorData.value = {
-            show: true,
-            message: "Preencha os campos!"
-        };
+    formErrors.value = {};
+    const result = roleSchema.safeParse(data.value.role);
+    if (!result.success) {
+        result.error.issues.forEach((issue) => {
+            const field = issue.path[0] as string;
+            if (!formErrors.value[field]) {
+                formErrors.value[field] = issue.message;
+            }
+        });
         return;
     }
-    
-    errorData.value = {
-        show: false,
-    };
 
     loadingBtn.value = !loadingBtn.value;
 
@@ -97,16 +93,18 @@ const handleEdit = async () => {
         });
 
         await router.push(`/roles/${data.value.role.name}`);
-        showToast("Cargo editado com sucesso!", "success");
+        showToast("Cargo editado com sucesso!", "success", true);
     } catch (error: any) {
         console.error("Erro ao editar cargo: ", error);
         const hasMessage = verifyApiError(error.response?.status, false);
 
         if (hasMessage) {
-            errorData.value = {
-                show: true,
-                message: error.response?.data
-            };
+            const apiMessage = error.response?.data;
+            if (typeof apiMessage === 'string' && apiMessage.toLowerCase().includes('cargo')) {
+                formErrors.value.name = apiMessage;
+            } else {
+                showToast(apiMessage || "Erro ao atualizar cargo", "error");
+            }
             return;
         }
     } finally {
@@ -124,16 +122,12 @@ const handleEdit = async () => {
 
         <div class="mt-12">
             <template v-if="data.role !== ''">
-                <ErrorMessage 
-                    :show="errorData.show"
-                    :message="errorData.message"
-                />
-
                 <Input 
                     label="Nome do Cargo"
                     v-model="data.role.name"
                     class="max-w-[400px] mt-8"
                     :disabled="name === 'admin' ? true : false"
+                    :error="formErrors.name"
                 />
 
                 <div class="mt-10">

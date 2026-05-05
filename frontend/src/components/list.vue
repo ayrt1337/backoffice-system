@@ -27,6 +27,7 @@ interface Props {
     pagination?: {
         current_page: number;
         last_page: number;
+        total_items: number;
     }
 };
 
@@ -192,6 +193,9 @@ watch(() => route.query, () => {
         <div class="w-full flex items-end justify-between mb-8 mt-4">
             <div class="flex items-center gap-3">
                 <h2 class="text-2xl font-bold text-slate-900 tracking-tight">{{ pluralLabel }}</h2>
+                <span v-if="pagination?.total_items" class="bg-slate-100 mt-2 text-slate-500 text-[13px] font-medium px-2 py-0.5 rounded-full">
+                    {{ pagination.total_items }}
+                </span>
             </div>
 
             <div class="flex items-center gap-3">
@@ -278,7 +282,7 @@ watch(() => route.query, () => {
             </div>
 
             <Pagination 
-                v-if="pagination && data.length > 0"
+                v-if="pagination"
                 :current-page="pagination.current_page"
                 :total-pages="pagination.last_page"
                 :load-data="loadData"

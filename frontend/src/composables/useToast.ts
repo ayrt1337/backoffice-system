@@ -11,6 +11,7 @@ interface ToastState {
     type: ToastType;
     id: number;
     duration: number;
+    redirect: boolean;
 }
 
 const state = ref<ToastState>({
@@ -18,26 +19,34 @@ const state = ref<ToastState>({
     message: '',
     type: 'success',
     id: 0,
-    duration: 3000
+    duration: 3000,
+    redirect: false
 });
 
 let timeoutId: number | null = null;
 let toastCounter = 0;
 
 watch(() => showLoading.value, () => {
-    if (timeoutId) {
-        clearTimeout(timeoutId);
-    }
+    if (state.value.redirect) {
+        if (timeoutId) {
+            clearTimeout(timeoutId);
+        }
 
-    if (!showLoading.value) {
-        timeoutId = window.setTimeout(() => {
-            state.value.show = false;
-        }, state.value.duration);
+        if (!showLoading.value) {
+            timeoutId = window.setTimeout(() => {
+                state.value.show = false;
+            }, state.value.duration);
+        }
+
+        state.value.redirect = false;
+    }
+    else {
+        state.value.show = false;
     }
 });
 
 export function useToast() {
-    const showToast = (message: string, type: ToastType = 'success', duration = 3000) => {
+    const showToast = (message: string, type: ToastType = 'success', redirect = false, duration = 3000) => {
         if (timeoutId) {
             clearTimeout(timeoutId);
         }
@@ -49,10 +58,11 @@ export function useToast() {
             message,
             type,
             id: toastCounter,
-            duration
+            duration,
+            redirect
         };
 
-        if (!showLoading) {
+        if (!redirect) {
             timeoutId = window.setTimeout(() => {
                 state.value.show = false;
             }, duration);

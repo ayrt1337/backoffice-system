@@ -8,6 +8,12 @@ import type { Error } from '../../types/error';
 import ErrorMessage from '../../components/error-message.vue';
 import { verifyApiError } from '../../services/verifyApiError';
 import type { UserMetadata } from '../../types/user';
+import * as z from 'zod';
+
+const loginSchema = z.object({
+    name: z.string().min(1, "O usuário é obrigatório"),
+    password: z.string().min(1, "A senha é obrigatória")
+});
 
 const errorData = ref<Error>({
     show: false,
@@ -18,14 +24,20 @@ const user = ref<Partial<UserMetadata>>({
     name: "",
     password: ""
 });
+const formErrors = ref<Record<string, string>>({});
 const loading = ref<boolean>(false);
 
 const handleLogin = async (): Promise<void> => {
-    if (!user.value.name || !user.value.password) {
-        errorData.value = {
-            show: true,
-            message: "Preencha os campos"
-        };
+    formErrors.value = {};
+    const result = loginSchema.safeParse(user.value);
+
+    if (!result.success) {
+        result.error.issues.forEach((issue) => {
+            const field = issue.path[0] as string;
+            if (!formErrors.value[field]) {
+                formErrors.value[field] = issue.message;
+            }
+        });
         return;
     }
     
@@ -79,12 +91,14 @@ const handleLogin = async (): Promise<void> => {
                 <Input 
                     label="Usuário"
                     v-model="user.name"
+                    :error="formErrors.name"
                 />
 
                 <Input 
                     label="Senha"
                     :password="true"     
                     v-model="user.password"
+                    :error="formErrors.password"
                 />
 
                 <button 
