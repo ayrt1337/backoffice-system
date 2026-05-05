@@ -15,22 +15,33 @@ const router = useRouter();
 const pages = computed(() => {
     const total = props.totalPages;
     const current = props.currentPage;
-    const delta = 2;
     const range = [];
     const rangeWithDots = [];
-    let l;
 
-    for (let i = 1; i <= total; i++) {
-        if (i === 1 || i === total || (i >= current - delta && i <= current + delta)) {
+    if (total <= 5) {
+        for (let i = 1; i <= total; i++) {
             range.push(i);
         }
+    } else {
+        range.push(1);
+        let start;
+        if (current <= 3) {
+            start = 2;
+        } else if (current >= total - 2) {
+            start = total - 3;
+        } else {
+            start = current - 1;
+        }
+        range.push(start);
+        range.push(start + 1);
+        range.push(start + 2);
+        range.push(total);
     }
 
+    let l;
     for (let i of range) {
         if (l) {
-            if (i - l === 2) {
-                rangeWithDots.push(l + 1);
-            } else if (i - l !== 1) {
+            if (i - l !== 1) {
                 rangeWithDots.push('...');
             }
         }
