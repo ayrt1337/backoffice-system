@@ -4,8 +4,19 @@ export interface Role {
     updated_at?: string;
 }
 
-export interface RoleData {
-    role: Role | string | any;
-    rolePermissions: string[];
-    resources: any;
+export interface ResourceAction {
+    label: string;
+    slug: string;
 }
+
+export interface ResourcePermission {
+    label: string;
+    actions: ResourceAction[];
+}
+
+export interface RoleData {
+    role: Role | string;
+    rolePermissions: string[];
+    resources: ResourcePermission[];
+}
+

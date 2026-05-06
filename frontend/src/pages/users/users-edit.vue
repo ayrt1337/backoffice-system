@@ -153,7 +153,6 @@ const handleEdit = async () => {
                     label="Cargo"
                     v-model="userData.role"
                     :options="roleOptions"
-                    placeholder="Selecione um Cargo"
                     class="max-w-[400px] mt-8"
                     :error=formErrors.role
                 />

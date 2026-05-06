@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import type { ResourcePermission } from '../types/role';
+
 interface Props {
-    role: any,
-    resources: any,
-    selectedPermissions: any,
+    role: string,
+    resources: ResourcePermission[],
+    selectedPermissions: string[],
     disabled?: boolean,
 };
 

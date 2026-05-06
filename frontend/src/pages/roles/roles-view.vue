@@ -11,7 +11,7 @@ import { verifyApiError } from '../../services/verifyApiError';
 import { useToast } from '../../composables/useToast';
 import { useLoading } from '../../composables/useLoading';
 import { useUser } from '../../composables/useUser';
-import type { RoleData } from '../../types/role';
+import type { Role, RoleData } from '../../types/role';
 
 const { setUser, showUser } = useUser();
 const { showToast } = useToast();
@@ -25,7 +25,7 @@ interface Props {
 const props = defineProps<Props>();
 
 const data = ref<RoleData>({
-    role: "",
+    role: {} as Role,
     rolePermissions: [],
     resources: [],
 });
@@ -91,17 +91,17 @@ const handleDelete = async () => {
             :breadcrumbs="[...metadata.breadcrumbs, { label: `${name}` }]"
         />
 
-        <template v-if="data.role">
+        <template v-if="typeof data.role !== 'string' && data.role.name">
             <div class="mt-12">
                 <p class="text-[15px] font-medium text-slate-600">Nome do Cargo</p>
-                <p class="mt-2 text-[17px]">{{ data.role.name }}</p>
+                <p class="mt-2 text-[17px]">{{ (data.role as Role).name }}</p>
             </div>
 
             <div class="mt-10">
                 <h1 class="text-[15px] font-medium text-slate-600">Permissões</h1>
             
                 <CheckboxPanel 
-                    :role="data.role.name"
+                    :role="(data.role as Role).name"
                     :selected-permissions="data.rolePermissions"
                     :resources="data.resources"
                     :disabled="true"
@@ -111,19 +111,19 @@ const handleDelete = async () => {
             <div class="mt-12 flex gap-8">
                 <div>
                     <p class="text-[15px] font-medium text-slate-600">Criado Em</p>
-                    <p class="mt-2 text-[17px]">{{ data.role.created_at }}</p>
+                    <p class="mt-2 text-[17px]">{{ (data.role as Role).created_at }}</p>
                 </div>
 
                 <div>
                     <p class="text-[15px] font-medium text-slate-600">Última Alteração</p>
-                    <p class="mt-2 text-[17px]">{{ data.role.updated_at }}</p>
+                    <p class="mt-2 text-[17px]">{{ (data.role as Role).updated_at }}</p>
                 </div>
             </div>
 
-            <div v-if="data.role.name !== 'admin'" class="mt-10 flex gap-3">
+            <div v-if="(data.role as Role).name !== 'admin'" class="mt-10 flex gap-3">
                 <button 
                     v-if="showUser.permissions.includes('roles:edit') || showUser.name === 'admin'"
-                    @click="() => router.push(`/roles/edit/${data.role.name}`)"
+                    @click="() => router.push(`/roles/edit/${(data.role as Role).name}`)"
                     class="p-2 px-8 rounded-lg bg-blue-600 text-white text-base font-semibold cursor-pointer transition-all flex justify-center items-center hover:bg-blue-700 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                     <span>Editar</span>
@@ -142,7 +142,7 @@ const handleDelete = async () => {
                 :show="showDeleteModal"
                 :loading="loadingBtn"
                 title="Excluir Cargo"
-                :message="`Tem certeza que deseja excluir o cargo '${data.role.name}'? Esta ação não pode ser desfeita.`"
+                :message="`Tem certeza que deseja excluir o cargo '${(data.role as Role).name}'? Esta ação não pode ser desfeita.`"
                 :danger="true"
                 :confirm="handleDelete"
                 :cancel="() => showDeleteModal = false"

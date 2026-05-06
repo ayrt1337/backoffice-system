@@ -12,6 +12,7 @@ import router from '../../router';
 import { useLoading } from '../../composables/useLoading';
 import { useUser } from '../../composables/useUser';
 import BaseButton from '../../components/base-button.vue';
+import type { RoleData } from '../../types/role';
 import * as z from 'zod';
 
 const { setUser } = useUser();
@@ -20,17 +21,11 @@ const { showLoadingPage } = useLoading();
 const metadata = resourcesMetadata.roles;
 
 const roleSchema = z.object({
-    name: z.string().min(1, "O nome é obrigatório")
+    role: z.string().min(1, "O nome é obrigatório").min(3, "O nome deve ter pelo menos 3 caracteres")
 });
 
-interface Data {
-    name: string,
-    resources: any,
-    rolePermissions: string[]
-};
-
-const data = ref<Data>({
-    name: "",
+const data = ref<RoleData>({
+    role: "",
     rolePermissions: [],
     resources: []
 });
@@ -77,7 +72,7 @@ const handleCreate = async () => {
             url: "/roles/create",
             method: "post",
             data: {
-                name: data.value.name,
+                name: data.value.role,
                 rolePermissions: data.value.rolePermissions
             }
         });
@@ -113,9 +108,9 @@ const handleCreate = async () => {
         <div class="mt-12">
             <Input 
                 label="Nome do Cargo"
-                v-model="data.name"
+                v-model="(data.role as string)"
                 class="max-w-[400px] mt-8"
-                :error=formErrors.name
+                :error=formErrors.role
             />
 
             <div class="mt-10">

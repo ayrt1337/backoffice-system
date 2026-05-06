@@ -40,10 +40,7 @@ const handleLogin = async (): Promise<void> => {
         });
         return;
     }
-    
-    errorData.value = {
-        show: false
-    };
+
     loading.value = !loading.value;
     
     try {

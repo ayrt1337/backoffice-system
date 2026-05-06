@@ -10,7 +10,7 @@ import { verifyApiError } from '../../services/verifyApiError';
 import { useToast } from '../../composables/useToast';
 import { useLoading } from '../../composables/useLoading';
 import { useUser } from '../../composables/useUser';
-import type { RoleData } from '../../types/role';
+import type { Role, RoleData } from '../../types/role';
 import BaseButton from '../../components/base-button.vue';
 import router from '../../router';
 import * as z from 'zod';
@@ -21,7 +21,7 @@ const { showLoadingPage } = useLoading();
 const metadata = resourcesMetadata.roles;
 
 const roleSchema = z.object({
-    name: z.string().min(1, "O nome é obrigatório")
+    name: z.string().min(1, "O nome é obrigatório").min(3, "O nome deve ter pelo menos 3 caracteres")
 });
 
 interface Props {
@@ -87,12 +87,12 @@ const handleEdit = async () => {
             url: `/roles/edit/${props.name}`,
             method: "patch",
             data: {
-                roleName: data.value.role.name,
+                roleName: (data.value.role as Role).name,
                 permissions: data.value.rolePermissions
             }
         });
 
-        await router.push(`/roles/${data.value.role.name}`);
+        await router.push(`/roles/${(data.value.role as Role).name}`);
         showToast("Cargo editado com sucesso!", "success", true);
     } catch (error: any) {
         console.error("Erro ao editar cargo: ", error);
@@ -121,10 +121,10 @@ const handleEdit = async () => {
         />
 
         <div class="mt-12">
-            <template v-if="data.role !== ''">
+            <template v-if="data.role">
                 <Input 
                     label="Nome do Cargo"
-                    v-model="data.role.name"
+                    v-model="(data.role as Role).name"
                     class="max-w-[400px] mt-8"
                     :disabled="name === 'admin' ? true : false"
                     :error="formErrors.name"
@@ -135,8 +135,8 @@ const handleEdit = async () => {
                 
                     <CheckboxPanel 
                         :role="name"
-                        :selected-permissions="data.rolePermissions"
-                        :resources="data.resources"
+                        :selected-permissions="data.rolePermissions || []"
+                        :resources="data.resources || []"
                     />
                 </div>
 
