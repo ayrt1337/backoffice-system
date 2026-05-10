@@ -3,7 +3,6 @@ import database from "../config/database.js";
 import * as services from "../services/index.js";
 import { AppError } from "../errors/app-error.js";
 import { verifyPermissions } from "../services/index.js";
-import { getUserResponse } from "../services/get-user-response.js";
 import { formatDate } from "../utils/format-date.js";
 import { UsersListQuery } from "../types/user.js";
 
@@ -113,6 +112,10 @@ export class UserController {
 
       if (!name || !role) {
         throw new AppError("Preencha os campos", 400);
+      }
+
+      if (role === "admin") {
+        throw new AppError("Não é possível atribuir o cargo admin", 400);
       }
 
       const userData = await database.user.findUnique({
@@ -288,8 +291,20 @@ export class UserController {
       const { name } = req.params as { name: string };
       let { userName, roleName, password } = req.body;
 
+      if (name === "admin") {
+        throw new AppError("Não é possível editar o admin", 400);
+      }
+
+      if (user.name === name) {
+        throw new AppError("Não é possível editar a si mesmo", 400);
+      }
+
       if (!userName || !roleName) {
         throw new AppError("Preencha os campos", 400);
+      }
+
+      if (roleName === "admin") {
+        throw new AppError("Não é possível atribuir o cargo admin", 400);
       }
 
       const verifyUser = await database.user.findUnique({

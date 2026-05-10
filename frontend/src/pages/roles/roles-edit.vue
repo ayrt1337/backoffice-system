@@ -13,7 +13,9 @@ import type { Role, RoleData } from '../../types/role';
 import BaseButton from '../../components/base-button.vue';
 import router from '../../router';
 import * as z from 'zod';
+import { useUser } from '../../composables/useUser';
 
+const { showUser } = useUser();
 const { showToast } = useToast();
 const { showLoadingPage } = useLoading();
 const metadata = resourcesMetadata.roles;
@@ -119,7 +121,7 @@ const handleEdit = async () => {
                     label="Nome do Cargo"
                     v-model="(data.role as Role).name"
                     class="max-w-[400px] mt-8"
-                    :disabled="name === 'admin' ? true : false"
+                    :disabled="data.role && (showUser.role === name || name === 'admin') ? true : false"
                     :error="formErrors.name"
                 />
 
@@ -130,10 +132,12 @@ const handleEdit = async () => {
                         :role="name"
                         :selected-permissions="data.rolePermissions || []"
                         :resources="data.resources || []"
+                        :disabled="showUser.role === name"
                     />
                 </div>
 
-                <BaseButton 
+                <BaseButton
+                    :disabled="data.role && (showUser.role === name || name === 'admin') ? true : false"
                     @click="handleEdit()"
                     :loading="loadingBtn"
                     class="mt-5 p-2 px-8 rounded-lg bg-blue-600 text-white text-base font-semibold hover:bg-blue-700"

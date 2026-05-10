@@ -13,7 +13,9 @@ import { useLoading } from '../../composables/useLoading';
 import BaseButton from '../../components/base-button.vue';
 import router from '../../router';
 import * as z from 'zod';
+import { useUser } from '../../composables/useUser';
 
+const { showUser } = useUser();
 const { showToast } = useToast();
 const { showLoadingPage } = useLoading();
 const metadata = resources.users;
@@ -141,6 +143,7 @@ const handleEdit = async () => {
                     v-model="userData.name"
                     class="max-w-[400px]"
                     :error=formErrors.name
+                    :disabled="showUser.name === name || name === 'admin'"
                 />
                 
                 <Dropdown 
@@ -149,6 +152,7 @@ const handleEdit = async () => {
                     :options="roleOptions"
                     class="max-w-[400px] mt-8"
                     :error=formErrors.role
+                    :disabled="showUser.name === name || name === 'admin'"
                 />
 
                 <Input 
@@ -157,9 +161,11 @@ const handleEdit = async () => {
                     password
                     class="max-w-[400px] mt-8"
                     :error=formErrors.password
+                    :disabled="showUser.name === name || name === 'admin'"
                 />
 
-                <BaseButton 
+                <BaseButton
+                    :disabled="showUser.name === name || name === 'admin'"
                     @click="handleEdit()"
                     :loading="loadingBtn"
                     class="mt-5 p-2 px-8 rounded-lg bg-blue-600 text-white text-base font-semibold hover:bg-blue-700"

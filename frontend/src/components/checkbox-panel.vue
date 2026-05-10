@@ -35,7 +35,7 @@ const togglePermission = (slug: string): void => {
                     {{ resource.label }}
                 </td>
                     
-                <td v-for="action in resource.actions" :key="action" class="py-4 px-2 text-center">
+                <td v-for="action in resource.actions" :key="action.slug" class="py-4 px-2 text-center">
                     <p>{{ action.label }}</p>
 
                     <input 

@@ -4,7 +4,6 @@ import { updatePermissions } from "../services/update-permissions.js";
 import { verifyPermissions } from "../services/verify-permissions.js";
 import { AppError } from "../errors/app-error.js";
 import { getPermissions } from "../services/get-permissions.js";
-import { getUserResponse } from "../services/get-user-response.js";
 import { formatDate } from "../utils/format-date.js";
 import { RolesListQuery } from "../types/role.js";
 
@@ -252,6 +251,14 @@ export class RoleController {
 
       if (!role) {
         throw new AppError("Cargo não encontrado", 404);
+      }
+
+      if (role.name === "admin") {
+        throw new AppError("Não é possível editar o admin", 400);
+      }
+
+      if (user.role.name === role.name) {
+        throw new AppError("Não é possível editar a si mesmo", 400);
       }
 
       const verifyRole = await database.role.findUnique({
