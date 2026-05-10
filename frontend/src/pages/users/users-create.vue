@@ -12,10 +12,8 @@ import { useToast } from '../../composables/useToast';
 import * as z from 'zod';
 import router from '../../router';
 import { useLoading } from '../../composables/useLoading';
-import { useUser } from '../../composables/useUser';
 import BaseButton from '../../components/base-button.vue';
 
-const { setUser } = useUser();
 const { showToast } = useToast();
 const { showLoadingPage } = useLoading();
 const metadata = resources.users;
@@ -33,7 +31,6 @@ const userData = ref<UserMetadata>({
 });
 
 const formErrors = ref<Record<string, string>>({});
-
 const roles = ref<any>([]);
 const loadingBtn = ref<boolean>(false);
 
@@ -53,7 +50,6 @@ onMounted(async () => {
             method: "get",
         });
 
-        setUser(response.data.user);
         roles.value = response.data.roles;
     } catch (error: any) {
         console.error("Erro ao buscar cargos:", error);

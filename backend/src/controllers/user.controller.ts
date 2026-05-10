@@ -35,6 +35,9 @@ export class UserController {
           where,
           skip,
           take,
+          orderBy: {
+            created_at: 'desc'
+          },
           select: {
             name: true,
             role: {
@@ -55,10 +58,7 @@ export class UserController {
         updated_at: formatDate(user.updated_at)
       }));
 
-      const userResponse = await getUserResponse(user);
-
       return res.status(200).json({ 
-        user: userResponse, 
         data: users,
         pagination: {
           total: totalCount,
@@ -95,9 +95,7 @@ export class UserController {
         };
       });
 
-      const userResponse = await getUserResponse(user);
-
-      return res.status(200).json({ user: userResponse, roles });
+      return res.status(200).json({ roles });
     } catch (error) {
       next(error);
     }
@@ -186,9 +184,7 @@ export class UserController {
           updated_at: formatDate(userDataRaw.updated_at)
       };
 
-      const userResponse = await getUserResponse(user);
-
-      return res.status(200).json({ user: userResponse, userData });
+      return res.status(200).json({ userData });
     } catch (error) {
       next(error);
     }
@@ -274,10 +270,8 @@ export class UserController {
         },
         select: { name: true },
       });
-      
-      const userResponse = await getUserResponse(user);
 
-      return res.status(200).json({ user: userResponse, userData, roles });
+      return res.status(200).json({ userData, roles });
     } catch (error) {
       next(error);
     }

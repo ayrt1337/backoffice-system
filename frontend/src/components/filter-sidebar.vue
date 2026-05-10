@@ -53,7 +53,8 @@ const search = async () => {
         }
     } catch (error: any) {
         console.error("Erro ao aplicar filtro: ", error);
-        showToast("Ops! Algo deu errado.", "error");
+        const apiMessage = error.response?.data;
+        showToast(apiMessage || "Ops! Algo deu errado.", "error");
     } finally {
         loadingSearch.value = !loadingSearch.value;
     }

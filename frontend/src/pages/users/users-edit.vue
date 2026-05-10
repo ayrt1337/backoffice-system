@@ -10,12 +10,10 @@ import Dropdown from '../../components/dropdown.vue';
 import type { UserMetadata } from '../../types/user';
 import { verifyApiError } from '../../services/verifyApiError';
 import { useLoading } from '../../composables/useLoading';
-import { useUser } from '../../composables/useUser';
 import BaseButton from '../../components/base-button.vue';
 import router from '../../router';
 import * as z from 'zod';
 
-const { setUser } = useUser();
 const { showToast } = useToast();
 const { showLoadingPage } = useLoading();
 const metadata = resources.users;
@@ -36,11 +34,8 @@ interface Props {
 };
 
 const props = defineProps<Props>();
-
 const userData = ref<Partial<UserMetadata>>({});
-
 const formErrors = ref<Record<string, string>>({});
-
 const roles = ref<Roles[]>([]);
 const loadingBtn = ref<boolean>(false);
 
@@ -68,7 +63,6 @@ const loadData = async () => {
             updated_at: response.data.userData.updated_at
         };
 
-        setUser(response.data.user);
         roles.value = response.data.roles;
     } catch (error: any) {
         console.error("Erro em buscar usuário: ", error);

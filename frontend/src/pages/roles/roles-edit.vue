@@ -9,13 +9,11 @@ import CheckboxPanel from '../../components/checkbox-panel.vue';
 import { verifyApiError } from '../../services/verifyApiError';
 import { useToast } from '../../composables/useToast';
 import { useLoading } from '../../composables/useLoading';
-import { useUser } from '../../composables/useUser';
 import type { Role, RoleData } from '../../types/role';
 import BaseButton from '../../components/base-button.vue';
 import router from '../../router';
 import * as z from 'zod';
 
-const { setUser } = useUser();
 const { showToast } = useToast();
 const { showLoadingPage } = useLoading();
 const metadata = resourcesMetadata.roles;
@@ -29,11 +27,8 @@ interface Props {
 };
 
 const props = defineProps<Props>();
-
 const data = ref<Partial<RoleData>>({});
-
 const formErrors = ref<Record<string, string>>({});
-
 const loadingBtn = ref<boolean>(false);
 
 const loadData = async () => {
@@ -49,8 +44,6 @@ const loadData = async () => {
             rolePermissions: response.data.rolePermissions,
             resources: response.data.resources
         }
-
-        setUser(response.data.user);
     } catch (error: any) {
         console.error("Erro ao buscar cargos: ", error);
         verifyApiError(error.response?.status);

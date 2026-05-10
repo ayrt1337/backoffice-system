@@ -13,7 +13,7 @@ import { useLoading } from '../../composables/useLoading';
 import { useUser } from '../../composables/useUser';
 import type { Role, RoleData } from '../../types/role';
 
-const { setUser, showUser } = useUser();
+const { showUser } = useUser();
 const { showToast } = useToast();
 const { showLoadingPage } = useLoading();
 const metadata = resourcesMetadata.roles;
@@ -46,8 +46,6 @@ const loadData = async () => {
             rolePermissions: response.data.rolePermissions,
             resources: response.data.resources
         };
-
-        setUser(response.data.user);
     } catch (error: any) {
         console.error("Erro ao buscar cargo: ", error);
         verifyApiError(error.response?.status);
@@ -77,7 +75,8 @@ const handleDelete = async () => {
         showToast("Cargo excluído com sucesso!", "success", true);
     } catch(error: any) {
         console.error("Erro ao excluir cargo: ", error);
-        showToast("Ops! Algo deu errado.", "error");
+        const apiMessage = error.response?.data;
+        showToast(apiMessage || "Ops! Algo deu errado.", "error");
     } finally {
         loadingBtn.value = !loadingBtn.value;
     }
@@ -122,7 +121,7 @@ const handleDelete = async () => {
 
             <div v-if="(data.role as Role).name !== 'admin'" class="mt-10 flex gap-3">
                 <button 
-                    v-if="showUser.permissions.includes('roles:edit') || showUser.name === 'admin'"
+                    v-if="showUser.permissions.includes('roles:update') || showUser.name === 'admin'"
                     @click="() => router.push(`/roles/edit/${(data.role as Role).name}`)"
                     class="p-2 px-8 rounded-lg bg-blue-600 text-white text-base font-semibold cursor-pointer transition-all flex justify-center items-center hover:bg-blue-700 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed"
                 >

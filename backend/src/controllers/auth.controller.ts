@@ -2,8 +2,19 @@ import { Request, Response, NextFunction } from 'express';
 import database from '../config/database.js';
 import * as services from '../services/index.js';
 import { AppError } from '../errors/app-error.js';
+import { getUserResponse } from '../services/get-user-response.js';
 
 export class AuthController {
+  async me(req: Request, res: Response, next: NextFunction) {
+    try {
+      const user = (req as any).user;
+      const userResponse = await getUserResponse(user);
+      return res.status(200).json({ user: userResponse });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async login(req: Request, res: Response, next: NextFunction) {
     try {
       const { name, password } = req.body;

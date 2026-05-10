@@ -7,12 +7,10 @@ import { resources } from '../../config/resources';
 import List from '../../components/list.vue';
 import { verifyApiError } from '../../services/verifyApiError';
 import { useLoading } from '../../composables/useLoading';
-import { useUser } from '../../composables/useUser';
 import FilterSidebar from '../../components/filter-sidebar.vue';
 import Input from '../../components/input.vue';
 import DateInput from '../../components/date-input.vue';
 
-const { setUser } = useUser();
 const { showLoadingPage } = useLoading();
 const route = useRoute();
 const metadata = resources.roles;
@@ -44,8 +42,7 @@ const loadData = async () => {
         filter.value = filterObj as FilterProps;
     }
     try {
-        const response = await getData(urlQuery);
-        setUser(response.data.user);
+        await getData(urlQuery);
     } catch (error: any) {
         console.error("Erro ao buscar cargos: ", error);
         verifyApiError(error.response?.status);
@@ -79,7 +76,6 @@ const getData = async (query = "") => {
         last_page: response.data.pagination.pages || 1,
         total_items: response.data.pagination.total || 0
     };
-    return response;
 };
 </script>
 

@@ -35,6 +35,9 @@ export class RoleController {
           where,
           skip,
           take,
+          orderBy: {
+            created_at: 'desc'
+          },
           select: { name: true, created_at: true, updated_at: true },
         })
       ]);
@@ -47,10 +50,7 @@ export class RoleController {
         };
       });
 
-      const userResponse = await getUserResponse(user);
-
       return res.status(200).json({ 
-        user: userResponse, 
         data: roles,
         pagination: {
           total: totalCount,
@@ -84,9 +84,7 @@ export class RoleController {
         },
       });
 
-      const userResponse = await getUserResponse(user);
-
-      return res.status(200).json({ user: userResponse, resources });
+      return res.status(200).json({ resources });
     } catch (error) {
       next(error);
     }
@@ -181,9 +179,8 @@ export class RoleController {
       });
 
       const rolePermissions = await getPermissions(role.name);
-      const userResponse = await getUserResponse(user);
 
-      return res.status(200).json({ user: userResponse, resources, role, rolePermissions });
+      return res.status(200).json({ resources, role, rolePermissions });
     } catch (error) {
       next(error);
     }
@@ -227,9 +224,8 @@ export class RoleController {
       });
 
       const rolePermissions = await getPermissions(role.name);
-      const userResponse = await getUserResponse(user);
 
-      return res.status(200).json({ user: userResponse, resources, role, rolePermissions });
+      return res.status(200).json({ resources, role, rolePermissions });
     } catch (error) {
       next(error);
     }

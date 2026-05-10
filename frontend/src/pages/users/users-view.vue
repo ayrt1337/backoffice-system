@@ -12,7 +12,7 @@ import { useToast } from '../../composables/useToast';
 import { useLoading } from '../../composables/useLoading';
 import { useUser } from '../../composables/useUser';
 
-const { setUser, showUser } = useUser();
+const { showUser } = useUser();
 const { showToast } = useToast();
 const { showLoadingPage } = useLoading();
 const metadata = resources.users;
@@ -45,7 +45,6 @@ const loadData = async () => {
             created_at: response.data.userData.created_at,
             updated_at: response.data.userData.updated_at
         };
-        setUser(response.data.user);
     } catch (error: any) {
         console.error("Erro em buscar usuário: ", error);
         verifyApiError(error.response?.status);
@@ -73,9 +72,10 @@ const handleDelete = async () => {
 
         await router.push("/users?page=1");
         showToast("Usuário excluído com sucesso!", "success", true);
-    } catch (error) {
+    } catch (error: any) {
         console.error("Erro em excluir usuário: ", error);
-        showToast("Ops! Algo deu errado.", "error");
+        const apiMessage = error.response?.data;
+        showToast(apiMessage || "Ops! Algo deu errado.", "error");
     } finally {
         loadingBtn.value = !loadingBtn.value;
     }
@@ -114,7 +114,7 @@ const handleDelete = async () => {
 
             <div v-if="userData.role !== 'admin'" class="flex mt-10 gap-3">
                 <button
-                    v-if="showUser.permissions.includes('users:edit') || showUser.name === 'admin'"
+                    v-if="showUser.permissions.includes('users:update') || showUser.name === 'admin'"
                     @click="() => router.push(`/users/edit/${userData.name}`)"
                     class="p-2 px-8 rounded-lg bg-blue-600 text-white text-base font-semibold cursor-pointer transition-all flex justify-center items-center hover:bg-blue-700 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed"
                 >

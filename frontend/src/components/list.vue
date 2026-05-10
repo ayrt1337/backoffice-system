@@ -106,9 +106,10 @@ const handleDeleteMany = async () => {
         });
 
         showToast(`${props.pluralLabel} excluídos com sucesso!`, "success");
-    } catch (error) {
+    } catch (error: any) {
         console.error(`Erro em excluir ${props.pluralLabel.toLocaleLowerCase()}: `, error);
-        showToast("Ops! Algo deu errado.", "error");
+        const apiMessage = error.response?.data;
+        showToast(apiMessage || "Ops! Algo deu errado.", "error");
     } finally {
         loadingBtn.value = !loadingBtn.value;
     }
@@ -122,7 +123,8 @@ const handleDeleteOne = async () => {
         showToast(`${props.label} excluído com sucesso!`, "success");
     } catch (error: any) {
         console.error(`Erro ao excluir ${props.label}: `, error);
-        showToast("Ops! Algo deu errado.", "error");
+        const apiMessage = error.response?.data;
+        showToast(apiMessage || "Ops! Algo deu errado.", "error");
     } finally {
         showModal.value = !showModal.value;
         loadingModal.value = !loadingModal.value;
