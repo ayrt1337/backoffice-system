@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import PDFDocument from "pdfkit-table";
 import database from "../config/database.js";
 import { updatePermissions } from "../services/update-permissions.js";
 import { verifyPermissions } from "../services/verify-permissions.js";
@@ -98,10 +99,6 @@ export class RoleController {
       }
 
       const { name, rolePermissions } = req.body;
-
-      if (!name || !rolePermissions) {
-        throw new AppError("Preencha os campos", 400);
-      }
 
       const roleData = await database.role.findUnique({
         where: { name }
@@ -241,10 +238,6 @@ export class RoleController {
       const { name } = req.params as { name: string };
       const { roleName, permissions } = req.body;
 
-      if (!roleName || !permissions) {
-        throw new AppError("Preencha os campos", 400);
-      }
-
       const role = await database.role.findUnique({
         where: { name },
       });
@@ -336,6 +329,72 @@ export class RoleController {
       })
 
       return res.status(200).json("Success");
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async exportPDF(req: Request, res: Response, next: NextFunction) {
+    try {
+      const user = (req as any).user;
+
+      if (!await verifyPermissions(user.role.name, ["roles:read"])) {
+        throw new AppError("Unauthorized", 403);
+      }
+
+      const { fields, orderBy } = req.query as { fields?: string, orderBy?: string };
+      
+      const fieldMap: Record<string, string> = {
+        "Criação": "created_at",
+        "Última Alteração": "updated_at"
+      };
+
+      const selectedLabels = fields ? fields.split(',') : ["Criação", "Última Alteração"];
+      const selectedFields = selectedLabels.map(label => fieldMap[label]).filter(Boolean);
+
+      let prismaOrderBy: any = { created_at: 'desc' };
+      if (orderBy === 'criacao_antiga') prismaOrderBy = { created_at: 'asc' };
+      if (orderBy === 'alteracao_recente') prismaOrderBy = { updated_at: 'desc' };
+      if (orderBy === 'alteracao_antiga') prismaOrderBy = { updated_at: 'asc' };
+      if (orderBy === 'alfabetica') prismaOrderBy = { name: 'asc' };
+
+      const rolesRaw = await database.role.findMany({
+        orderBy: prismaOrderBy,
+        select: {
+          name: true,
+          created_at: selectedFields.includes('created_at'),
+          updated_at: selectedFields.includes('updated_at'),
+        },
+      });
+
+      const roles = rolesRaw.map((role: any, index) => {
+        const row = [];
+        if (index === 0) row.push(role.name);
+        if (selectedFields.includes('created_at')) row.push(formatDate(role.created_at));
+        if (selectedFields.includes('updated_at')) row.push(formatDate(role.updated_at));
+        return row;
+      });
+
+      const doc = new PDFDocument({ margin: 30, size: 'A4' });
+
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', 'attachment; filename=relatorio-cargos.pdf');
+
+      doc.pipe(res);
+
+      const table = {
+        title: "Relatório de Cargos",
+        subtitle: `Gerado em: ${new Date().toLocaleString('pt-BR')}\nOrdenação: ${orderBy || 'Padrão'}`,
+        headers: ["Nome", ...selectedLabels],
+        rows: roles,
+      };
+
+      await doc.table(table, {
+        prepareHeader: () => doc.font("Helvetica-Bold").fontSize(10),
+        prepareRow: () => doc.font("Helvetica").fontSize(8),
+      });
+
+      doc.end();
     } catch (error) {
       next(error);
     }

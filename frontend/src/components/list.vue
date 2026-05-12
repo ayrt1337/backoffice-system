@@ -9,7 +9,6 @@ import { useToast } from '../composables/useToast';
 import BaseButton from './base-button.vue';
 import { useRoute } from 'vue-router';
 import ConfirmModal from './confirm-modal.vue';
-import Pagination from './pagination.vue';
 
 const route  = useRoute();
 const { showToast } = useToast();
@@ -18,17 +17,10 @@ const { showUser } = useUser();
 interface Props {
     data: any[],
     label: string,
-    openFilter: () => void,
     reload: (query: string) => Promise<any>,
-    loadData: () => void,
     labels: string[],
     resource: string,
     pluralLabel: string,
-    pagination?: {
-        current_page: number;
-        last_page: number;
-        total_items: number;
-    }
 };
 
 const props = defineProps<Props>();
@@ -42,10 +34,6 @@ const dropdownVisible = ref(false);
 const dropdownPosition = ref({ top: 0, left: 0 });
 const activeDropdownItem = ref<any>({});
 const dropdownTimeout = ref<number | null>(null);
-
-const handleCreate = () => {
-    router.push(`/${props.resource}/create`);
-};
 
 const selectMany = () => {
     const inputs = listContainer.value?.querySelectorAll("input");
@@ -192,30 +180,6 @@ watch(() => route.query, () => {
 
 <template>
     <div ref="listContainer">
-        <div class="w-full flex items-end justify-between mb-8 mt-4">
-            <div class="flex items-center gap-3">
-                <h2 class="text-2xl font-bold text-slate-900 tracking-tight">{{ pluralLabel }}</h2>
-                <span v-if="pagination?.total_items" class="bg-slate-100 mt-2 text-slate-500 text-[13px] font-medium px-2 py-0.5 rounded-full">
-                    {{ pagination.total_items }}
-                </span>
-            </div>
-
-            <div class="flex items-center gap-3">
-                <button
-                    v-if="showUser.permissions.includes(`${resource}:create`) || showUser.name === 'admin'"
-                    @click="handleCreate"
-                    class="flex items-center px-3.5 cursor-pointer py-2 bg-blue-600 text-white text-[14px] font-bold rounded-lg hover:bg-blue-700 transition-all"
-                >
-                    <span class="text-[16px]">+&nbsp;</span>Criar Novo
-                </button>
-                <button @click="openFilter" class="cursor-pointer p-2.5 py-[12px] text-slate-400 hover:text-slate-900 transition-colors rounded-lg border border-slate-200 bg-white hover:border-slate-300">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4.5h18M5.5 12h13M8 19.5h8"></path>
-                    </svg>
-                </button>
-            </div>
-        </div>
-
         <div class="bg-white border border-slate-200 rounded-lg overflow-hidden flex flex-col">
             <div v-if="selectedItems.length > 0" class="bg-blue-600 px-6 py-2.5 flex items-center gap-4">
                 <span class="text-white text-[13px] font-medium tracking-wide">Selecionado ({{ selectedItems.length }})</span>
@@ -282,13 +246,6 @@ watch(() => route.query, () => {
                 <h3 class="font-bold text-slate-800">Nenhum resultado encontrado</h3>
                 <button @click="() => router.push(`/${resource}/create`)" class="mt-4 cursor-pointer text-sm font-bold text-blue-600 hover:underline">Adicionar {{ label }}</button>
             </div>
-
-            <Pagination 
-                v-if="pagination"
-                :current-page="pagination.current_page"
-                :total-pages="pagination.last_page"
-                :load-data="loadData"
-            />
         </div>
     </div>
 

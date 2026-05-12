@@ -17,6 +17,15 @@ export const resources: Record<string, ResourceMetadata> = {
         tableLabels: ['Usuário', 'Cargo', 'Criação', 'Última Alteração'],
         breadcrumbs: [
             { label: 'Usuários', path: '/users' }
+        ],
+        exportLabels: ['Cargos', 'Criação', 'Última Alteração'],
+        exportOrders: [
+            { label: 'Criação (Mais Recente)', value: 'criacao_recente' },
+            { label: 'Criação (Mais Antiga)', value: 'criacao_antiga' },
+            { label: 'Última Alteração (Mais Recente)', value: 'alteracao_recente' },
+            { label: 'Última Alteração (Mais Antiga)', value: 'alteracao_antiga' },
+            { label: 'Ordem Alfabética (Nome)', value: 'alfabetica_name' },
+            { label: 'Ordem Alfabética (Cargo)', value: 'alfabetica_role' },
         ]
     },
     roles: {
@@ -26,6 +35,14 @@ export const resources: Record<string, ResourceMetadata> = {
         tableLabels: ['Nome', 'Criação', 'Última Alteração'],
         breadcrumbs: [
             { label: 'Cargos', path: '/roles' }
+        ],
+        exportLabels: ['Criação', 'Última Alteração'],
+        exportOrders: [
+            { label: 'Criação (Mais Recente)', value: 'criacao_recente' },
+            { label: 'Criação (Mais Antiga)', value: 'criacao_antiga' },
+            { label: 'Última Alteração (Mais Recente)', value: 'alteracao_recente' },
+            { label: 'Última Alteração (Mais Antiga)', value: 'alteracao_antiga' },
+            { label: 'Ordem Alfabética', value: 'alfabetica' },
         ]
     }
 };

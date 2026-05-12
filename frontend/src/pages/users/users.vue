@@ -10,6 +10,10 @@ import { verifyApiError } from '../../services/verifyApiError';
 import { useLoading } from '../../composables/useLoading';
 import Input from '../../components/input.vue';
 import DateInput from '../../components/date-input.vue';
+import ListHeader from '../../components/list-header.vue';
+import Pagination from '../../components/pagination.vue';
+import ExportSidebar from '../../components/export-sidebar.vue';
+import type { ExportOrder } from '../../types/resource';
 
 const { showLoadingPage } = useLoading();
 const route = useRoute();
@@ -18,6 +22,7 @@ const metadata = resources.users;
 const users = ref<any>([]);
 const pagination = ref<any>({ current_page: 1, last_page: 1 });
 const isFilterOpen = ref<boolean>(false);
+const isExportOpen = ref<boolean>(false);
 
 interface FilterProps {
     name: string,
@@ -83,6 +88,14 @@ const getData = async (query = "") => {
 
 <template>
     <TemplatePage>
+        <ListHeader 
+            :title="metadata.pluralLabel"
+            :count="pagination.total_items"
+            :resource="metadata.name"
+            :onExport="() => isExportOpen = true"
+            :onFilter="() => isFilterOpen = true"
+        />
+
         <List 
             :data="users"
             :label="metadata.label"
@@ -90,11 +103,15 @@ const getData = async (query = "") => {
             :labels="metadata.tableLabels"
             :resource="metadata.name"
             :reload="getData"
-            :open-filter="() => isFilterOpen = true"
-            :load-data="loadData"
-            :pagination="pagination"
         />
 
+        <Pagination 
+            v-if="pagination"
+            :current-page="pagination.current_page"
+            :total-pages="pagination.last_page"
+            :load-data="loadData"
+        />
+        
         <FilterSidebar 
             :isOpen="isFilterOpen"
             :close="() => isFilterOpen = false"
@@ -128,5 +145,14 @@ const getData = async (query = "") => {
                 />
             </div>
         </FilterSidebar>
+
+        <ExportSidebar
+            :isOpen="isExportOpen"
+            :close="() => isExportOpen = false"
+            :labels="metadata.exportLabels as string[]"
+            :order-options="metadata.exportOrders as ExportOrder[]"
+        >
+            
+        </ExportSidebar>
     </TemplatePage>
 </template>

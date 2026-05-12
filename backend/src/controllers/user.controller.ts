@@ -110,10 +110,6 @@ export class UserController {
 
       const { name, role, password } = req.body;
 
-      if (!name || !role) {
-        throw new AppError("Preencha os campos", 400);
-      }
-
       if (role === "admin") {
         throw new AppError("Não é possível atribuir o cargo admin", 400);
       }
@@ -297,10 +293,6 @@ export class UserController {
 
       if (user.name === name) {
         throw new AppError("Não é possível editar a si mesmo", 400);
-      }
-
-      if (!userName || !roleName) {
-        throw new AppError("Preencha os campos", 400);
       }
 
       if (roleName === "admin") {

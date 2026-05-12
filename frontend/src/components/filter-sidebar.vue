@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { useToast } from '../composables/useToast';
 import BaseButton from './base-button.vue';
 import { useRouter, useRoute } from 'vue-router';
@@ -91,11 +91,17 @@ const reset = async () => {
         props.close();
     } catch (error: any) {
         console.error("Erro ao limpar filtro: ", error);
-        showToast("Ops! Algo deu errado.", "error");
+        const apiMessage = error.response?.data;
+        showToast(apiMessage || "Ops! Algo deu errado.", "error");
     } finally {
         loadingReset.value = !loadingReset.value;
     }
 };
+
+watch(() => props.isOpen, () => {
+    if (props.isOpen) document.body.style.overflow = "hidden"
+    else document.body.style.overflow = "visible"
+});
 </script>
 
 <template>

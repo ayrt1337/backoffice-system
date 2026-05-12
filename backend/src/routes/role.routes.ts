@@ -19,6 +19,7 @@ roleRoutes.get('/:name', roleController.read);
 roleRoutes.get('/edit/:name', roleController.updateForGet);
 roleRoutes.patch('/edit/:name', roleController.updateForPatch);
 
+roleRoutes.get('/export/pdf', roleController.exportPDF);
 roleRoutes.delete('/delete', roleController.delete);
 
 export { roleRoutes };

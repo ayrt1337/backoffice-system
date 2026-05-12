@@ -62,11 +62,11 @@ const changePage = async (page: number | string) => {
 </script>
 
 <template>
-    <div v-if="totalPages > 1" class="flex items-center justify-center gap-1 py-4 border-t border-slate-200">
+    <div v-if="totalPages > 1" class="flex items-center justify-center gap-1 py-4">
         <button
             @click="changePage(currentPage - 1)"
             :disabled="currentPage === 1"
-            class="cursor-pointer flex items-center justify-center w-9 h-9 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            class="bg-white cursor-pointer flex items-center justify-center size-10 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
         </button>
@@ -76,12 +76,12 @@ const changePage = async (page: number | string) => {
             :key="index"
             @click="changePage(page)"
             :class="[
-                'flex items-center justify-center w-9 h-9 rounded-lg text-sm font-medium transition-colors',
+                'flex items-center justify-center size-10 rounded-lg text-sm font-medium transition-colors',
                 page === currentPage 
                     ? 'bg-blue-600 text-white border border-blue-600' 
                     : page === '...' 
                         ? 'text-slate-500 cursor-default' 
-                        : 'border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 cursor-pointer'
+                        : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 cursor-pointer'
             ]"
         >
             {{ page }}
@@ -90,7 +90,7 @@ const changePage = async (page: number | string) => {
         <button
             @click="changePage(currentPage + 1)"
             :disabled="currentPage >= totalPages"
-            class="cursor-pointer flex items-center justify-center w-9 h-9 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            class="cursor-pointer bg-white flex items-center justify-center size-10 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
         </button>
