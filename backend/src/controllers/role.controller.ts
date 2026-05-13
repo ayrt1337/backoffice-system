@@ -338,12 +338,21 @@ export class RoleController {
     try {
       const user = (req as any).user;
 
-      if (!await verifyPermissions(user.role.name, ["roles:read"])) {
+      if (!await verifyPermissions(user.role.name, ["roles:read", "roles:export"])) {
         throw new AppError("Unauthorized", 403);
       }
 
-      const { fields, orderBy } = req.query as { fields?: string, orderBy?: string };
+      const { fields, orderBy, orderByLabel, maxItems } = req.query as 
+      { fields?: string, orderBy?: string, orderByLabel?: string, maxItems?: number };
       
+      if (typeof Number(maxItems) !== "number") {
+        throw new AppError("A quantidade de items deve ser um número!", 400);
+      }
+
+      if (Number(maxItems) <= 0) {
+        throw new AppError("A quantidade de items deve ser um inteiro positivo!", 400);
+      }
+
       const fieldMap: Record<string, string> = {
         "Criação": "created_at",
         "Última Alteração": "updated_at"
@@ -360,19 +369,12 @@ export class RoleController {
 
       const rolesRaw = await database.role.findMany({
         orderBy: prismaOrderBy,
+        take: maxItems ? Number(maxItems) : null,
         select: {
           name: true,
           created_at: selectedFields.includes('created_at'),
           updated_at: selectedFields.includes('updated_at'),
         },
-      });
-
-      const roles = rolesRaw.map((role: any, index) => {
-        const row = [];
-        if (index === 0) row.push(role.name);
-        if (selectedFields.includes('created_at')) row.push(formatDate(role.created_at));
-        if (selectedFields.includes('updated_at')) row.push(formatDate(role.updated_at));
-        return row;
       });
 
       const doc = new PDFDocument({ margin: 30, size: 'A4' });
@@ -382,16 +384,56 @@ export class RoleController {
 
       doc.pipe(res);
 
+      doc.fillColor('#0f304f').fontSize(22).font('Helvetica-Bold').text('Relatório de Cargos', { align: 'left' });
+      doc.moveDown(0.5);
+
+      doc.fillColor('#64748b').fontSize(10).font('Helvetica');
+      doc.text(`Relatório gerado em: ${new Date().toLocaleString('pt-BR')}`);
+      doc.text(`Ordenação: ${orderByLabel || 'Criação (Mais Recente)'}`);
+      doc.text(`Total de registros: ${rolesRaw.length}`);
+      doc.moveDown(2);
+
+      const tableWidth = doc.page.width - 60;
+      const nameColWidth = Math.floor(tableWidth * 0.30);
+      const dynamicColWidth = Math.floor((tableWidth - nameColWidth) / selectedLabels.length);
+
       const table = {
-        title: "Relatório de Cargos",
-        subtitle: `Gerado em: ${new Date().toLocaleString('pt-BR')}\nOrdenação: ${orderBy || 'Padrão'}`,
-        headers: ["Nome", ...selectedLabels],
-        rows: roles,
+        headers: [
+          { label: "Nome", property: 'name', width: nameColWidth, headerColor: "#0f304f", headerOpacity: 1 },
+          ...selectedLabels.map(label => ({
+            label,
+            property: fieldMap[label],
+            headerColor: "#0f304f",
+            headerOpacity: 1,
+            width: dynamicColWidth
+          }))
+        ],
+        datas: rolesRaw.map((role: any) => ({
+          name: role.name,
+          created_at: formatDate(role.created_at),
+          updated_at: formatDate(role.updated_at)
+        })),
       };
 
       await doc.table(table, {
-        prepareHeader: () => doc.font("Helvetica-Bold").fontSize(10),
-        prepareRow: () => doc.font("Helvetica").fontSize(8),
+        padding: [5, 5, 5, 5],
+        columnSpacing: 5,
+        divider: {
+          header: { disabled: false, width: 1, opacity: 1 },
+          horizontal: { disabled: false, width: 0.5, opacity: 0.3 },
+        },
+        prepareHeader: () => {
+          doc.font("Helvetica-Bold").fontSize(10).fillColor('white');
+          return doc;
+        },
+        prepareRow: (row: any, indexColumn: any, indexRow: any, rectRow: any, rectCell: any) => {
+          if (rectCell && indexRow % 2 === 0) {
+            doc.fillColor("#b2c6d3")
+              .fill();
+          }
+          doc.font("Helvetica").fontSize(9).fillColor('#1e293b');
+          return doc;
+        },
       });
 
       doc.end();

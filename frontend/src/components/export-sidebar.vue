@@ -21,14 +21,12 @@ const props = defineProps<Props>();
 const selectedFields = ref<string[]>([...props.labels]);
 const orderBy = ref<string>('criacao_recente');
 const loadingPDF = ref<boolean>(false);
-const itemsQuantity = ref<number>();
+const maxItems = ref<number>(20);
 
 const toggleField = (label: string) => {
     const index = selectedFields.value.indexOf(label);
     if (index > -1) {
-        if (selectedFields.value.length > 1) {
-            selectedFields.value.splice(index, 1);
-        }
+        selectedFields.value.splice(index, 1);
     } else {
         selectedFields.value.push(label);
     }
@@ -37,9 +35,15 @@ const toggleField = (label: string) => {
 const handleExport = async () => {
     loadingPDF.value = !loadingPDF.value;
     try {
+        const orderByLabel = () => {
+            return props.orderOptions.find(opt => opt.value === orderBy.value)?.label || '';
+        };
+
         const queryParams = new URLSearchParams({
             fields: selectedFields.value.join(','),
-            orderBy: orderBy.value
+            orderBy: orderBy.value,
+            orderByLabel: orderByLabel(),
+            maxItems: `${maxItems.value}`
         }).toString();
 
         const response = await api({
@@ -68,7 +72,6 @@ const handleExport = async () => {
 watch(() => props.isOpen, () => {
     if (props.isOpen) {
         document.body.style.overflow = "hidden";
-        selectedFields.value = [...props.labels];
     } else {
         document.body.style.overflow = "visible";
     }
@@ -133,9 +136,9 @@ watch(() => props.isOpen, () => {
 
                         <div>
                             <Input 
-                                label="Quantidade de Items"
+                                label="Quantidade Máxima de Items"
                                 placeholder="Ex: 20"
-                                v-model.number="itemsQuantity"
+                                v-model.number="maxItems"
                                 type="number"
                             />
                         </div>

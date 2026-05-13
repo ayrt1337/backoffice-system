@@ -26,7 +26,8 @@ export const systemResources: Resources[] = [
             { label: "Visualizar", name: "read" },
             { label: "Criar", name: "create" },
             { label: "Editar", name: "update" }, 
-            { label: "Excluir", name: "delete" }
+            { label: "Excluir", name: "delete" },
+            { label: "Exportar", name: "export" }
         ]
     }
 ];
