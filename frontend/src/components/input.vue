@@ -10,12 +10,13 @@ interface Props {
     password?: boolean,
     disabled?: boolean,
     placeholder?: string,
-    error?: string
+    error?: string,
+    type?: string
 };
 
 const showPassword = ref<boolean>(false);
 const props = defineProps<Props>();
-const text = defineModel<string>();
+const text = defineModel<string | number>();
 
 const handlePasswordVisibility = () => {
     showPassword.value = !showPassword.value;
@@ -32,7 +33,8 @@ const handlePasswordVisibility = () => {
                 :disabled="disabled"
                 :id="id" 
                 :placeholder="placeholder"
-                :type="password ? (showPassword ? 'text' : 'password') : 'text'"
+                :min="type === 'number' ? 0 : undefined"
+                :type="password ? (showPassword ? 'text' : 'password') : (type === 'number' ? 'number' : 'text')"
                 :class="[
                     password ? 'pr-10' : '',
                     error ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-blue-500'
@@ -50,3 +52,14 @@ const handlePasswordVisibility = () => {
         <span v-if="error" class="text-[15px] text-red-500">{{ error }}</span>
     </div>
 </template>
+
+<style scoped>
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type=number] {
+  -moz-appearance: textfield;
+}
+</style>

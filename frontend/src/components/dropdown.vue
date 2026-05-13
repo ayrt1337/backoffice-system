@@ -34,7 +34,7 @@ const modelValue = defineModel<any>();
                 v-model="modelValue"
                 :disabled="disabled"
                 :class="[
-                    'w-full px-3.5 py-2.5 rounded-lg border-[1.5px] bg-white text-base text-slate-800 transition-all outline-none appearance-none cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed disabled:bg-slate-50',
+                    'w-full px-3.5 py-2 rounded-lg border-[1.5px] bg-white text-base text-slate-800 transition-all outline-none appearance-none cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed disabled:bg-slate-50',
                     !modelValue ? 'text-slate-400' : 'text-slate-800',
                     error ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-blue-500'
                 ]"

@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { UserController } from '../controllers/user.controller.js';
 import { authenticate } from '../middlewares/auth.middleware.js';
 import { validate } from '../middlewares/validate.middleware.js';
-import { createUserSchema } from '../schemas/user-schema.js';
+import { createUserSchema, editUserSchema } from '../schemas/user-schema.js';
 
 const userRoutes = Router();
 const userController = new UserController();
@@ -17,7 +17,7 @@ userRoutes.post('/create', validate(createUserSchema), userController.createForP
 userRoutes.get('/:name', userController.read);
 
 userRoutes.get('/edit/:name', userController.updateForGet);
-userRoutes.patch('/edit/:name', userController.updateForPatch);
+userRoutes.patch('/edit/:name', validate(editUserSchema), userController.updateForPatch);
 
 userRoutes.delete('/delete', userController.delete);
 

@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { RoleController } from '../controllers/role.controller.js';
 import { authenticate } from '../middlewares/auth.middleware.js';
 import { validate } from '../middlewares/validate.middleware.js';
-import { createRoleSchema } from '../schemas/role-schema.js';
+import { createRoleSchema, editRoleSchema } from '../schemas/role-schema.js';
 
 const roleRoutes = Router();
 const roleController = new RoleController();
@@ -17,7 +17,7 @@ roleRoutes.post('/create', validate(createRoleSchema), roleController.createForP
 roleRoutes.get('/:name', roleController.read);
 
 roleRoutes.get('/edit/:name', roleController.updateForGet);
-roleRoutes.patch('/edit/:name', roleController.updateForPatch);
+roleRoutes.patch('/edit/:name', validate(editRoleSchema), roleController.updateForPatch);
 
 roleRoutes.get('/export/pdf', roleController.exportPDF);
 roleRoutes.delete('/delete', roleController.delete);

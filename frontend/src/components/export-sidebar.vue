@@ -4,6 +4,8 @@ import BaseButton from './base-button.vue';
 import { api } from '../services/api';
 import type { ExportOrder } from '../types/resource';
 import { useToast } from '../composables/useToast';
+import Dropdown from './dropdown.vue';
+import Input from './input.vue';
 
 const { showToast } = useToast();
 
@@ -19,6 +21,7 @@ const props = defineProps<Props>();
 const selectedFields = ref<string[]>([...props.labels]);
 const orderBy = ref<string>('criacao_recente');
 const loadingPDF = ref<boolean>(false);
+const itemsQuantity = ref<number>();
 
 const toggleField = (label: string) => {
     const index = selectedFields.value.indexOf(label);
@@ -106,9 +109,9 @@ watch(() => props.isOpen, () => {
                 <div class="flex-1 overflow-y-auto px-8 pb-8 custom-scrollbar">
                     <div class="flex flex-col gap-8">
                         <div>
-                            <label class="block text-sm font-bold text-slate-700 mb-4 uppercase tracking-wider">Campos Disponíveis</label>
-                            <div class="flex flex-col gap-3">
-                                <label v-for="label in labels" :key="label" class="flex items-center gap-3 p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer transition-colors">
+                            <label class="text-[15px] font-medium text-slate-600">Campos Disponíveis</label>
+                            <div class="flex flex-col gap-3 mt-3">
+                                <label v-for="label in labels" :key="label" class="text-[15px] flex items-center gap-3 px-3.5 py-2 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer transition-colors">
                                     <input 
                                         type="checkbox" 
                                         :checked="selectedFields.includes(label)"
@@ -121,15 +124,20 @@ watch(() => props.isOpen, () => {
                         </div>
 
                         <div>
-                            <label class="block text-sm font-bold text-slate-700 mb-4 uppercase tracking-wider">Ordenar por</label>
-                            <select 
+                            <Dropdown 
+                                label="Ordenar por"
                                 v-model="orderBy"
-                                class="w-full p-3 bg-white border border-slate-300 rounded-lg text-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all cursor-pointer"
-                            >
-                                <option v-for="option in orderOptions" :key="option.value" :value="option.value">
-                                    {{ option.label }}
-                                </option>
-                            </select>
+                                :options="orderOptions"
+                            />
+                        </div>
+
+                        <div>
+                            <Input 
+                                label="Quantidade de Items"
+                                placeholder="Ex: 20"
+                                v-model.number="itemsQuantity"
+                                type="number"
+                            />
                         </div>
                     </div>
                 </div>
