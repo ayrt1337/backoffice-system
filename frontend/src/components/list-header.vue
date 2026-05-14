@@ -38,7 +38,7 @@ defineProps<Props>();
                 @click="onExport"
                 class="flex items-center justify-center px-4 h-10 cursor-pointer text-sm font-medium transition-colors rounded-lg border border-slate-200 bg-white hover:border-slate-300 text-slate-700"
             >
-                Exportar em PDF
+                Exportar PDF
             </button>
             <button 
                 @click="onFilter" 

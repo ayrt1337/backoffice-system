@@ -13,7 +13,8 @@ interface Props {
     isOpen: boolean,
     close: () => void,
     labels: string[],
-    orderOptions: ExportOrder[]
+    orderOptions: ExportOrder[],
+    resource: string
 };
 
 const props = defineProps<Props>();
@@ -47,7 +48,7 @@ const handleExport = async () => {
         }).toString();
 
         const response = await api({
-            url: `/roles/export/pdf?${queryParams}`,
+            url: `/${props.resource}/export?${queryParams}`,
             method: 'get',
             responseType: 'blob'
         });

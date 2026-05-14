@@ -14,12 +14,13 @@ roleRoutes.get('/', roleController.list);
 roleRoutes.get('/create', roleController.createForGet);
 roleRoutes.post('/create', validate(createRoleSchema), roleController.createForPost);
 
+roleRoutes.get('/export', roleController.exportListPDF);
+
 roleRoutes.get('/:name', roleController.read);
 
 roleRoutes.get('/edit/:name', roleController.updateForGet);
 roleRoutes.patch('/edit/:name', validate(editRoleSchema), roleController.updateForPatch);
 
-roleRoutes.get('/export/pdf', roleController.exportPDF);
 roleRoutes.delete('/delete', roleController.delete);
 
 export { roleRoutes };

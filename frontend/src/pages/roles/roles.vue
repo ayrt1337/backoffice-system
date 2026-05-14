@@ -143,6 +143,7 @@ const getData = async (query = "") => {
             :close="() => isExportOpen = false"
             :labels="metadata.exportLabels as string[]"
             :order-options="metadata.exportOrders as ExportOrder[]"
+            :resource="metadata.name"
         >
             
         </ExportSidebar>

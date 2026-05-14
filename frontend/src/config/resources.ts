@@ -18,7 +18,7 @@ export const resources: Record<string, ResourceMetadata> = {
         breadcrumbs: [
             { label: 'Usuários', path: '/users' }
         ],
-        exportLabels: ['Cargos', 'Criação', 'Última Alteração'],
+        exportLabels: ['Cargo', 'Criação', 'Última Alteração'],
         exportOrders: [
             { label: 'Criação (Mais Recente)', value: 'criacao_recente' },
             { label: 'Criação (Mais Antiga)', value: 'criacao_antiga' },

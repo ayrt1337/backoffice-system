@@ -5,6 +5,7 @@ import { AppError } from "../errors/app-error.js";
 import { verifyPermissions } from "../services/index.js";
 import { formatDate } from "../utils/format-date.js";
 import { UsersListQuery } from "../types/user.js";
+import { generateListPDF } from "../utils/pdf-list-generator.js";
 
 export class UserController {
   async list(req: Request, res: Response, next: NextFunction) {
@@ -338,6 +339,96 @@ export class UserController {
       });
 
       return res.status(200).json("Success");
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async exportListPDF(req: Request, res: Response, next: NextFunction) {
+    try {
+      const user = (req as any).user;
+
+      if (
+        !(await verifyPermissions(user.role.name, [
+          "users:read",
+          "users:export",
+        ]))
+      ) {
+        throw new AppError("Unauthorized", 403);
+      }
+
+      const { fields, orderBy, orderByLabel, maxItems } = req.query as {
+        fields?: string;
+        orderBy?: string;
+        orderByLabel?: string;
+        maxItems?: number;
+      };
+
+      if (typeof Number(maxItems) !== "number") {
+        throw new AppError("A quantidade de items deve ser um número!", 400);
+      }
+
+      if (Number(maxItems) <= 0) {
+        throw new AppError(
+          "A quantidade de items deve ser um inteiro positivo!",
+          400,
+        );
+      }
+
+      const fieldMap: Record<string, string> = {
+        "Cargo": "role",
+        "Criação": "created_at",
+        "Última Alteração": "updated_at",
+      };
+
+      const selectedLabels = fields
+        ? fields.split(",")
+        : ["Cargo", "Criação", "Última Alteração"];
+      const selectedFields = selectedLabels
+        .map((label) => fieldMap[label])
+        .filter(Boolean);
+
+      let prismaOrderBy: any = { created_at: "desc" };
+      if (orderBy === "criacao_antiga") prismaOrderBy = { created_at: "asc" };
+      if (orderBy === "alteracao_recente") prismaOrderBy = { updated_at: "desc" };
+      if (orderBy === "alteracao_antiga") prismaOrderBy = { updated_at: "asc" };
+      if (orderBy === "alfabetica_name") prismaOrderBy = { name: "asc" };
+      if (orderBy === "alfabetica_role") prismaOrderBy = { role: { name: "asc" } };
+
+      const users = await database.user.findMany({
+        orderBy: prismaOrderBy,
+        take: maxItems ? Number(maxItems) : null,
+        select: {
+          name: true,
+          role: { select: { name: selectedFields.includes("role") } },
+          created_at: selectedFields.includes("created_at"),
+          updated_at: selectedFields.includes("updated_at"),
+        },
+      });
+
+      const formattedUsers = users.map((user) => {
+        return{
+          name: user.name,
+          role: user.role.name,
+          created_at: user.created_at,
+          updated_at: user.updated_at
+        }
+      });
+
+      await generateListPDF({
+        res,
+        title: "Relatório de Usuários",
+        filename: "relatorio-usuarios.pdf",
+        data: formattedUsers,
+        headers: [
+          { label: "Nome", property: "name" },
+          ...selectedLabels.map((label) => ({
+            label,
+            property: fieldMap[label],
+          })),
+        ],
+        orderByLabel,
+      });
     } catch (error) {
       next(error);
     }
