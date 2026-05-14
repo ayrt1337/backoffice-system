@@ -112,16 +112,11 @@ const handleEdit = async () => {
         showToast('Usuário atualizado com sucesso!', 'success', true);
     } catch (error: any) {    
         console.error("Erro ao editar usuário: ", error);
-        const hasMessage = verifyApiError(error.response?.status, false);
-
-        if (hasMessage) {
-            const apiMessage = error.response?.data;
-            if (typeof apiMessage === 'string' && apiMessage.toLowerCase().includes('usuário')) {
-                formErrors.value.name = apiMessage;
-            } else {
-                showToast(apiMessage || "Erro ao atualizar usuário", "error");
-            }
-            return;
+        const apiMessage = error.response?.data;
+        if (typeof apiMessage === 'string' && apiMessage.toLowerCase().includes('usuário')) {
+            formErrors.value.name = apiMessage;
+        } else {
+            showToast(apiMessage || "Erro ao atualizar usuário", "error");
         }
     } finally {
         loadingBtn.value = !loadingBtn.value;

@@ -77,16 +77,11 @@ const handleCreate = async () => {
         showToast("Cargo criado com sucesso!", "success", true);
     } catch (error: any) {
         console.error("Erro ao criar cargo: ", error);
-        const hasMessage = verifyApiError(error.response?.status, false);
-
-        if (hasMessage) {
-            const apiMessage = error.response?.data;
-            if (typeof apiMessage === 'string' && apiMessage.toLowerCase().includes('cargo')) {
-                formErrors.value.name = apiMessage;
-            } else {
-                showToast(apiMessage || "Erro ao criar cargo", "error");
-            }
-            return;
+        const apiMessage = error.response?.data;
+        if (typeof apiMessage === 'string' && apiMessage.toLowerCase().includes('cargo')) {
+            formErrors.value.role = apiMessage;
+        } else {
+            showToast(apiMessage || "Erro ao criar cargo", "error");
         }
     } finally {
         loadingBtn.value = !loadingBtn.value;

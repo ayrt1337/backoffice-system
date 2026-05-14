@@ -147,14 +147,6 @@ const handleExport = async () => {
             </div>
 
             <div v-if="(data.role as Role).name !== 'admin'" class="mt-10 flex gap-3">
-                <BaseButton 
-                    v-if="showUser.permissions.includes('roles:update') || showUser.name === 'admin'"
-                    @click="() => router.push(`/roles/edit/${(data.role as Role).name}`)"
-                    class="p-2 px-8 rounded-lg bg-blue-600 text-white text-base font-semibold cursor-pointer transition-all flex justify-center items-center hover:bg-blue-700 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed"
-                >
-                    <span>Editar</span>
-                </BaseButton>
-
                 <BaseButton
                     v-if="showUser.permissions.includes('roles:export') || showUser.name === 'admin'"
                     @click="handleExport"
@@ -163,6 +155,14 @@ const handleExport = async () => {
                     class="p-2 px-8 rounded-lg bg-blue-600 text-white text-base font-semibold cursor-pointer transition-all flex justify-center items-center hover:bg-blue-700 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                     <span>Exportar</span>
+                </BaseButton>
+
+                <BaseButton 
+                    v-if="showUser.permissions.includes('roles:update') || showUser.name === 'admin'"
+                    @click="() => router.push(`/roles/edit/${(data.role as Role).name}`)"
+                    class="p-2 px-8 rounded-lg bg-blue-600 text-white text-base font-semibold cursor-pointer transition-all flex justify-center items-center hover:bg-blue-700 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed"
+                >
+                    <span>Editar</span>
                 </BaseButton>
 
                 <BaseButton

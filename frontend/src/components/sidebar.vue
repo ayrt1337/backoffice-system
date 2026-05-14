@@ -4,10 +4,11 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { faUsers, faShieldHalved, faChartLine, faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
 import router from '../router';
 import { api } from '../services/api';
-import { verifyApiError } from '../services/verifyApiError';
 import { useLoading } from '../composables/useLoading';
 import { useUser } from '../composables/useUser';
+import { useToast } from '../composables/useToast';
 
+const { showToast } = useToast();
 const { showUser } = useUser();
 const { showLoadingPage } = useLoading();
 const route = useRoute();
@@ -34,7 +35,8 @@ const handleLogout = async () => {
     } catch(error: any) {
         console.error("Erro ao fazer logout: ", error);
         showLoadingPage(false);
-        verifyApiError(error.response?.status, false);
+        const apiMessage = error.response?.data;
+        showToast(apiMessage || "Ops! Algo deu errado.", "error", true);
     }
 };
 </script>

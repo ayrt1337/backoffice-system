@@ -142,14 +142,6 @@ const handleExport = async () => {
 
             <div v-if="userData.role !== 'admin'" class="flex mt-10 gap-3">
                 <BaseButton
-                    v-if="showUser.permissions.includes('users:update') || showUser.name === 'admin'"
-                    @click="() => router.push(`/users/edit/${userData.name}`)"
-                    class="p-2 px-8 rounded-lg bg-blue-600 text-white text-base font-semibold cursor-pointer transition-all flex justify-center items-center hover:bg-blue-700 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed"
-                >
-                    <span>Editar</span>
-                </BaseButton>
-
-                <BaseButton
                     v-if="showUser.permissions.includes('users:export') || showUser.name === 'admin'"
                     @click="handleExport"
                     :disabled="loadingExport"
@@ -157,6 +149,14 @@ const handleExport = async () => {
                     class="p-2 px-8 rounded-lg bg-blue-600 text-white text-base font-semibold cursor-pointer transition-all flex justify-center items-center hover:bg-blue-700 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                     <span>Exportar</span>
+                </BaseButton>
+
+                <BaseButton
+                    v-if="showUser.permissions.includes('users:update') || showUser.name === 'admin'"
+                    @click="() => router.push(`/users/edit/${userData.name}`)"
+                    class="p-2 px-8 rounded-lg bg-blue-600 text-white text-base font-semibold cursor-pointer transition-all flex justify-center items-center hover:bg-blue-700 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed"
+                >
+                    <span>Editar</span>
                 </BaseButton>
 
                 <BaseButton

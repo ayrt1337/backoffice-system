@@ -6,7 +6,6 @@ import router from '../../router';
 import Input from '../../components/input.vue';
 import type { Error } from '../../types/error';
 import ErrorMessage from '../../components/error-message.vue';
-import { verifyApiError } from '../../services/verifyApiError';
 import type { UserMetadata } from '../../types/user';
 import * as z from 'zod';
 
@@ -56,15 +55,11 @@ const handleLogin = async (): Promise<void> => {
         router.push("/users");
     } catch (error: any) {
         console.error("Erro ao fazer login: ", error);
-        const hasMessage = verifyApiError(error.response?.status);
-
-        if (hasMessage) {
-            errorData.value = {
-                show: true,
-                message: error.response?.data
-            };
-            return;
-        }
+        const apiMessage = error.response?.data;
+        errorData.value = {
+            show: true,
+            message: apiMessage || "Ops! Algo deu errado"
+        };
     } finally {
         loading.value = !loading.value;
     }

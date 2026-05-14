@@ -90,16 +90,11 @@ const handleCreate = async () => {
         showToast("Usuário criado com sucesso!", "success", true);
     } catch (error: any) {
         console.error("Erro ao criar usuário: ", error);
-        const hasMessage = verifyApiError(error.response?.status, false);
-
-        if (hasMessage) {
-            const apiMessage = error.response?.data;
-            if (typeof apiMessage === 'string' && apiMessage.toLowerCase().includes('usuário')) {
-                formErrors.value.name = apiMessage;
-            } else {
-                showToast(apiMessage || "Erro ao criar usuário", "error");
-            }
-            return;
+        const apiMessage = error.response?.data;
+        if (typeof apiMessage === 'string' && apiMessage.toLowerCase().includes('usuário')) {
+            formErrors.value.name = apiMessage;
+        } else {
+            showToast(apiMessage || "Erro ao criar usuário", "error");
         }
     } finally {
         loadingBtn.value = !loadingBtn.value;
