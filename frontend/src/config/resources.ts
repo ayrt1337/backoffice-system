@@ -20,12 +20,12 @@ export const resources: Record<string, ResourceMetadata> = {
         ],
         exportLabels: ['Cargo', 'Criação', 'Última Alteração'],
         exportOrders: [
-            { label: 'Criação (Mais Recente)', value: 'criacao_recente' },
-            { label: 'Criação (Mais Antiga)', value: 'criacao_antiga' },
-            { label: 'Última Alteração (Mais Recente)', value: 'alteracao_recente' },
-            { label: 'Última Alteração (Mais Antiga)', value: 'alteracao_antiga' },
-            { label: 'Ordem Alfabética (Nome)', value: 'alfabetica_name' },
-            { label: 'Ordem Alfabética (Cargo)', value: 'alfabetica_role' },
+            { label: 'Criação (Mais Recente)', value: 'created_newest' },
+            { label: 'Criação (Mais Antiga)', value: 'created_oldest' },
+            { label: 'Última Alteração (Mais Recente)', value: 'updated_newest' },
+            { label: 'Última Alteração (Mais Antiga)', value: 'updated_oldest' },
+            { label: 'Ordem Alfabética (Nome)', value: 'alphabetical_name' },
+            { label: 'Ordem Alfabética (Cargo)', value: 'alphabetical_role' },
         ]
     },
     roles: {
@@ -38,11 +38,11 @@ export const resources: Record<string, ResourceMetadata> = {
         ],
         exportLabels: ['Criação', 'Última Alteração'],
         exportOrders: [
-            { label: 'Criação (Mais Recente)', value: 'criacao_recente' },
-            { label: 'Criação (Mais Antiga)', value: 'criacao_antiga' },
-            { label: 'Última Alteração (Mais Recente)', value: 'alteracao_recente' },
-            { label: 'Última Alteração (Mais Antiga)', value: 'alteracao_antiga' },
-            { label: 'Ordem Alfabética', value: 'alfabetica' },
+            { label: 'Criação (Mais Recente)', value: 'created_newest' },
+            { label: 'Criação (Mais Antiga)', value: 'created_oldest' },
+            { label: 'Última Alteração (Mais Recente)', value: 'updated_newest' },
+            { label: 'Última Alteração (Mais Antiga)', value: 'updated_oldest' },
+            { label: 'Ordem Alfabética', value: 'alphabetical' },
         ]
     }
 };

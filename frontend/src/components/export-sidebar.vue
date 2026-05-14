@@ -20,7 +20,7 @@ interface Props {
 const props = defineProps<Props>();
 
 const selectedFields = ref<string[]>([...props.labels]);
-const orderBy = ref<string>('criacao_recente');
+const orderBy = ref<string>('created_newest');
 const loadingPDF = ref<boolean>(false);
 const maxItems = ref<number>(20);
 

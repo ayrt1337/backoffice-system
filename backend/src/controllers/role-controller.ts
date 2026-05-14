@@ -404,10 +404,10 @@ export class RoleController {
         .filter(Boolean);
 
       let prismaOrderBy: any = { created_at: "desc" };
-      if (orderBy === "criacao_antiga") prismaOrderBy = { created_at: "asc" };
-      if (orderBy === "alteracao_recente") prismaOrderBy = { updated_at: "desc" };
-      if (orderBy === "alteracao_antiga") prismaOrderBy = { updated_at: "asc" };
-      if (orderBy === "alfabetica") prismaOrderBy = { name: "asc" };
+      if (orderBy === "created_oldest") prismaOrderBy = { created_at: "asc" };
+      if (orderBy === "updated_newest") prismaOrderBy = { updated_at: "desc" };
+      if (orderBy === "updated_oldest") prismaOrderBy = { updated_at: "asc" };
+      if (orderBy === "alphabetical") prismaOrderBy = { name: "asc" };
 
       const roles = await database.role.findMany({
         orderBy: prismaOrderBy,

@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import { faFileExport } from '@fortawesome/free-solid-svg-icons';
 import { useUser } from '../composables/useUser';
 import router from '../router';
 

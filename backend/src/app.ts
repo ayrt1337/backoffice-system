@@ -5,7 +5,7 @@ import cookieParser from "cookie-parser";
 import { connectRedis } from "./config/redis-client.js";
 import { updatePermissions } from "./services/update-permissions.js";
 import { routes } from "./routes/index.js";
-import { errorMiddleware } from "./middlewares/error.middleware.js";
+import { errorMiddleware } from "./middlewares/error-middleware.js";
 
 const app = express();
 
