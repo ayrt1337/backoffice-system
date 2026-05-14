@@ -12,6 +12,7 @@ import { useToast } from '../../composables/useToast';
 import { useLoading } from '../../composables/useLoading';
 import { useUser } from '../../composables/useUser';
 import type { Role, RoleData } from '../../types/role';
+import BaseButton from '../../components/base-button.vue';
 
 const { showUser } = useUser();
 const { showToast } = useToast();
@@ -30,7 +31,8 @@ const data = ref<RoleData>({
     resources: [],
 });
 
-const showDeleteModal = ref(false);
+const showDeleteModal = ref<boolean>(false);
+const loadingExport = ref<boolean>(false);
 const loadingBtn = ref<boolean>(false);
 
 const loadData = async () => {
@@ -80,7 +82,32 @@ const handleDelete = async () => {
     } finally {
         loadingBtn.value = !loadingBtn.value;
     }
-}
+};
+
+const handleExport = async () => {
+    loadingExport.value = true;
+    try {
+        const response = await api({
+            url: `/roles/export/${props.name}`,
+            method: 'get',
+            responseType: 'blob',
+        });
+
+        const blob = new Blob([response.data], { type: 'application/pdf' });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `cargo-${props.name}.pdf`;
+        link.click();
+        window.URL.revokeObjectURL(url);
+    } catch (error: any) {
+        console.error("Erro ao exportar PDF: ", error);
+        const apiMessage = error.response?.data;
+        showToast(apiMessage || "Ops! Algo deu errado.", "error");
+    } finally {
+        loadingExport.value = false;
+    }
+};
 </script>
 
 <template>
@@ -120,21 +147,31 @@ const handleDelete = async () => {
             </div>
 
             <div v-if="(data.role as Role).name !== 'admin'" class="mt-10 flex gap-3">
-                <button 
+                <BaseButton 
                     v-if="showUser.permissions.includes('roles:update') || showUser.name === 'admin'"
                     @click="() => router.push(`/roles/edit/${(data.role as Role).name}`)"
                     class="p-2 px-8 rounded-lg bg-blue-600 text-white text-base font-semibold cursor-pointer transition-all flex justify-center items-center hover:bg-blue-700 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                     <span>Editar</span>
-                </button>
+                </BaseButton>
 
-                <button
+                <BaseButton
+                    v-if="showUser.permissions.includes('roles:export') || showUser.name === 'admin'"
+                    @click="handleExport"
+                    :disabled="loadingExport"
+                    :loading="loadingExport"
+                    class="p-2 px-8 rounded-lg bg-blue-600 text-white text-base font-semibold cursor-pointer transition-all flex justify-center items-center hover:bg-blue-700 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed"
+                >
+                    <span>Exportar</span>
+                </BaseButton>
+
+                <BaseButton
                     v-if="showUser.permissions.includes('roles:delete') || showUser.name === 'admin'"
                     @click="showDeleteModal = true"
                     class="p-2 px-8 rounded-lg bg-red-600 text-white text-base font-semibold cursor-pointer transition-all flex justify-center items-center hover:bg-red-700 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                     <span>Excluir</span>
-                </button>
+                </BaseButton>
             </div>
 
             <ConfirmModal

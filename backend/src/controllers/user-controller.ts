@@ -6,6 +6,7 @@ import { verifyPermissions } from "../services/index.js";
 import { formatDate } from "../utils/format-date.js";
 import { UsersListQuery } from "../types/user.js";
 import { generateListPDF } from "../utils/pdf-list-generator.js";
+import { generatePDF } from "../utils/pdf-generator.js";
 
 export class UserController {
   async list(req: Request, res: Response, next: NextFunction) {
@@ -428,6 +429,57 @@ export class UserController {
           })),
         ],
         orderByLabel,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async exportUserPDF (req: Request, res: Response, next: NextFunction) {
+    try {
+      const user = (req as any).user;
+
+      if (
+        !(await verifyPermissions(user.role.name, [
+          "users:read",
+          "users:export",
+        ]))
+      ) {
+        throw new AppError("Unauthorized", 403);
+      }
+
+      const { name } = req.params as { name: string };
+
+      const userData = await database.user.findUnique({
+        where: {
+          name: name
+        },
+        select: {
+          name: true,
+          role: {
+            select: {
+              name: true
+            }
+          },
+          created_at: true,
+          updated_at: true
+        } 
+      });
+
+      if (!userData) {
+        throw new AppError("Usuário não encontrado", 404);
+      }
+
+      await generatePDF({
+        res,
+        title: `Usuário - ${userData.name}`,
+        filename: `usuario-${userData.name}.pdf`,
+        rows: [
+          { label: "Usuário", value: userData.name },
+          { label: "Nome do Cargo", value: userData.role.name },
+          { label: "Criado Em", value: formatDate(userData.created_at) },
+          { label: "Última Alteração", value: formatDate(userData.updated_at) },
+        ],
       });
     } catch (error) {
       next(error);

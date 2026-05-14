@@ -15,6 +15,7 @@ roleRoutes.get("/create", roleController.createForGet);
 roleRoutes.post("/create",validate(createRoleSchema), roleController.createForPost);
 
 roleRoutes.get("/export", roleController.exportListPDF);
+roleRoutes.get("/export/:name", roleController.exportRolePDF);
 
 roleRoutes.get("/:name", roleController.read);
 

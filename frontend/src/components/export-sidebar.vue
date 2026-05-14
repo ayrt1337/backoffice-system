@@ -56,7 +56,7 @@ const handleExport = async () => {
         const url = window.URL.createObjectURL(new Blob([response.data]));
         const link = document.createElement('a');
         link.href = url;
-        link.setAttribute('download', `relatorio-cargos-${new Date().getTime()}.pdf`);
+        link.setAttribute('download', `relatorio-usuarios-${new Date().getTime()}.pdf`);
         document.body.appendChild(link);
         link.click();
         link.remove();

@@ -15,6 +15,7 @@ userRoutes.get("/create", userController.createForGet);
 userRoutes.post("/create", validate(createUserSchema), userController.createForPost);
 
 userRoutes.get("/export", userController.exportListPDF);
+userRoutes.get("/export/:name", userController.exportUserPDF);
 
 userRoutes.get("/:name", userController.read);
 

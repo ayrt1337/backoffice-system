@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import PDFDocument from "pdfkit";
 import { generateListPDF } from "../utils/pdf-list-generator.js";
 import database from "../config/database.js";
 import { updatePermissions } from "../services/update-permissions.js";
@@ -433,6 +434,230 @@ export class RoleController {
         ],
         orderByLabel,
       });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async exportRolePDF(req: Request, res: Response, next: NextFunction) {
+    try {
+      const user = (req as any).user;
+
+      if (
+        !(await verifyPermissions(user.role.name, [
+          "roles:read",
+          "roles:export",
+        ]))
+      ) {
+        throw new AppError("Unauthorized", 403);
+      }
+
+      const { name } = req.params as { name: string };
+
+      const roleDataRaw = await database.role.findUnique({
+        where: { name },
+        select: { name: true, created_at: true, updated_at: true },
+      });
+
+      if (!roleDataRaw) {
+        throw new AppError("Cargo não encontrado", 404);
+      }
+
+      const resources = await database.resource.findMany({
+        select: {
+          label: true,
+          actions: {
+            select: {
+              label: true,
+              slug: true,
+            },
+          },
+        },
+      });
+
+      const rolePermissions = await getPermissions(roleDataRaw.name);
+
+      const doc = new PDFDocument({
+        margin: 40,
+        size: "A4",
+        bufferPages: true,
+      });
+
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename=cargo-${roleDataRaw.name}.pdf`,
+      );
+
+      doc.pipe(res);
+
+      const startX = 40;
+      const contentWidth = doc.page.width - 80;
+
+      doc
+        .fillColor("#0f304f")
+        .fontSize(22)
+        .font("Helvetica-Bold")
+        .text(`Cargo - ${roleDataRaw.name}`, { align: "left" });
+      doc.moveDown(0.1);
+
+      doc.fillColor("#64748b").fontSize(10).font("Helvetica");
+      doc.text(`Relatório gerado em: ${new Date().toLocaleString("pt-BR")}`);
+      doc.moveDown(2);
+
+      const basicFields = [
+        { label: "Cargo", value: roleDataRaw.name },
+        { label: "Criado Em", value: formatDate(roleDataRaw.created_at) },
+        {
+          label: "Última Alteração",
+          value: formatDate(roleDataRaw.updated_at),
+        },
+      ];
+
+      for (const field of basicFields) {
+        doc.fillColor("#64748b").fontSize(11).font("Helvetica");
+        doc.text(field.label, startX);
+        doc.moveDown(0.2);
+        doc.fillColor("#1e293b").fontSize(13).font("Helvetica");
+        doc.text(field.value || "-", startX);
+        doc.moveDown(1.5);
+      }
+
+      doc
+        .fillColor("#0f304f")
+        .fontSize(14)
+        .font("Helvetica-Bold")
+        .text("Permissões", startX);
+      doc.moveDown(0.8);
+
+      const colWidths = {
+        resource: 150,
+        action: (contentWidth - 150) / 5,
+      };
+
+      const headerY = doc.y;
+      doc.fillColor("#0f304f").rect(startX, headerY, contentWidth, 25).fill();
+
+      doc.fillColor("white").fontSize(10).font("Helvetica-Bold");
+      doc.text("Funcionalidade", startX + 10, headerY + 8);
+
+      const actionLabels = [
+        "Visualizar",
+        "Criar",
+        "Editar",
+        "Excluir",
+        "Exportar",
+      ];
+      actionLabels.forEach((label, i) => {
+        doc.text(
+          label,
+          startX + colWidths.resource + i * colWidths.action,
+          headerY + 8,
+          { width: colWidths.action, align: "center" },
+        );
+      });
+
+      doc.y = headerY + 25;
+      doc.moveDown(0.5);
+
+      for (const resource of resources) {
+        const resourceY = doc.y;
+
+        doc.fillColor("#1e293b").fontSize(10).font("Helvetica-Bold");
+        doc.text(resource.label, startX + 10, resourceY + 10, {
+          width: colWidths.resource - 20,
+        });
+
+        for (const action of resource.actions) {
+          const hasPermission = rolePermissions.includes(action.slug);
+
+          let colIndex = -1;
+          if (
+            action.label.includes("Visualizar") ||
+            action.slug.includes("read")
+          )
+            colIndex = 0;
+          else if (
+            action.label.includes("Criar") ||
+            action.slug.includes("create")
+          )
+            colIndex = 1;
+          else if (
+            action.label.includes("Editar") ||
+            action.slug.includes("update")
+          )
+            colIndex = 2;
+          else if (
+            action.label.includes("Excluir") ||
+            action.slug.includes("delete")
+          )
+            colIndex = 3;
+          else if (
+            action.label.includes("Exportar") ||
+            action.slug.includes("export")
+          )
+            colIndex = 4;
+
+          if (colIndex !== -1) {
+            const cbX =
+              startX +
+              colWidths.resource +
+              colIndex * colWidths.action +
+              colWidths.action / 2 -
+              8;
+            const cbY = resourceY + 8;
+
+            doc
+              .lineWidth(1)
+              .strokeColor("#cbd5e1")
+              .roundedRect(cbX, cbY, 16, 16, 3)
+              .stroke();
+
+            if (hasPermission) {
+              doc
+                .fillColor("#0f304f")
+                .roundedRect(cbX + 2, cbY + 2, 12, 12, 2)
+                .fill();
+              doc
+                .strokeColor("white")
+                .lineWidth(1.5)
+                .moveTo(cbX + 4, cbY + 8)
+                .lineTo(cbX + 7, cbY + 11)
+                .lineTo(cbX + 12, cbY + 5)
+                .stroke();
+            }
+          }
+        }
+
+        doc.y = resourceY + 35;
+
+        doc
+          .strokeColor("#e2e8f0")
+          .lineWidth(0.5)
+          .moveTo(startX, doc.y)
+          .lineTo(startX + contentWidth, doc.y)
+          .stroke();
+        doc.moveDown(0.5);
+      }
+
+      const range = doc.bufferedPageRange();
+      for (let i = range.start; i < range.start + range.count; i++) {
+        doc.switchToPage(i);
+        
+        const oldMargin = doc.page.margins.bottom;
+        doc.page.margins.bottom = 0;
+
+        doc.fillColor("#64748b").fontSize(8).font("Helvetica");
+        doc.text(`${i + 1}`, 40, doc.page.height - 30, {
+          align: "right",
+          width: doc.page.width - 80,
+          lineBreak: false,
+        });
+
+        doc.page.margins.bottom = oldMargin;
+      }
+
+      doc.end();
     } catch (error) {
       next(error);
     }
