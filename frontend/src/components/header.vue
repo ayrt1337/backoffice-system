@@ -50,7 +50,7 @@ const handleLogout = async () => {
                     <div class="group bg-white rounded-lg border border-slate-100 min-w-[200px] overflow-hidden">
                         <button 
                             @click="handleLogout"   
-                            class="cursor-pointer w-full flex items-center gap-3 px-4 py-4 text-sm text-slate-700 text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors text-left"
+                            class="cursor-pointer font-medium text-slate-600 w-full flex items-center gap-3 px-4 py-4 text-sm text-slate-700 text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors text-left"
                         >
                             <FontAwesomeIcon :icon="faRightFromBracket" class="text-slate-400 group-hover:text-slate-900" />
                             Sair

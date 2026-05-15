@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import { faUsers, faShieldHalved, faChartLine, faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
+import { faUsers, faShieldHalved, faChartLine, faRightFromBracket, faHome } from '@fortawesome/free-solid-svg-icons';
 import router from '../router';
 import { api } from '../services/api';
 import { useLoading } from '../composables/useLoading';
 import { useUser } from '../composables/useUser';
 import { useToast } from '../composables/useToast';
+import { computed } from 'vue';
 
 const { showToast } = useToast();
 const { showUser } = useUser();
@@ -14,13 +15,16 @@ const { showLoadingPage } = useLoading();
 const route = useRoute();
 
 const menuItems = [
-    { name: 'Dashboard', path: '/dashboard', icon: faChartLine, permission: 'dashboard:read' },
+    { name: 'Home', path: '/home', query: '', icon: faHome, permission: '' },
+    { name: 'Dashboard', path: '/dashboard', query: '', icon: faChartLine, permission: 'dashboard:read' },
     { name: 'Usuários', path: '/users', query: '?page=1', icon: faUsers, permission: 'users:read' },
     { name: 'Cargos', path: '/roles', query: '?page=1', icon: faShieldHalved, permission: 'roles:read' },
 ];
 
-const filteredItems = menuItems.filter(obj => {
-    return showUser.value.permissions.includes(obj.permission) || showUser.value.name === 'admin';
+const filteredItems = computed(() => {
+    return menuItems.filter(obj => 
+        showUser.value.permissions.includes(obj.permission) || showUser.value.name === 'admin'
+    );
 });
 
 const handleLogout = async () => {
@@ -54,13 +58,13 @@ const handleLogout = async () => {
                                 :key="item.path"
                                 :to="item.path + item.query"
                                 class="flex items-center px-3 py-2 text-[15px] font-medium rounded-xl transition-colors group"
-                                :class="route.path.startsWith(item.path)
+                                :class="route.path === item.path
                                     ? 'bg-blue-50 text-blue-600' 
                                     : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'"
                             >
                                 <FontAwesomeIcon 
                                     class="text-[16px] mr-2 transition-colors" 
-                                    :class="route.path.startsWith(item.path) ? 'text-blue-600' : 'text-slate-400 group-hover:text-slate-600'"
+                                    :class="route.path === item.path ? 'text-blue-600' : 'text-slate-400 group-hover:text-slate-600'"
                                     :icon="item.icon"
                                 />
 

@@ -52,7 +52,7 @@ const handleLogin = async (): Promise<void> => {
             }
         });
         
-        router.push("/users");
+        router.push("/home");
     } catch (error: any) {
         console.error("Erro ao fazer login: ", error);
         const apiMessage = error.response?.data;

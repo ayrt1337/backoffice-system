@@ -3,12 +3,19 @@ import { resetPageState } from '../services/pageResetState';
 import { api } from '../services/api';
 import { useUser } from '../composables/useUser';
 import { verifyApiError } from '../services/verifyApiError';
+import { useLoading } from '../composables/useLoading';
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/login',
     name: 'Login',
     component: () => import('../pages/auth/login.vue')
+  },
+  {
+    path: '/home',
+    meta: { requiresAuth: true, static: true },
+    name: 'Home',
+    component: () => import("../pages/home/home.vue")
   },
   {
     path: '/users',
@@ -84,9 +91,12 @@ router.beforeEach(() => {
 });
 
 const { setUser } = useUser();
+const { showLoadingPage } = useLoading();
 
 router.afterEach(async (current, before) => {
   if (current.meta.requiresAuth && current.path !== before.path) {
+    if (current.meta.static) showLoadingPage(true)
+
     try {
       const response = await api({
         url: '/me',
@@ -97,6 +107,8 @@ router.afterEach(async (current, before) => {
     } catch (error: any) {
       console.error('Erro ao verificar usuário:', error);
       verifyApiError(error.response?.status);
+    } finally {
+      if (current.meta.static) showLoadingPage(false);
     }
   }
 });

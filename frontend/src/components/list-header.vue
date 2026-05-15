@@ -32,7 +32,8 @@ defineProps<Props>();
             >
                 <span class="text-[18px] text-white leading-none mb-0.5">+&nbsp;</span>Criar Novo
             </button>
-            <button 
+            <button
+                v-if="showUser.permissions.includes(`${resource}:export`) || showUser.name === 'admin'"
                 @click="onExport"
                 class="flex items-center justify-center px-4 h-10 cursor-pointer text-sm font-medium transition-colors rounded-lg border border-slate-200 bg-white hover:border-slate-300 text-slate-700"
             >
