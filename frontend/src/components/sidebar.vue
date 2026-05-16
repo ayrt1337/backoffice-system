@@ -23,7 +23,7 @@ const menuItems = [
 
 const filteredItems = computed(() => {
     return menuItems.filter(obj => 
-        showUser.value.permissions.includes(obj.permission) || showUser.value.name === 'admin'
+        !obj.permission || showUser.value.permissions.includes(obj.permission) || showUser.value.name === 'admin'
     );
 });
 
