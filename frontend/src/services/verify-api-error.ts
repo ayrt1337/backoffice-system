@@ -1,13 +1,11 @@
 import router from "../router";
-import { useServerError } from "../composables/useServerError";
-import { useUnauthorized } from "../composables/useUnauthorized";
+import { useServerError } from "../composables/use-server-error";
+import { useUnauthorized } from "../composables/use-unauthorized";
 
 const { showServerErrorPage } = useServerError();
 const { showUnauthorizedPage } = useUnauthorized();
 
-export const verifyApiError = (
-  statusCode: number | undefined
-): boolean => {
+export const verifyApiError = (statusCode: number | undefined): boolean => {
   if (!statusCode) {
     showServerErrorPage(true);
     return false;

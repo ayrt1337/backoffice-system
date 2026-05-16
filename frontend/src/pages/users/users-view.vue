@@ -7,10 +7,10 @@ import router from '../../router';
 import Breadcrumbs from '../../components/breadcrumbs.vue';
 import ConfirmModal from '../../components/confirm-modal.vue';
 import type { UserMetadata } from '../../types/user';
-import { verifyApiError } from '../../services/verifyApiError';
-import { useToast } from '../../composables/useToast';
-import { useLoading } from '../../composables/useLoading';
-import { useUser } from '../../composables/useUser';
+import { verifyApiError } from '../../services/verify-api-error';
+import { useToast } from '../../composables/use-toast';
+import { useLoading } from '../../composables/use-loading';
+import { useUser } from '../../composables/use-user';
 import BaseButton from '../../components/base-button.vue';
 
 const { showUser } = useUser();

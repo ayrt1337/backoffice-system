@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue';
-import { useToast } from '../../composables/useToast';
+import { useToast } from '../../composables/use-toast';
 import TemplatePage from '../../components/template-page.vue';
 import { api } from '../../services/api';
 import Breadcrumbs from '../../components/breadcrumbs.vue';
@@ -8,12 +8,12 @@ import Input from '../../components/input.vue';
 import { resources } from '../../config/resources';
 import Dropdown from '../../components/dropdown.vue';
 import type { UserMetadata } from '../../types/user';
-import { verifyApiError } from '../../services/verifyApiError';
-import { useLoading } from '../../composables/useLoading';
+import { verifyApiError } from '../../services/verify-api-error';
+import { useLoading } from '../../composables/use-loading';
 import BaseButton from '../../components/base-button.vue';
 import router from '../../router';
 import * as z from 'zod';
-import { useUser } from '../../composables/useUser';
+import { useUser } from '../../composables/use-user';
 
 const { showUser } = useUser();
 const { showToast } = useToast();

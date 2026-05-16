@@ -6,14 +6,14 @@ import Input from '../../components/input.vue';
 import Breadcrumbs from '../../components/breadcrumbs.vue';
 import { resources as resourcesMetadata } from '../../config/resources';
 import CheckboxPanel from '../../components/checkbox-panel.vue';
-import { verifyApiError } from '../../services/verifyApiError';
-import { useToast } from '../../composables/useToast';
-import { useLoading } from '../../composables/useLoading';
+import { verifyApiError } from '../../services/verify-api-error';
+import { useToast } from '../../composables/use-toast';
+import { useLoading } from '../../composables/use-loading';
 import type { Role, RoleData } from '../../types/role';
 import BaseButton from '../../components/base-button.vue';
 import router from '../../router';
 import * as z from 'zod';
-import { useUser } from '../../composables/useUser';
+import { useUser } from '../../composables/use-user';
 
 const { showUser } = useUser();
 const { showToast } = useToast();

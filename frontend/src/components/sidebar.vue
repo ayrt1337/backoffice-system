@@ -4,9 +4,9 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { faUsers, faShieldHalved, faChartLine, faRightFromBracket, faHome } from '@fortawesome/free-solid-svg-icons';
 import router from '../router';
 import { api } from '../services/api';
-import { useLoading } from '../composables/useLoading';
-import { useUser } from '../composables/useUser';
-import { useToast } from '../composables/useToast';
+import { useLoading } from '../composables/use-loading';
+import { useUser } from '../composables/use-user';
+import { useToast } from '../composables/use-toast';
 import { computed } from 'vue';
 
 const { showToast } = useToast();

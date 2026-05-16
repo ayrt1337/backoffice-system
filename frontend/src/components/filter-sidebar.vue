@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
-import { useToast } from '../composables/useToast';
+import { useToast } from '../composables/use-toast';
 import BaseButton from './base-button.vue';
 import { useRouter, useRoute } from 'vue-router';
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useUser } from '../composables/useUser';
+import { useUser } from '../composables/use-user';
 import router from '../router';
 
 const { showUser } = useUser();

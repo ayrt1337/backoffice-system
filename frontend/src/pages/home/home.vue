@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import TemplatePage from '../../components/template-page.vue';
-import { useUser } from '../../composables/useUser';
+import { useUser } from '../../composables/use-user';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { 
     faUsers, 

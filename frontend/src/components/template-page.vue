@@ -5,9 +5,9 @@ import Toast from '../components/toast.vue';
 import ServerError from './server-error.vue';
 import Unauthorized from './unauthorized.vue';
 import Loading from './loading.vue';
-import { useLoading } from '../composables/useLoading';
-import { useServerError } from '../composables/useServerError';
-import { useUnauthorized } from '../composables/useUnauthorized';
+import { useLoading } from '../composables/use-loading';
+import { useServerError } from '../composables/use-server-error';
+import { useUnauthorized } from '../composables/use-unauthorized';
 
 const { showLoading } = useLoading();
 const { showError } = useServerError();

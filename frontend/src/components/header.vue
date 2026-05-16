@@ -3,9 +3,9 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
 import router from '../router';
 import { api } from '../services/api';
-import { useUser } from '../composables/useUser';
-import { useLoading } from '../composables/useLoading';
-import { useToast } from '../composables/useToast';
+import { useUser } from '../composables/use-user';
+import { useLoading } from '../composables/use-loading';
+import { useToast } from '../composables/use-toast';
 
 const { showToast } = useToast();
 const { showLoadingPage } = useLoading();

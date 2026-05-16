@@ -20,11 +20,7 @@ userRoutes.get("/export/:name", userController.exportUserPDF);
 userRoutes.get("/:name", userController.read);
 
 userRoutes.get("/edit/:name", userController.updateForGet);
-userRoutes.patch(
-  "/edit/:name",
-  validate(editUserSchema),
-  userController.updateForPatch,
-);
+userRoutes.patch("/edit/:name", validate(editUserSchema), userController.updateForPatch);
 
 userRoutes.delete("/delete", userController.delete);
 

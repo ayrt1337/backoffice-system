@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { ref, watch, onMounted, onUnmounted } from 'vue';
 import router from '../router';
-import { useUser } from '../composables/useUser';
+import { useUser } from '../composables/use-user';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { api } from '../services/api';
-import { useToast } from '../composables/useToast';
+import { useToast } from '../composables/use-toast';
 import BaseButton from './base-button.vue';
 import { useRoute } from 'vue-router';
 import ConfirmModal from './confirm-modal.vue';

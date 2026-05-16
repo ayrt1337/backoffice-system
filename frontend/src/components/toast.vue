@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useToast } from '../composables/useToast';
-import { useLoading } from '../composables/useLoading';
+import { useToast } from '../composables/use-toast';
+import { useLoading } from '../composables/use-loading';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { 
     faCheckCircle, 

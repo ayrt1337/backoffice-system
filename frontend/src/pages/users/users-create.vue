@@ -7,11 +7,11 @@ import Breadcrumbs from '../../components/breadcrumbs.vue';
 import Input from '../../components/input.vue';
 import Dropdown from '../../components/dropdown.vue';
 import type { UserMetadata } from '../../types/user';
-import { verifyApiError } from '../../services/verifyApiError';
-import { useToast } from '../../composables/useToast';
+import { verifyApiError } from '../../services/verify-api-error';
+import { useToast } from '../../composables/use-toast';
 import * as z from 'zod';
 import router from '../../router';
-import { useLoading } from '../../composables/useLoading';
+import { useLoading } from '../../composables/use-loading';
 import BaseButton from '../../components/base-button.vue';
 
 const { showToast } = useToast();
