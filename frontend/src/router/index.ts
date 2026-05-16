@@ -18,6 +18,12 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("../pages/home/home.vue")
   },
   {
+    path: '/dashboard',
+    meta: { requiresAuth: true },
+    name: 'Dashboard',
+    component: () => import("../pages/dashboard/dashboard.vue")
+  },
+  {
     path: '/users',
     meta: { requiresAuth: true },
     children: [

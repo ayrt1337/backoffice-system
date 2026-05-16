@@ -2,7 +2,7 @@
 import Sidebar from '../components/sidebar.vue';
 import Header from '../components/header.vue';
 import Toast from '../components/toast.vue';
-import ServerError from './serverError.vue';
+import ServerError from './server-error.vue';
 import Unauthorized from './unauthorized.vue';
 import Loading from './loading.vue';
 import { useLoading } from '../composables/useLoading';
