@@ -10,6 +10,9 @@ interface Props {
     resource: string;
     onExport: () => void;
     onFilter: () => void;
+    hasNotCreate?: boolean;
+    hasNotFilter?: boolean;
+    hasNotExport?: boolean;
 }
 
 defineProps<Props>();
@@ -26,20 +29,21 @@ defineProps<Props>();
 
         <div class="flex items-center gap-3">
             <button
-                v-if="showUser.permissions.includes(`${resource}:create`) || showUser.name === 'admin'"
+                v-if="!hasNotCreate && (showUser.permissions.includes(`${resource}:create`) || showUser.name === 'admin')"
                 @click="() => router.push(`/${resource}/create`)"
                 class="flex items-center px-4 cursor-pointer h-10 bg-blue-600 text-white text-[14px] font-bold rounded-lg hover:bg-blue-700 transition-all"
             >
                 <span class="text-[18px] text-white leading-none mb-0.5">+&nbsp;</span>Criar Novo
             </button>
             <button
-                v-if="showUser.permissions.includes(`${resource}:export`) || showUser.name === 'admin'"
+                v-if="!hasNotExport && (showUser.permissions.includes(`${resource}:export`) || showUser.name === 'admin')"
                 @click="onExport"
                 class="flex items-center justify-center px-4 h-10 cursor-pointer text-sm font-medium transition-colors rounded-lg border border-slate-200 bg-white hover:border-slate-300 text-slate-700"
             >
                 Exportar PDF
             </button>
             <button 
+                v-if="!hasNotFilter && (showUser.permissions.includes(`${resource}:create`) || showUser.name === 'admin')"
                 @click="onFilter" 
                 class="flex items-center justify-center size-10 cursor-pointer text-slate-400 hover:text-slate-900 transition-colors rounded-lg border border-slate-200 bg-white"
             >

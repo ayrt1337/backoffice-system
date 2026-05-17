@@ -13,11 +13,12 @@ export class UserController {
     try {
       const user = (req as any).user;
 
-      if (!await services.verifyPermissions(user.role.name, ["users:read"])) {
+      if (!(await services.verifyPermissions(user.role.name, ["users:read"]))) {
         throw new AppError("Unauthorized", 403);
       }
 
-      const { name, role, created_at, updated_at, page } = req.query as unknown as UsersListQuery;
+      const { name, role, created_at, updated_at, page } =
+        req.query as unknown as UsersListQuery;
 
       const take = 20;
       const currentPage = Number(page) || 1;
@@ -37,7 +38,7 @@ export class UserController {
           skip,
           take,
           orderBy: {
-            created_at: 'desc'
+            created_at: "desc",
           },
           select: {
             name: true,
@@ -47,26 +48,26 @@ export class UserController {
               },
             },
             created_at: true,
-            updated_at: true
+            updated_at: true,
           },
-        })
+        }),
       ]);
 
       const users = usersRaw.map((user) => ({
         id: user.name,
         role: user.role.name,
         created_at: formatDate(user.created_at),
-        updated_at: formatDate(user.updated_at)
+        updated_at: formatDate(user.updated_at),
       }));
 
-      return res.status(200).json({ 
+      return res.status(200).json({
         data: users,
         pagination: {
           total: totalCount,
           pages: Math.ceil(totalCount / take),
           currentPage,
-          perPage: take
-        }
+          perPage: take,
+        },
       });
     } catch (error) {
       next(error);
@@ -77,7 +78,12 @@ export class UserController {
     try {
       const user = (req as any).user;
 
-      if (!await verifyPermissions(user.role.name, ["users:read", "users:create"])) {
+      if (
+        !(await verifyPermissions(user.role.name, [
+          "users:read",
+          "users:create",
+        ]))
+      ) {
         throw new AppError("Unauthorized", 403);
       }
 
@@ -100,13 +106,18 @@ export class UserController {
     } catch (error) {
       next(error);
     }
-  };
+  }
 
   async createForPost(req: Request, res: Response, next: NextFunction) {
     try {
       const user = (req as any).user;
 
-      if (!await services.verifyPermissions(user.role.name, ["users:read", "users:create"])) {
+      if (
+        !(await services.verifyPermissions(user.role.name, [
+          "users:read",
+          "users:create",
+        ]))
+      ) {
         throw new AppError("Unauthorized", 403);
       }
 
@@ -117,7 +128,7 @@ export class UserController {
       }
 
       const userData = await database.user.findUnique({
-        where: { name }
+        where: { name },
       });
 
       if (userData) {
@@ -136,11 +147,43 @@ export class UserController {
           throw new AppError("Cargo não encontrado", 404);
         }
 
-        await tx.user.create({
+        const createdUser = await tx.user.create({
           data: {
             name,
             password: hashPassword,
             roleId: roleData.id,
+          },
+          select: {
+            name: true,
+            role: {
+              select: {
+                name: true
+              }
+            },
+            created_at: true,
+            updated_at: true,
+            id: true
+          }
+        });
+
+        const ip = req.ip;
+
+        await tx.auditLogs.create({
+          data: {
+            resource: "users",
+            action: "create",
+            author: {
+              id: user.id,
+              name: user.name,
+              role: user.role.name,
+              created_at: user.created_at,
+              updated_at: user.updated_at,
+            },
+            targetItem: {
+              ...createdUser,
+              role: createdUser.role.name
+            },
+            ip,
           },
         });
       });
@@ -155,7 +198,7 @@ export class UserController {
     try {
       const user = (req as any).user;
 
-      if (!await verifyPermissions(user.role.name, ["users:read"])) {
+      if (!(await verifyPermissions(user.role.name, ["users:read"]))) {
         throw new AppError("Unauthorized", 403);
       }
 
@@ -171,7 +214,7 @@ export class UserController {
             },
           },
           created_at: true,
-          updated_at: true
+          updated_at: true,
         },
       });
 
@@ -180,9 +223,9 @@ export class UserController {
       }
 
       const userData = {
-          ...userDataRaw,
-          created_at: formatDate(userDataRaw.created_at),
-          updated_at: formatDate(userDataRaw.updated_at)
+        ...userDataRaw,
+        created_at: formatDate(userDataRaw.created_at),
+        updated_at: formatDate(userDataRaw.updated_at),
       };
 
       return res.status(200).json({ userData });
@@ -195,7 +238,12 @@ export class UserController {
     try {
       const user = (req as any).user;
 
-      if (!await verifyPermissions(user.role.name, ["users:read", "users:delete"])) {
+      if (
+        !(await verifyPermissions(user.role.name, [
+          "users:read",
+          "users:delete",
+        ]))
+      ) {
         throw new AppError("Unauthorized", 403);
       }
 
@@ -213,15 +261,47 @@ export class UserController {
         if (!userData) {
           throw new AppError("User Not Found", 404);
         }
-      };
+      }
 
       await database.$transaction(async (tx) => {
         for (const name of names) {
-          await tx.user.delete({
+          const deletedUser = await tx.user.delete({
             where: { name },
+            select: {
+              name: true,
+              role: {
+                select: {
+                  name: true
+                }
+              },
+              created_at: true,
+              updated_at: true,
+              id: true
+            }
+          });
+
+          const ip = req.ip;
+
+          await tx.auditLogs.create({
+            data: {
+              resource: "users",
+              action: "delete",
+              author: {
+                id: user.id,
+                name: user.name,
+                role: user.role.name,
+                created_at: user.created_at,
+                updated_at: user.updated_at,
+              },
+              targetItem: {
+                ...deletedUser,
+                role: deletedUser.role.name
+              },
+              ip,
+            },
           });
         }
-      })
+      });
 
       return res.status(200).json("Success");
     } catch (error) {
@@ -233,7 +313,12 @@ export class UserController {
     try {
       const user = (req as any).user;
 
-      if (!await verifyPermissions(user.role.name, ["users:read", "users:update"])) {
+      if (
+        !(await verifyPermissions(user.role.name, [
+          "users:read",
+          "users:update",
+        ]))
+      ) {
         throw new AppError("Unauthorized", 403);
       }
 
@@ -249,7 +334,7 @@ export class UserController {
             },
           },
           created_at: true,
-          updated_at: true
+          updated_at: true,
         },
       });
 
@@ -258,9 +343,9 @@ export class UserController {
       }
 
       const userData = {
-          ...userDataRaw,
-          created_at: formatDate(userDataRaw.created_at),
-          updated_at: formatDate(userDataRaw.updated_at)
+        ...userDataRaw,
+        created_at: formatDate(userDataRaw.created_at),
+        updated_at: formatDate(userDataRaw.updated_at),
       };
 
       const roles = await database.role.findMany({
@@ -282,7 +367,12 @@ export class UserController {
     try {
       const user = (req as any).user;
 
-      if (!await verifyPermissions(user.role.name, ["users:read", "users:update"])) {
+      if (
+        !(await verifyPermissions(user.role.name, [
+          "users:read",
+          "users:update",
+        ]))
+      ) {
         throw new AppError("Unauthorized", 403);
       }
 
@@ -302,7 +392,18 @@ export class UserController {
       }
 
       const verifyUser = await database.user.findUnique({
-        where: { name }
+        where: { name },
+        select: {
+          name: true,
+          role: {
+            select: {
+              name: true
+            }
+          },
+          created_at: true,
+          updated_at: true,
+          id: true
+        }
       });
 
       if (!verifyUser) {
@@ -329,14 +430,52 @@ export class UserController {
         password = await services.hashData(password);
       }
 
-      await database.user.update({
-        where: { name },
-        data: {
-          name: userName,
-          roleId: role.id,
-          password: password ? password : undefined,
-          updated_at: new Date()
-        },
+      await database.$transaction(async (tx) => {
+        const updatedUser = await database.user.update({
+          where: { name },
+          data: {
+            name: userName,
+            roleId: role.id,
+            password: password ? password : undefined,
+            updated_at: new Date(),
+          },
+          select: {
+            name: true,
+            role: {
+              select: {
+                name: true
+              }
+            },
+            created_at: true,
+            updated_at: true,
+            id: true
+          }
+        });
+
+        const ip = req.ip;
+
+        await tx.auditLogs.create({
+          data: {
+            resource: "users",
+            action: "update",
+            author: {
+              id: user.id,
+              name: user.name,
+              role: user.role.name,
+              created_at: user.created_at,
+              updated_at: user.updated_at,
+            },
+            targetItem: {
+              ...verifyUser,
+              role: verifyUser.role.name
+            },
+            newItem: {
+              ...updatedUser,
+              role: updatedUser.role.name
+            },
+            ip,
+          },
+        });
       });
 
       return res.status(200).json("Success");
@@ -394,7 +533,8 @@ export class UserController {
       if (orderBy === "updated_newest") prismaOrderBy = { updated_at: "desc" };
       if (orderBy === "updated_oldest") prismaOrderBy = { updated_at: "asc" };
       if (orderBy === "alphabetical_name") prismaOrderBy = { name: "asc" };
-      if (orderBy === "alphabetical_role") prismaOrderBy = { role: { name: "asc" } };
+      if (orderBy === "alphabetical_role")
+        prismaOrderBy = { role: { name: "asc" } };
 
       const users = await database.user.findMany({
         orderBy: prismaOrderBy,
@@ -408,12 +548,12 @@ export class UserController {
       });
 
       const formattedUsers = users.map((user) => {
-        return{
+        return {
           name: user.name,
           role: user.role.name,
           created_at: user.created_at,
-          updated_at: user.updated_at
-        }
+          updated_at: user.updated_at,
+        };
       });
 
       await generateListPDF({
@@ -435,7 +575,7 @@ export class UserController {
     }
   }
 
-  async exportUserPDF (req: Request, res: Response, next: NextFunction) {
+  async exportUserPDF(req: Request, res: Response, next: NextFunction) {
     try {
       const user = (req as any).user;
 
@@ -452,18 +592,18 @@ export class UserController {
 
       const userData = await database.user.findUnique({
         where: {
-          name: name
+          name: name,
         },
         select: {
           name: true,
           role: {
             select: {
-              name: true
-            }
+              name: true,
+            },
           },
           created_at: true,
-          updated_at: true
-        } 
+          updated_at: true,
+        },
       });
 
       if (!userData) {

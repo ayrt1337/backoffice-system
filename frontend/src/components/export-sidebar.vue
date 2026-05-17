@@ -112,7 +112,7 @@ watch(() => props.isOpen, () => {
 
                 <div class="flex-1 overflow-y-auto px-8 pb-8 custom-scrollbar">
                     <div class="flex flex-col gap-8">
-                        <div>
+                        <div v-if="labels.length > 0">
                             <label class="text-[15px] font-medium text-slate-600">Campos Disponíveis</label>
                             <div class="flex flex-col gap-3 mt-3">
                                 <label v-for="label in labels" :key="label" class="text-[15px] flex items-center gap-3 px-3.5 py-2 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer transition-colors">
@@ -154,7 +154,6 @@ watch(() => props.isOpen, () => {
                     >
                         Cancelar
                     </BaseButton>
-
 
                     <BaseButton 
                         @click="handleExport"

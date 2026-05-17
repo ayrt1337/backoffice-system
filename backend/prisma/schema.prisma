@@ -12,11 +12,10 @@ datasource db {
 }
 
 model Resource {
-  id         String      @id @default(uuid())
-  name       String      @unique
-  label      String
-  actions    Action[]
-  audit_logs AuditLogs[]
+  id      String   @id @default(uuid())
+  name    String   @unique
+  label   String
+  actions Action[]
 
   @@map("resources")
 }
@@ -43,14 +42,13 @@ model RolePermission {
 }
 
 model User {
-  id         String      @id @default(uuid())
-  name       String      @unique
+  id         String   @id @default(uuid())
+  name       String   @unique
   password   String
-  role       Role        @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  role       Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
   roleId     String
-  created_at DateTime    @default(now())
-  updated_at DateTime    @default(now())
-  audit_logs AuditLogs[]
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
 
   @@map("users")
 }
@@ -67,16 +65,14 @@ model Role {
 }
 
 model AuditLogs {
-  id           String   @id @default(uuid())
-  action       String
-  resource     Resource @relation(fields: [resourceId], references: [id])
-  resourceId   String
-  resourceItem String
-  user         User     @relation(fields: [userId], references: [id])
-  userId       String
-  oldValue     Json?
-  newValue     Json?
-  created_at   DateTime @default(now())
+  id         String   @id @default(uuid())
+  action     String
+  resource   String
+  author     Json?
+  ip         String
+  targetItem Json?
+  newItem    Json?
+  created_at DateTime @default(now())
 
   @@map("audit_logs")
 }

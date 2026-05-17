@@ -139,6 +139,26 @@ export class RoleController {
             },
           });
         }
+        const ip = req.ip;
+
+        await tx.auditLogs.create({
+          data: {
+            resource: "roles",
+            action: "create",
+            author: {
+              id: user.id,
+              name: user.name,
+              role: user.role.name,
+              created_at: user.created_at,
+              updated_at: user.updated_at,
+            },
+            targetItem: {
+              ...role,
+              rolePermissions,
+            },
+            ip,
+          },
+        });
       });
 
       await updatePermissions();
@@ -285,9 +305,22 @@ export class RoleController {
       }
 
       await database.$transaction(async (tx) => {
-        await tx.role.update({
+        const updatedRole = await tx.role.update({
           where: { name },
           data: { name: roleName, updated_at: new Date() },
+        });
+
+        const currentPermissions = await tx.rolePermission.findMany({
+          where: {
+            roleId: role.id,
+          },
+          select: {
+            action: {
+              select: {
+                slug: true,
+              },
+            },
+          },
         });
 
         await tx.rolePermission.deleteMany({
@@ -308,6 +341,32 @@ export class RoleController {
             });
           }
         }
+        const ip = req.ip;
+
+        await tx.auditLogs.create({
+          data: {
+            resource: "roles",
+            action: "update",
+            author: {
+              id: user.id,
+              name: user.name,
+              role: user.role.name,
+              created_at: user.created_at,
+              updated_at: user.updated_at,
+            },
+            targetItem: {
+              ...role,
+              rolePermissions: currentPermissions.map(
+                (permission) => permission.action.slug,
+              ),
+            },
+            newItem: {
+              ...updatedRole,
+              rolePermissions: permissions,
+            },
+            ip,
+          },
+        });
       });
 
       await updatePermissions();
@@ -349,8 +408,46 @@ export class RoleController {
 
       await database.$transaction(async (tx) => {
         for (const name of names) {
-          await tx.role.delete({
+          const currentPermissions = await tx.rolePermission.findMany({
+            where: {
+              role: {
+                name
+              }
+            },
+            select: {
+              action: {
+                select: {
+                  slug: true,
+                },
+              },
+            },
+          });
+
+          const deletedRole = await tx.role.delete({
             where: { name },
+          });
+
+          const ip = req.ip;
+
+          await tx.auditLogs.create({
+            data: {
+              resource: "roles",
+              action: "delete",
+              author: {
+                id: user.id,
+                name: user.name,
+                role: user.role.name,
+                created_at: user.created_at,
+                updated_at: user.updated_at,
+              },
+              targetItem: {
+                ...deletedRole,
+                rolePermissions: currentPermissions.map(
+                  (permission) => permission.action.slug,
+                ),
+              },
+              ip,
+            },
           });
         }
       });

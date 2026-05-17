@@ -44,5 +44,19 @@ export const resources: Record<string, ResourceMetadata> = {
             { label: 'Última Alteração (Mais Antiga)', value: 'updated_oldest' },
             { label: 'Ordem Alfabética', value: 'alphabetical' },
         ]
-    }
+    },
+    logs: {
+        name: 'logs',
+        label: 'Auditoria',
+        pluralLabel: 'Auditoria',
+        tableLabels: [],
+        breadcrumbs: [
+            { label: 'Auditoria', path: '/logs' }
+        ],
+        exportLabels: [],
+        exportOrders: [
+            { label: 'Data (Mais Recente)', value: 'created_newest' },
+            { label: 'Data (Mais Antiga)', value: 'created_oldest' }
+        ]
+    },
 };
