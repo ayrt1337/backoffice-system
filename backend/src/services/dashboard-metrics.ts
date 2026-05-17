@@ -85,30 +85,26 @@ export class DashboardMetrics {
         return [
             { 
                 title: "Total de Usuários", 
-                value: totalUsers, 
-                icon: "users"
+                value: totalUsers
             },
             { 
                 title: "Novos Usuários", 
                 value: newUsers, 
-                growth: this.calculateGrowth(newUsers, prevUsers),
-                icon: "user-plus"
+                growth: this.calculateGrowth(newUsers, prevUsers)
             },
             { 
                 title: "Total de Cargos", 
                 value: totalRoles, 
-                icon: "shield"
             },
             { 
                 title: "Novos Cargos", 
                 value: newRoles, 
-                growth: this.calculateGrowth(newRoles, prevRoles),
-                icon: "plus-circle"
+                growth: this.calculateGrowth(newRoles, prevRoles)
             }
         ];
     }
 
-    static async getCharts() {
+    static async getLineCharts() {
         return {
             userGrowth: [],
             rolesDistribution: []

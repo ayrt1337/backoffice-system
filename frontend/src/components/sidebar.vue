@@ -1,7 +1,14 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import { faUsers, faShieldHalved, faChartLine, faRightFromBracket, faHome } from '@fortawesome/free-solid-svg-icons';
+import { 
+    faUsers, 
+    faShieldHalved, 
+    faChartLine, 
+    faRightFromBracket, 
+    faHome, 
+    faClipboardList } 
+from '@fortawesome/free-solid-svg-icons';
 import router from '../router';
 import { api } from '../services/api';
 import { useLoading } from '../composables/use-loading';
@@ -19,6 +26,7 @@ const menuItems = [
     { name: 'Dashboard', path: '/dashboard', query: '', icon: faChartLine, permission: 'dashboard:read' },
     { name: 'Usuários', path: '/users', query: '?page=1', icon: faUsers, permission: 'users:read' },
     { name: 'Cargos', path: '/roles', query: '?page=1', icon: faShieldHalved, permission: 'roles:read' },
+    { name: 'Auditoria', path: '/logs', query: '?page=1', icon: faClipboardList, permission: 'logs:read' }
 ];
 
 const filteredItems = computed(() => {

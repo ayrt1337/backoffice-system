@@ -5,6 +5,8 @@ import { authenticate } from "../middlewares/auth-middleware.js";
 const dashboardRoutes = Router();
 const dashboardController = new DashboardController();
 
-dashboardRoutes.get("/metrics", authenticate, dashboardController.metrics);
+dashboardRoutes.use(authenticate);
+
+dashboardRoutes.get("/metrics", dashboardController.metrics);
 
 export { dashboardRoutes };

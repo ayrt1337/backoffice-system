@@ -29,5 +29,12 @@ export const systemResources: Resources[] = [
             { label: "Excluir", name: "delete" },
             { label: "Exportar", name: "export" }
         ]
-    }
+    },
+    {
+        name: "logs",
+        label: "Auditoria",
+        actions: [
+            { label: "Visualizar", name: "read" },
+        ]
+    },
 ];

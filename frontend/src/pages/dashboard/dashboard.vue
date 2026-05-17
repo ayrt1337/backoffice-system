@@ -39,7 +39,7 @@ onMounted(async () => {
 
 <template>
     <TemplatePage>
-        <div class="mb-7">
+        <div class="mb-7 mt-4">
             <h2 class="text-2xl font-bold text-slate-900 tracking-tight">Dashboard</h2>
         </div>
 
@@ -48,13 +48,13 @@ onMounted(async () => {
         />
 
         <div class="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200/60 shadow-sm h-96 flex flex-col items-center justify-center text-slate-400">
+            <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200/60 h-96 flex flex-col items-center justify-center text-slate-400">
                 <FontAwesomeIcon :icon="faUsers" class="text-4xl mb-4 opacity-20" />
                 <p class="font-medium">Gráfico de Crescimento de Usuários</p>
                 <p class="text-sm opacity-60">(Em breve)</p>
             </div>
             
-            <div class="bg-white p-6 rounded-2xl border border-slate-200/60 shadow-sm h-96 flex flex-col items-center justify-center text-slate-400">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200/60 h-96 flex flex-col items-center justify-center text-slate-400">
                 <FontAwesomeIcon :icon="faShieldHalved" class="text-4xl mb-4 opacity-20" />
                 <p class="font-medium">Cargos Recentes</p>
                 <p class="text-sm opacity-60">(Em breve)</p>

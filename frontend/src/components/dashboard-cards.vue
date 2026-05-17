@@ -1,12 +1,10 @@
 <script setup lang="ts">
-import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { faArrowDown, faArrowUp } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 interface CardsProps {
     title: string;
     value: string;
-    icon: IconDefinition;
     growth?: string;
 };
 

@@ -6,7 +6,8 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { 
     faUsers, 
     faShieldHalved, 
-    faChartLine
+    faChartLine,
+    faClipboardList
 } from '@fortawesome/free-solid-svg-icons';
 
 const { showUser } = useUser();
@@ -37,6 +38,13 @@ const quickActions = [
         icon: faShieldHalved,
         link: '/roles?page=1',
         permission: 'roles:read'
+    },
+    {
+        title: 'Auditoria',
+        description: 'Inspecione trilhas de auditoria e o histórico detalhado de atividades.',
+        icon: faClipboardList,
+        link: '/logs?page=1',
+        permission: 'logs:read'
     }
 ];
 
@@ -57,13 +65,13 @@ const greeting = computed(() => {
 <template>
     <TemplatePage>
         <div class="max-w-6xl mx-auto mt-8 space-y-12 pb-12">
-            <section class="relative overflow-hidden rounded-3xl bg-blue-600 p-8 md:p-12 text-white shadow-2xl">
+            <section class="relative overflow-hidden rounded-3xl bg-blue-600 p-8 md:p-12 text-white">
                 <div class="relative z-10 space-y-6 max-w-2xl">     
                     <div class="space-y-2">
                         <h1 class="text-4xl md:text-5xl font-bold">
                             {{ greeting }}, <span class="text-blue-200">{{ firstName }}</span>!
                         </h1>
-                        <p class="text-lg md:text-xl text-blue-100/90">
+                        <p class="text-[19px] text-blue-100/90">
                             Aqui você pode gerenciar todos os aspectos do sistema de forma rápida e intuitiva.
                         </p>
                     </div>
@@ -76,7 +84,7 @@ const greeting = computed(() => {
                         v-for="action in filteredActions" 
                         :key="action.title"
                         :to="action.link"
-                        class="min-h-[220px] p-6 bg-white rounded-2xl border border-slate-200/60 shadow-sm flex flex-col gap-4"
+                        class="min-h-[220px] p-6 px-7 bg-white rounded-2xl border border-slate-200/60 flex flex-col gap-4"
                     >
                         <div 
                             class="bg-blue-50 text-blue-600 w-14 h-14 rounded-xl flex items-center justify-center text-2xl"

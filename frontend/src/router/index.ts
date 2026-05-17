@@ -28,6 +28,12 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("../pages/dashboard/dashboard.vue"),
   },
   {
+    path: "/logs",
+    meta: { requiresAuth: true },
+    name: "Logs",
+    component: () => import("../pages/audit-logs/logs.vue"),
+  },
+  {
     path: "/users",
     meta: { requiresAuth: true },
     children: [
@@ -86,7 +92,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/:pathMatch(.*)*",
     name: "NotFound",
-    component: () => import("../pages/notFound/not-found.vue"),
+    component: () => import("../pages/not-found/not-found.vue"),
   },
 ];
 
