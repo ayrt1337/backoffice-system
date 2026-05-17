@@ -144,6 +144,7 @@ const getData = async (query = "") => {
             :labels="metadata.exportLabels as string[]"
             :order-options="metadata.exportOrders as ExportOrder[]"
             :resource="metadata.name"
+            :plural-label="metadata.pluralLabel"
         >
             
         </ExportSidebar>

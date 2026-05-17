@@ -538,7 +538,7 @@ export class UserController {
 
       const users = await database.user.findMany({
         orderBy: prismaOrderBy,
-        take: maxItems ? Number(maxItems) : null,
+        take: maxItems ? Number(maxItems) : 20,
         select: {
           name: true,
           role: { select: { name: selectedFields.includes("role") } },

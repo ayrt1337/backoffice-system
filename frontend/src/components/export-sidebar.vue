@@ -14,7 +14,8 @@ interface Props {
     close: () => void,
     labels: string[],
     orderOptions: ExportOrder[],
-    resource: string
+    resource: string,
+    pluralLabel: string,
 };
 
 const props = defineProps<Props>();
@@ -56,7 +57,8 @@ const handleExport = async () => {
         const url = window.URL.createObjectURL(new Blob([response.data]));
         const link = document.createElement('a');
         link.href = url;
-        link.setAttribute('download', `relatorio-usuarios-${new Date().getTime()}.pdf`);
+        const formattedLabel = props.pluralLabel.toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replaceAll(" ", "-")
+        link.setAttribute('download', `relatorio-${formattedLabel}-${new Date().getTime()}.pdf`);
         document.body.appendChild(link);
         link.click();
         link.remove();

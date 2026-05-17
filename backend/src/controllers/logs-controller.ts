@@ -4,6 +4,7 @@ import { AppError } from "../errors/app-error.js";
 import database from "../config/database.js";
 import { logsMessageFormatter } from "../utils/logs-message-formatter.js";
 import { AuditLog, LogsListQuery } from "../types/logs.js";
+import { generateListPDF } from "../utils/pdf-list-generator.js";
 
 export class LogsController {
   async list(req: Request, res: Response, next: NextFunction) {
@@ -65,6 +66,63 @@ export class LogsController {
           perPage: take,
         }, 
       });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async exportListPDF (req: Request, res: Response, next: NextFunction) {
+    try {
+      const user = (req as any).user;
+
+      if (!(await verifyPermissions(user.role.name, ["logs:read", "logs:export"]))) {
+        throw new AppError("Unauthorized", 403);
+      }
+
+      const { orderBy, orderByLabel, maxItems } = req.query as {
+        orderBy?: string;
+        orderByLabel?: string;
+        maxItems?: number;
+      };
+      
+      if (typeof Number(maxItems) !== "number") {
+        throw new AppError("A quantidade de items deve ser um número!", 400);
+      }
+
+      if (Number(maxItems) <= 0) {
+        throw new AppError(
+          "A quantidade de items deve ser um inteiro positivo!",
+          400,
+        );
+      }
+
+      let prismaOrderBy: any = { created_at: "desc" };
+      if (orderBy === "created_oldest") prismaOrderBy = { created_at: "asc" };
+
+      const logsRaw = await database.auditLogs.findMany({
+        orderBy: prismaOrderBy,
+        take: maxItems ? Number(maxItems) : 50,
+      });
+
+      const formattedLogs = logsMessageFormatter(logsRaw as unknown as AuditLog[]);
+      const logs = formattedLogs.map((log) => {
+        return {
+          message: log.message,
+          created_at: log.created_at
+        }
+      });
+
+      await generateListPDF({
+        res, 
+        title: "Relatório da Auditória",
+        filename: "relatorio-auditoria.pdf",
+        data: logs,
+        headers: [
+          { label: "Mensagem", property: "message" },
+          { label: "Data", property: "created_at" },
+        ],
+        orderByLabel
+      })
     } catch (error) {
       next(error);
     }

@@ -8,5 +8,6 @@ const logsController = new LogsController();
 logsRoutes.use(authenticate);
 
 logsRoutes.get("/", logsController.list);
+logsRoutes.get("/export", logsController.exportListPDF);
 
 export { logsRoutes };

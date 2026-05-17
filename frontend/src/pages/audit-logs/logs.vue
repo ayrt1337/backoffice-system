@@ -166,7 +166,7 @@ const getData = async (query = "") => {
                     <div 
                         v-for="log in logs" 
                         :key="log.id"
-                        class="cursor-pointer px-6 py-4.5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-blue-50/30 transition-colors duration-200 group"
+                        class="cursor-pointer px-6 py-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-blue-50/30 transition-colors duration-200 group"
                     >
                         <div class="flex items-start gap-4">
                             <div :class="['w-10 h-10 rounded-xl border flex items-center justify-center flex-shrink-0 transition-transform', getActionConfig(log.action).colorClass]">
@@ -259,6 +259,7 @@ const getData = async (query = "") => {
             :labels="metadata.exportLabels as string[]"
             :orderOptions="metadata.exportOrders as ExportOrder[]"
             resource="logs"
+            :plural-label="metadata.pluralLabel"
         />
 
         <Pagination 

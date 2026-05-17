@@ -509,7 +509,7 @@ export class RoleController {
 
       const roles = await database.role.findMany({
         orderBy: prismaOrderBy,
-        take: maxItems ? Number(maxItems) : null,
+        take: maxItems ? Number(maxItems) : 20,
         select: {
           name: true,
           created_at: selectedFields.includes("created_at"),
