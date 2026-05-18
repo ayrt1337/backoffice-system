@@ -13,9 +13,11 @@ export class DashboardController {
       }
 
       const cards = await DashboardMetrics.getCards();
+      const lineCharts = await DashboardMetrics.getLineCharts();
 
       res.status(200).json({
-        cards
+        cards,
+        lineCharts
       });
     } catch (error) {
       next(error);

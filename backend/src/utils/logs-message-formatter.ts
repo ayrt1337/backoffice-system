@@ -21,7 +21,7 @@ export const logsMessageFormatter = (logs: AuditLog[]) => {
             : log.resource === "roles"
               ? "o cargo"
               : log.resource;
-        message += `criou ${resourceName}${targetName}.`;
+        message += `criou ${resourceName}${targetName}`;
         break;
       }
       case "update": {
@@ -31,7 +31,7 @@ export const logsMessageFormatter = (logs: AuditLog[]) => {
             : log.resource === "roles"
               ? "o cargo"
               : log.resource;
-        message += `editou ${resourceName}${targetName}.`;
+        message += `editou ${resourceName}${targetName}`;
         break;
       }
       case "delete": {
@@ -41,19 +41,19 @@ export const logsMessageFormatter = (logs: AuditLog[]) => {
             : log.resource === "roles"
               ? "o cargo"
               : log.resource;
-        message += `excluiu ${resourceName}${targetName}.`;
+        message += `excluiu ${resourceName}${targetName}`;
         break;
       }
       case "login": {
         if (log.targetItem?.name) {
-          message += `tentou entrar na conta do usuário ${log.targetItem.name}.`;
+          message += `tentou entrar na conta do usuário ${log.targetItem.name}`;
         } else {
-          message += `tentou entrar no sistema.`;
+          message += `tentou entrar no sistema`;
         }
         break;
       }
       default: {
-        message += `realizou uma ação em ${log.resource}.`;
+        message += `realizou uma ação em ${log.resource}`;
         break;
       }
     }
