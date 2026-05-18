@@ -6,6 +6,7 @@ import { connectRedis } from "./config/redis-client.js";
 import { updatePermissions } from "./services/update-permissions.js";
 import { routes } from "./routes/index.js";
 import { errorMiddleware } from "./middlewares/error-middleware.js";
+import helmet from "helmet";
 
 const app = express();
 
@@ -14,6 +15,7 @@ const options = {
     credentials: true
 };
 
+app.use(helmet());
 app.use(cors(options));
 app.use(express.json());
 app.use(cookieParser());

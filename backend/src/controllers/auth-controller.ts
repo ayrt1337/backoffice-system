@@ -50,7 +50,7 @@ export class AuthController {
       const maxAge = 3600000 * 24;
       const token = services.genToken({ name: user.name, role: user.role.name }, maxAge);
 
-      res.cookie('sessionId', token, { maxAge, httpOnly: true, secure: true });
+      res.cookie('sessionId', token, { maxAge, httpOnly: true, secure: true, sameSite: "strict" });
       return res.status(200).json('Success');
     } catch (error) {
       next(error);

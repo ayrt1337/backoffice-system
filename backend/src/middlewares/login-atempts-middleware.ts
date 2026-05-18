@@ -19,6 +19,10 @@ export const verifyLoginAtempts = async (
     ) {
       const { name } = req.body;
 
+      if (!name) {
+        throw new AppError("Tente novamente mais tarde", 429);
+      }
+
       await database.$transaction(async (tx) => {
         const user = await tx.user.findUnique({
           where: { name },
@@ -26,26 +30,28 @@ export const verifyLoginAtempts = async (
             name: true,
             role: {
               select: {
-                name: true
-              }
+                name: true,
+              },
             },
             created_at: true,
             updated_at: true,
-            id: true
-          }
-        });
-
-        await tx.auditLogs.create({
-          data: {
-            resource: "auth",
-            action: "login",
-            targetItem: {
-              ...user,
-              role: user.role.name
-            },
-            ip
+            id: true,
           },
         });
+        
+        if (user) {
+          await tx.auditLogs.create({
+            data: {
+              resource: "auth",
+              action: "login",
+              targetItem: {
+                ...user,
+                role: user.role.name,
+              },
+              ip,
+            },
+          });
+        }
       });
 
       throw new AppError("Tente novamente mais tarde", 429);
