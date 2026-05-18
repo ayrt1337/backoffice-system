@@ -59,6 +59,7 @@ export const logsMessageFormatter = (logs: AuditLog[]) => {
     }
 
     return {
+      id: log.id,
       message,
       created_at: formatDate(new Date(log.created_at)),
       ip: log.ip,

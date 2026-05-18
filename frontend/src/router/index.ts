@@ -30,8 +30,19 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/logs",
     meta: { requiresAuth: true },
-    name: "Logs",
-    component: () => import("../pages/audit-logs/logs.vue"),
+    children: [
+      {
+        path: "",
+        name: "Logs",
+        component: () => import("../pages/audit-logs/logs.vue"),
+      },
+      {
+        path: ":id",
+        props: true,
+        name: "LogsView",
+        component: () => import("../pages/audit-logs/logs-view.vue"),
+      }
+    ],
   },
   {
     path: "/users",

@@ -5,6 +5,8 @@ import database from "../config/database.js";
 import { logsMessageFormatter } from "../utils/logs-message-formatter.js";
 import { AuditLog, LogsListQuery } from "../types/logs.js";
 import { generateListPDF } from "../utils/pdf-list-generator.js";
+import { generatePDF } from "../utils/pdf-generator.js";
+import { formatDate } from "../utils/format-date.js";
 
 export class LogsController {
   async list(req: Request, res: Response, next: NextFunction) {
@@ -122,7 +124,115 @@ export class LogsController {
           { label: "Data", property: "created_at" },
         ],
         orderByLabel
-      })
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async read (req: Request, res: Response, next: NextFunction) {
+    try {
+      const user = (req as any).user;
+
+      if (!(await verifyPermissions(user.role.name, ["logs:read"]))) {
+        throw new AppError("Unauthorized", 403);
+      }
+
+      const { id } = req.params as { id: string };
+
+      const log = await database.auditLogs.findUnique({
+        where: { id }
+      });
+
+      if (!log) {
+        throw new AppError("Log não encontrado", 404);
+      }
+
+      res.status(200).json({ log: { ...log, created_at: formatDate(log.created_at) } });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async exportLogPDF (req: Request, res: Response, next: NextFunction) {
+    try {
+      const user = (req as any).user;
+
+      if (!(await verifyPermissions(user.role.name, ["logs:read", "logs:export"]))) {
+        throw new AppError("Unauthorized", 403);
+      }
+
+      const { id } = req.params as { id: string };
+
+      const logRaw = await database.auditLogs.findUnique({
+        where: { id }
+      });
+
+      if (!logRaw) {
+        throw new AppError("Log não encontrado", 404);
+      }
+
+      const actionMap: Record<string, string> = {
+        create: "Criação (create)",
+        update: "Edição (update)",
+        delete: "Exclusão (delete)",
+        login: "Autenticação (login)",
+      };
+      const actionLabel = actionMap[logRaw.action] || logRaw.action;
+
+      const rows: any[] = [
+        { label: "Identificador (ID)", value: logRaw.id },
+        { label: "Ação", value: actionLabel },
+        { label: "Recurso Afetado", value: logRaw.resource },
+        { label: "Autor da Ação", value: logRaw.author ? `${(logRaw.author as any).name} (${(logRaw.author as any).role})` : "Sistema / Externo" },
+        { label: "Endereço IP", value: logRaw.ip },
+        { label: "Data e Hora", value: new Date(logRaw.created_at).toLocaleString("pt-BR") },
+      ];
+
+      if (logRaw.action === "update") {
+        rows.push({ label: "Detalhes da Alteração (Antes vs Depois)", value: "" });
+        const oldObj = (logRaw.targetItem as any) || {};
+        const newObj = (logRaw.newItem as any) || {};
+        const allKeys = Array.from(new Set([...Object.keys(oldObj), ...Object.keys(newObj)]));
+
+        for (const key of allKeys) {
+          const oldVal = oldObj[key] !== undefined ? JSON.stringify(oldObj[key]) : "—";
+          const newVal = newObj[key] !== undefined ? JSON.stringify(newObj[key]) : "—";
+          if (oldVal !== newVal) {
+            rows.push([
+              { label: `[Anterior] ${key}`, value: oldVal },
+              { label: `[Novo] ${key}`, value: newVal },
+            ]);
+          } else {
+            rows.push({ label: key, value: oldVal });
+          }
+        }
+      } else if (logRaw.action === "create") {
+        rows.push({ label: "Dados do Registro Criado", value: "" });
+        const obj = ((logRaw.newItem || logRaw.targetItem) as any) || {};
+        for (const key of Object.keys(obj)) {
+          rows.push({ label: key, value: obj[key] !== undefined ? JSON.stringify(obj[key]) : "—" });
+        }
+      } else if (logRaw.action === "delete") {
+        rows.push({ label: "Dados do Registro Excluído", value: "" });
+        const obj = (logRaw.targetItem as any) || {};
+        for (const key of Object.keys(obj)) {
+          rows.push({ label: key, value: obj[key] !== undefined ? JSON.stringify(obj[key]) : "—" });
+        }
+      } else {
+        rows.push({ label: "Detalhes Adicionais", value: "" });
+        const obj = (logRaw.targetItem as any) || {};
+        for (const key of Object.keys(obj)) {
+          rows.push({ label: key, value: obj[key] !== undefined ? JSON.stringify(obj[key]) : "—" });
+        }
+      }
+
+      await generatePDF({
+        res,
+        title: "Detalhes do Registro de Auditoria",
+        filename: `auditoria-${logRaw.id}.pdf`,
+        rows,
+      });
     } catch (error) {
       next(error);
     }

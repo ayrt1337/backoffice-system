@@ -23,6 +23,7 @@ import { resources } from '../../config/resources';
 import type { ExportOrder } from '../../types/resource';
 import { useRoute } from 'vue-router';
 import Pagination from '../../components/pagination.vue';
+import router from '../../router';
 
 const metadata = resources.logs;
 
@@ -166,6 +167,7 @@ const getData = async (query = "") => {
                     <div 
                         v-for="log in logs" 
                         :key="log.id"
+                        @click="router.push(`/logs/${log.id}`)"
                         class="cursor-pointer px-6 py-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-blue-50/30 transition-colors duration-200 group"
                     >
                         <div class="flex items-start gap-4">
