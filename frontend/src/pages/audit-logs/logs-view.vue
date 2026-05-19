@@ -20,10 +20,12 @@ import {
     faCalendar,
     faDatabase,
 } from '@fortawesome/free-solid-svg-icons';
+import { useUser } from '../../composables/use-user';
 
 const metadata = resources.logs;
 const { showLoadingPage } = useLoading();
 const { showToast } = useToast();
+const { showUser } = useUser();
 const loadingExport = ref(false);
 
 interface LogProps {
@@ -161,6 +163,7 @@ const isValueChanged = (key: string, oldObj: any, newObj: any) => {
                 </div>
 
                 <BaseButton 
+                    v-if="showUser.permissions.includes('logs:export') || showUser.name === 'admin'"
                     @click="handleExport"
                     :disabled="loadingExport"
                     class="p-2 px-6 rounded-lg bg-blue-600 text-white text-sm font-semibold cursor-pointer transition-all flex justify-center items-center gap-2 hover:bg-blue-700 active:translate-y-0 self-start sm:self-center disabled:opacity-70 disabled:cursor-not-allowed"
@@ -229,9 +232,8 @@ const isValueChanged = (key: string, oldObj: any, newObj: any) => {
                 <div class="bg-slate-50/75 border-b border-slate-100 px-6 py-4 flex items-center justify-between">
                     <h2 class="font-bold text-slate-700 text-base flex items-center gap-2">
                         <FontAwesomeIcon :icon="faFileLines" class="w-4 h-4 text-slate-500" />
-                        <span>Detalhes das Alterações (Diff View)</span>
+                        <span>Detalhes das Alterações</span>
                     </h2>
-                    <span class="text-xs text-slate-500 font-medium">Comparação de estado dos dados</span>
                 </div>
 
                 <div class="p-6">
@@ -241,7 +243,7 @@ const isValueChanged = (key: string, oldObj: any, newObj: any) => {
                                 <div class="bg-rose-100/50 border-b border-rose-200/80 px-4 py-3 flex items-center justify-between">
                                     <span class="font-bold text-rose-800 text-sm flex items-center gap-2">
                                         <span class="w-2 h-2 rounded-full bg-rose-600"></span>
-                                        Valor Anterior (targetItem)
+                                        Valor Anterior
                                     </span>
                                     <span class="text-xs font-semibold text-rose-600 bg-rose-100 px-2.5 py-0.5 rounded-full">Antes</span>
                                 </div>
@@ -259,7 +261,7 @@ const isValueChanged = (key: string, oldObj: any, newObj: any) => {
                                 <div class="bg-blue-100/50 border-b border-blue-200/80 px-4 py-3 flex items-center justify-between">
                                     <span class="font-bold text-blue-800 text-sm flex items-center gap-2">
                                         <span class="w-2 h-2 rounded-full bg-blue-600"></span>
-                                        Novo Valor (newItem)
+                                        Novo Valor
                                     </span>
                                     <span class="text-xs font-semibold text-blue-600 bg-blue-100 px-2.5 py-0.5 rounded-full">Depois</span>
                                 </div>

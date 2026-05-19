@@ -46,7 +46,7 @@ export class LogsController {
       };
 
       const [totalCount, logsRaw] = await database.$transaction([
-        database.auditLogs.count({ where }),
+        database.auditLogs.count({ where, skip, take }),
         database.auditLogs.findMany({
           where,
           skip,

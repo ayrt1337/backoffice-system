@@ -32,7 +32,7 @@ export class UserController {
       };
 
       const [totalCount, usersRaw] = await database.$transaction([
-        database.user.count({ where }),
+        database.user.count({ where, skip, take }),
         database.user.findMany({
           where,
           skip,

@@ -32,7 +32,7 @@ export class RoleController {
       };
 
       const [totalCount, rolesRaw] = await database.$transaction([
-        database.role.count({ where }),
+        database.role.count({ where, skip, take }),
         database.role.findMany({
           where,
           skip,

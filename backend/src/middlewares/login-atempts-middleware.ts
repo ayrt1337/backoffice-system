@@ -14,7 +14,7 @@ export const verifyLoginAtempts = async (
 
     if (
       loginAtempts &&
-      typeof Number(loginAtempts) === "number" &&
+      !isNaN(Number(loginAtempts)) &&
       Number(loginAtempts) >= 5
     ) {
       const { name } = req.body;

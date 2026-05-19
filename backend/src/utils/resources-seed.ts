@@ -35,6 +35,7 @@ export const systemResources: Resources[] = [
         label: "Auditoria",
         actions: [
             { label: "Visualizar", name: "read" },
+            { label: "Exportar", name: "export" }
         ]
     },
 ];
