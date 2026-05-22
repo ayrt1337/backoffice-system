@@ -65,13 +65,13 @@ const greeting = computed(() => {
 <template>
     <TemplatePage>
         <div class="max-w-6xl mx-auto mt-8 space-y-12 pb-12">
-            <section class="relative overflow-hidden rounded-3xl bg-blue-600 p-8 md:p-12 text-white">
+            <section class="relative overflow-hidden rounded-3xl bg-blue-600 py-10 p-8 md:p-12 text-white">
                 <div class="relative z-10 space-y-6 max-w-2xl">     
                     <div class="space-y-2">
                         <h1 class="text-4xl md:text-5xl font-bold">
                             {{ greeting }}, <span class="text-blue-200">{{ firstName }}</span>!
                         </h1>
-                        <p class="text-[19px] text-blue-100/90">
+                        <p class="text-[17px] md:text-[19px] text-blue-100/90">
                             Aqui você pode gerenciar todos os aspectos do sistema de forma rápida e intuitiva.
                         </p>
                     </div>

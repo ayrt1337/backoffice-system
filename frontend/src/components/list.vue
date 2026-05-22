@@ -201,7 +201,7 @@ watch(() => route.query, () => {
                         <tr class="bg-slate-50 border-b border-slate-200">
                             <th 
                                 v-if="showUser.permissions.includes(`${resource}:delete`) || showUser.name === 'admin'" 
-                                @click.stop class="w-12 px-6 py-4"
+                                @click.stop class="w-12 px-4 sm:px-6 py-4"
                             >
                                 <input
                                     @click="selectMany" 
@@ -209,15 +209,15 @@ watch(() => route.query, () => {
                                     class="size-[17px] rounded-sm border-slate-300 transition-colors cursor-pointer accent-blue-600"
                                 >
                             </th>
-                            <th v-for="label in labels" class="px-6 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest">{{ label }}</th>
-                            <th class="px-6 py-4 text-right"></th>
+                            <th v-for="label in labels" class="px-4 sm:px-6 max-[769px]:pr-8 py-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest">{{ label }}</th>
+                            <th class="px-4 sm:px-6 py-4 text-right max-[769px]:hidden"></th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
                         <tr @click="router.push(`/${resource}/${obj.id}`)" v-for="obj in data" class="cursor-pointer">
                             <td
                                 v-if="showUser.permissions.includes(`${resource}:delete`) || showUser.name === 'admin'" 
-                                @click.stop class="px-6 py-4"
+                                @click.stop class="px-4 sm:px-6 py-4"
                             >
                                 <input 
                                     @click="selectOne(obj.id, $event)" 
@@ -225,10 +225,10 @@ watch(() => route.query, () => {
                                     class="size-[17px] rounded-sm border-slate-300 transition-colors cursor-pointer accent-blue-600"
                                 >
                             </td>
-                            <td v-for="value in obj" class="pl-6 py-4">
+                            <td v-for="value in obj" class="pl-4 sm:pl-6 pr-4 sm:pr-6 max-[769px]:pr-8 py-4">
                                 {{ value }}
                             </td>
-                            <td class="px-6 py-4 text-right">
+                            <td class="px-4 sm:px-6 py-4 text-right max-[769px]:hidden">
                                 <button
                                     @mouseenter="showDropdown($event, obj)"
                                     @mouseleave="hideDropdown"

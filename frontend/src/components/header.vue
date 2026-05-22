@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import { faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
+import { faRightFromBracket, faBars } from '@fortawesome/free-solid-svg-icons';
 import router from '../router';
 import { api } from '../services/api';
 import { useUser } from '../composables/use-user';
 import { useLoading } from '../composables/use-loading';
 import { useToast } from '../composables/use-toast';
+import { useSidebar } from '../composables/use-sidebar';
 
+const { toggleSidebar } = useSidebar();
 const { showToast } = useToast();
 const { showLoadingPage } = useLoading();
 const { showUser } = useUser();
@@ -30,9 +32,15 @@ const handleLogout = async () => {
 </script>
 
 <template>
-    <header class="fixed top-0 w-full h-22 bg-white z-20 px-8 flex items-center justify-between border-b border-slate-200/60">
-        <div>
-            <h1 class="text-xl font-bold text-slate-800 tracking-tight flex items-center gap-2">
+    <header class="fixed top-0 w-full h-22 bg-white z-20 px-4 lg:px-8 flex items-center justify-between border-b border-slate-200/60">
+        <div class="flex items-center max-[380px]:gap-1 gap-4">
+            <button 
+                @click="toggleSidebar"
+                class="cursor-pointer lg:hidden p-2 text-slate-500 hover:text-slate-800 focus:outline-none transition-colors"
+            >
+                <FontAwesomeIcon :icon="faBars" class="text-lg" />
+            </button>
+            <h1 class="max-[380px]:text-[18px] text-xl font-bold text-slate-800 tracking-tight flex items-center gap-2">
                 Backoffice System
             </h1>
         </div>

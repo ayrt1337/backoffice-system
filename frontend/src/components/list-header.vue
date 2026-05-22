@@ -19,15 +19,15 @@ defineProps<Props>();
 </script>
 
 <template>
-    <div class="w-full flex items-end justify-between mb-8 mt-4">
-        <div class="flex items-center gap-3">
+    <div class="max-[581px]:flex-col max-[581px]:items-start w-full flex items-end justify-between mb-8 mt-4">
+        <div class="max-[581px]:mb-6 flex items-center gap-3">
             <h2 class="text-2xl font-bold text-slate-900 tracking-tight">{{ title }}</h2>
             <span v-if="count !== undefined" class="bg-slate-100 mt-2 text-slate-500 text-[13px] font-medium px-2 py-0.5 rounded-full">
                 {{ count }}
             </span>
         </div>
 
-        <div class="flex items-center gap-3">
+        <div class="max-[581px]:flex-col max-[581px]:items-start flex items-center gap-3">
             <button
                 v-if="!hasNotCreate && (showUser.permissions.includes(`${resource}:create`) || showUser.name === 'admin')"
                 @click="() => router.push(`/${resource}/create`)"

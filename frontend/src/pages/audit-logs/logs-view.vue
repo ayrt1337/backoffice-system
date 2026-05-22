@@ -148,7 +148,7 @@ const isValueChanged = (key: string, oldObj: any, newObj: any) => {
         <div v-if="log" class="mt-8 space-y-8 pb-12">
             <div class="bg-white p-6 rounded-lg border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                 <div class="flex items-center gap-4">
-                    <div :class="['w-14 h-14 rounded-lg border flex items-center justify-center flex-shrink-0', getActionConfig(log.action).bg]">
+                    <div :class="['max-[631px]:hidden w-14 h-14 rounded-lg border flex items-center justify-center flex-shrink-0', getActionConfig(log.action).bg]">
                         <FontAwesomeIcon :icon="getActionConfig(log.action).icon" class="w-6 h-6" />
                     </div>
                     <div>

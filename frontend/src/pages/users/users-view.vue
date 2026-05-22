@@ -128,7 +128,7 @@ const handleExport = async () => {
                 <p class="mt-2 text-[17px]">{{ userData.role }}</p>
             </div>
 
-            <div class="mt-12 flex gap-8">
+            <div class="max-[490px]:flex-col max-[490px]:gap-6 mt-12 flex gap-8">
                 <div>
                     <p class="text-[15px] font-medium text-slate-600">Criado Em</p>
                     <p class="mt-2 text-[17px]">{{ userData.created_at }}</p>
@@ -140,7 +140,7 @@ const handleExport = async () => {
                 </div>
             </div>
 
-            <div v-if="userData.role !== 'admin'" class="flex mt-10 gap-3">
+            <div v-if="userData.role !== 'admin'" class="max-[490px]:flex-col flex mt-10 gap-3">
                 <BaseButton
                     v-if="showUser.permissions.includes('users:export') || showUser.name === 'admin'"
                     @click="handleExport"

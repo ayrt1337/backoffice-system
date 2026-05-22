@@ -68,9 +68,9 @@ const handleLogin = async (): Promise<void> => {
 
 <template>
     <Container class="bg-slate-50 font-sans">
-        <div class="bg-white w-full max-w-[500px] py-12 px-15 rounded-[20px] shadow-[0_10px_25px_-5px_rgba(0,0,0,0.05),0_8px_10px_-6px_rgba(0,0,0,0.05)] border border-slate-100">
-            <header class="text-center mb-10">
-                <h1 class="text-[1.75rem] font-bold text-slate-800 tracking-tight">Backoffice System</h1>
+        <div class="max-[550px]:mx-5 max-[440px]:px-7 bg-white w-full max-w-[500px] max-[550px]:max-w-[400px] max-[550px]:px-10 py-12 px-15 rounded-[20px] border border-slate-100">
+            <header class="text-center max-[550px]:mb-5 mb-8">
+                <h1 class="max-[550px]:text-[22px] text-[1.75rem] font-bold text-slate-800 tracking-tight">Backoffice System</h1>
             </header>
 
             <form @submit.prevent="handleLogin" class="flex flex-col gap-6">

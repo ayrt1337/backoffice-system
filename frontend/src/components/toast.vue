@@ -31,7 +31,7 @@ const closeToast = () => {
             <div 
                 v-if="toastState.show && !showLoading"
                 :key="toastState.id"
-                class="fixed top-6 right-6 z-[9999] w-full max-w-sm overflow-hidden rounded-xl border bg-white/80 backdrop-blur-md shadow-2xl ring-1 ring-black/5"
+                class="fixed top-6 left-4 right-4 sm:left-auto sm:right-6 z-[9999] w-auto sm:w-full max-w-sm overflow-hidden rounded-xl border bg-white/80 backdrop-blur-md shadow-2xl ring-1 ring-black/5"
                 :class="{
                     'border-emerald-100': toastState.type === 'success',
                     'border-rose-100': toastState.type === 'error',

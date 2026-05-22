@@ -175,11 +175,11 @@ const getData = async (query = "") => {
                                 <FontAwesomeIcon :icon="getActionConfig(log.action).icon" class="w-4 h-4" />
                             </div>
 
-                            <div class="space-y-1">
+                            <div class="space-y-2">
                                 <div class="text-slate-800 font-semibold text-[15px] leading-snug">
                                     {{ log.message }}
                                 </div>
-                                <div class="flex items-center gap-3 text-xs text-slate-400 font-medium">
+                                <div class="max-[430px]:flex-col max-[430px]:items-start flex items-center gap-3 text-xs text-slate-400 font-medium">
                                     <span v-if="log.author" class="flex items-center gap-1.5">
                                         <FontAwesomeIcon :icon="faUser" class="w-3 h-3 text-slate-400" />
                                         {{ log.author.name ?? "Desconhecido" }} {{ log.author.role ? `(${log.author.role})` : "" }}
@@ -187,7 +187,7 @@ const getData = async (query = "") => {
                                     <span v-else class="flex items-center gap-1.5 text-slate-500 font-semibold">
                                         Sistema / Externo
                                     </span>
-                                    <span>•</span>
+                                    <span class="max-[430px]:hidden">•</span>
                                     <span class="flex items-center gap-1.5">
                                         <FontAwesomeIcon :icon="faGlobe" class="w-3 h-3 text-slate-400" />
                                         IP: {{ log.ip }}

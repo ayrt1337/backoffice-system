@@ -54,7 +54,7 @@ onUnmounted(() => {
                     leave-from-class="opacity-100 scale-100 translate-y-0"
                     leave-to-class="opacity-0 scale-95 translate-y-4"
                 >
-                    <div class="py-5 relative w-full max-w-md bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
+                    <div class="py-5 relative w-full max-w-md bg-white rounded-lg shadow-2xl border border-slate-200 overflow-hidden">
                         <div class="p-6 text-center">
                             <h3 class="text-xl font-bold text-slate-900 mb-2">
                                 {{ title }}

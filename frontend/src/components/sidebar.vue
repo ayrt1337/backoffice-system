@@ -15,7 +15,9 @@ import { useLoading } from '../composables/use-loading';
 import { useUser } from '../composables/use-user';
 import { useToast } from '../composables/use-toast';
 import { computed } from 'vue';
+import { useSidebar } from '../composables/use-sidebar';
 
+const { isSidebarOpen, closeSidebar } = useSidebar();
 const { showToast } = useToast();
 const { showUser } = useUser();
 const { showLoadingPage } = useLoading();
@@ -44,6 +46,7 @@ const handleLogout = async () => {
         });
 
         router.push('/login');
+        closeSidebar();
     } catch(error: any) {
         console.error("Erro ao fazer logout: ", error);
         showLoadingPage(false);
@@ -54,8 +57,11 @@ const handleLogout = async () => {
 </script>
 
 <template>
-    <aside class="fixed inset-y-0 left-0 top-[87px] w-70 bg-white border-r border-slate-200/60 z-30 transition-all duration-300">
-        <div class="flex flex-col h-full">
+    <aside 
+        class="fixed inset-y-0 left-0 top-[87px] w-70 bg-white border-r border-slate-200/60 z-30 transition-transform duration-300 lg:translate-x-0"
+        :class="isSidebarOpen ? 'translate-x-0' : '-translate-x-full'"
+    >
+        <div class="flex flex-col h-full overflow-y-auto">
             <nav class="flex-1 px-4 py-4 flex flex-col justify-between">
                 <div class="space-y-8">
                     <div>
@@ -65,6 +71,7 @@ const handleLogout = async () => {
                                 v-for="item in filteredItems"
                                 :key="item.path"
                                 :to="item.path + item.query"
+                                @click="closeSidebar"
                                 class="flex items-center px-3 py-2 text-[15px] font-medium rounded-xl transition-colors group"
                                 :class="route.path === item.path
                                     ? 'bg-blue-50 text-blue-600' 
