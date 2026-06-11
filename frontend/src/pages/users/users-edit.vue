@@ -49,6 +49,14 @@ const roleOptions = computed(() => {
       }));
 });
 
+const readonlyUserData = ref<Partial<UserMetadata>>({});
+
+const hasChanges = computed(() => {
+    return Object.keys(userData.value).some(
+        (key) => userData.value[key as keyof UserMetadata] !== readonlyUserData.value[key as keyof UserMetadata]
+    )
+});
+
 const loadData = async () => {
     try {
         showLoadingPage(true);
@@ -57,13 +65,16 @@ const loadData = async () => {
             method: 'get'
         });
 
-        userData.value = {
+        const initialData = {
             name: response.data.userData.name,
             role: response.data.userData.role.name,
             password: "",
             created_at: response.data.userData.created_at,
             updated_at: response.data.userData.updated_at
         };
+
+        userData.value = { ...initialData };
+        readonlyUserData.value = { ...initialData };
 
         roles.value = response.data.roles;
     } catch (error: any) {
@@ -160,7 +171,7 @@ const handleEdit = async () => {
                 />
 
                 <BaseButton
-                    :disabled="showUser.name === name || name === 'admin'"
+                    :disabled="showUser.name === name || name === 'admin' || !hasChanges"
                     @click="handleEdit()"
                     :loading="loadingBtn"
                     class="mt-5 p-2 px-8 rounded-lg bg-blue-600 text-white text-base font-semibold hover:bg-blue-700"
